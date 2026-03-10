@@ -161,6 +161,32 @@ function statusToAnthropicError(status: number): string {
 }
 
 // ---------------------------------------------------------------------------
+// 429 Retry with exponential backoff
+// ---------------------------------------------------------------------------
+
+const MAX_RETRIES = 3;
+const RETRY_DELAYS_MS = [100, 200, 400];
+
+async function fetchWithRetry(
+  url: string,
+  init: RequestInit,
+): Promise<Response> {
+  let lastResponse: Response | null = null;
+  for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+    const response = await fetch(url, init);
+    if (response.status !== 429) return response;
+    // Consume body before retry to avoid leak
+    await response.body?.cancel();
+    lastResponse = response;
+    if (attempt < MAX_RETRIES - 1) {
+      await new Promise((r) => setTimeout(r, RETRY_DELAYS_MS[attempt]));
+    }
+  }
+  // All retries exhausted — return last 429
+  return lastResponse!;
+}
+
+// ---------------------------------------------------------------------------
 // Non-streaming chat
 // ---------------------------------------------------------------------------
 
@@ -181,7 +207,7 @@ export async function chat(request: ProxyRequest): Promise<ProxyResponse> {
     ...(request.tool_choice && { tool_choice: toOpenAIToolChoice(request.tool_choice) }),
   };
 
-  const response = await fetch(COPILOT_CHAT_URL, {
+  const response = await fetchWithRetry(COPILOT_CHAT_URL, {
     method: "POST",
     headers: buildHeaders(copilotToken.token, isAgentCall(request)),
     body: JSON.stringify(body),
@@ -273,7 +299,7 @@ export async function chatStream(
     ...(request.tool_choice && { tool_choice: toOpenAIToolChoice(request.tool_choice) }),
   };
 
-  const response = await fetch(COPILOT_CHAT_URL, {
+  const response = await fetchWithRetry(COPILOT_CHAT_URL, {
     method: "POST",
     headers: buildHeaders(copilotToken.token, isAgentCall(request)),
     body: JSON.stringify(body),

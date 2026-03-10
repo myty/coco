@@ -1,6 +1,9 @@
 import {
   type ErrorResponse,
   type Message,
+  type OpenAIChatRequest,
+  type OpenAIModel,
+  type OpenAIModelList,
   type ProxyRequest,
   validateRequest,
 } from "./types.ts";
@@ -8,6 +11,15 @@ import { chat, chatStream, countTokens } from "./copilot.ts";
 import { toStreamEvent } from "./transform.ts";
 import { addShutdownHandler, getConfig } from "./server.ts";
 import { log } from "../lib/log.ts";
+import {
+  anthropicStreamEventToOpenAI,
+  anthropicToOpenAI,
+  makeStreamState,
+  openAIError,
+  openAIToAnthropic,
+} from "./openai-translate.ts";
+import { resolveModel, DEFAULT_MODEL_MAP } from "../agents/models.ts";
+import { loadConfig } from "../config/store.ts";
 
 const server = Deno.serve;
 
@@ -27,6 +39,14 @@ export async function handleRequest(req: Request): Promise<Response> {
 
   if (req.method === "POST" && url.pathname === "/v1/messages/count_tokens") {
     return await handleCountTokens(req);
+  }
+
+  if (req.method === "POST" && url.pathname === "/v1/chat/completions") {
+    return await handleChatCompletions(req);
+  }
+
+  if (req.method === "GET" && url.pathname === "/v1/models") {
+    return handleModels();
   }
 
   return new Response(
@@ -185,6 +205,107 @@ async function handleCountTokens(req: Request): Promise<Response> {
       null,
     );
   }
+}
+
+function openAIErrorResponse(status: number, message: string, type: string, code: string): Response {
+  return new Response(JSON.stringify(openAIError(message, type, code)), {
+    status,
+    headers: { "Content-Type": "application/json" },
+  });
+}
+
+async function handleChatCompletions(req: Request): Promise<Response> {
+  let body: unknown;
+  try {
+    body = await req.json();
+  } catch {
+    return openAIErrorResponse(400, "Invalid JSON body", "invalid_request_error", "invalid_value");
+  }
+
+  if (!body || typeof body !== "object") {
+    return openAIErrorResponse(400, "Request body is required", "invalid_request_error", "invalid_value");
+  }
+
+  const r = body as Record<string, unknown>;
+  if (typeof r.model !== "string" || !r.model) {
+    return openAIErrorResponse(400, "model is required", "invalid_request_error", "invalid_value");
+  }
+  if (!Array.isArray(r.messages) || r.messages.length === 0) {
+    return openAIErrorResponse(400, "messages is required and must be non-empty", "invalid_request_error", "invalid_value");
+  }
+
+  const openAIReq = body as OpenAIChatRequest;
+  const config = await loadConfig().catch(() => null);
+  const resolvedModel = resolveModel(openAIReq.model, config?.modelMap ?? {});
+  const anthropicReq: ProxyRequest = { ...openAIToAnthropic(openAIReq), model: resolvedModel };
+
+  if (anthropicReq.stream) {
+    const state = makeStreamState(resolvedModel);
+    const stream = new ReadableStream({
+      async start(controller) {
+        const encoder = new TextEncoder();
+        try {
+          await chatStream(anthropicReq, (event) => {
+            const line = anthropicStreamEventToOpenAI(event, state);
+            if (line) controller.enqueue(encoder.encode(line));
+          });
+          // Ensure [DONE] is always emitted
+          controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+        } catch (err) {
+          const errBody = openAIError(
+            err instanceof Error ? err.message : "Service unavailable",
+            "api_error",
+            "service_unavailable",
+          );
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify(errBody)}\n\n`));
+        } finally {
+          controller.close();
+        }
+      },
+    });
+    return new Response(stream, {
+      status: 200,
+      headers: {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        "Connection": "keep-alive",
+      },
+    });
+  }
+
+  try {
+    const anthropicResp = await chat(anthropicReq);
+    const openAIResp = anthropicToOpenAI(anthropicResp, resolvedModel);
+    return new Response(JSON.stringify(openAIResp), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (err) {
+    return openAIErrorResponse(
+      503,
+      err instanceof Error ? err.message : "Service unavailable",
+      "api_error",
+      "service_unavailable",
+    );
+  }
+}
+
+function handleModels(): Response {
+  const created = Math.floor(Date.now() / 1000);
+  const models: OpenAIModel[] = Object.values(DEFAULT_MODEL_MAP)
+    .filter((v, i, arr) => arr.indexOf(v) === i) // deduplicate
+    .map((id) => ({
+      id,
+      object: "model" as const,
+      created,
+      owned_by: "github-copilot",
+    }));
+
+  const list: OpenAIModelList = { object: "list", data: models };
+  return new Response(JSON.stringify(list), {
+    status: 200,
+    headers: { "Content-Type": "application/json" },
+  });
 }
 
 function errorResponse(
