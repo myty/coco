@@ -4,6 +4,11 @@ import { startDaemon, stopDaemon } from "../service/daemon.ts";
 import { formatStatus, getServiceState } from "../service/status.ts";
 import { detectAll } from "../agents/detector.ts";
 import { loadConfig } from "../config/store.ts";
+import {
+  configureAgent,
+  isAgentConfigured,
+  unconfigureAgent,
+} from "../agents/config.ts";
 
 function showHelp() {
   console.log(`
@@ -81,6 +86,70 @@ async function cmdStatus(): Promise<void> {
   const state = await getServiceState();
   console.log(formatStatus(state));
   Deno.exit(state.running ? 0 : 1);
+}
+
+async function cmdConfigure(agentName: string | undefined): Promise<void> {
+  if (!agentName) {
+    console.error("Error: 'configure' requires an agent name.");
+    console.error("Usage: coco configure <agent>");
+    Deno.exit(1);
+  }
+
+  const config = await loadConfig();
+
+  if (isAgentConfigured(agentName, config)) {
+    console.log(`${agentName} is already configured.`);
+    Deno.exit(0);
+  }
+
+  let entry;
+  try {
+    entry = await configureAgent(agentName, config.port, config);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    if (message.includes("Unknown agent")) {
+      console.error(`Error: Unknown agent "${agentName}".`);
+      console.error(
+        "Valid agents: claude-code, cline, kilo, opencode, goose, aider, gpt-engineer",
+      );
+    } else {
+      console.error(`Error: ${message}`);
+    }
+    Deno.exit(1);
+  }
+
+  if (entry.validatedAt === null) {
+    console.log(
+      `${agentName} configured, but validation failed: proxy may not be running.`,
+    );
+    Deno.exit(2);
+  }
+  console.log(`${agentName} configured.`);
+}
+
+async function cmdUnconfigure(agentName: string | undefined): Promise<void> {
+  if (!agentName) {
+    console.error("Error: 'unconfigure' requires an agent name.");
+    console.error("Usage: coco unconfigure <agent>");
+    Deno.exit(1);
+  }
+
+  const config = await loadConfig();
+
+  if (!isAgentConfigured(agentName, config)) {
+    console.log(`${agentName} is not configured.`);
+    Deno.exit(0);
+  }
+
+  try {
+    await unconfigureAgent(agentName, config);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error(`Error: ${message}`);
+    Deno.exit(1);
+  }
+
+  console.log(`${agentName} unconfigured.`);
 }
 
 async function cmdDoctor(): Promise<void> {
@@ -167,9 +236,10 @@ async function main() {
       await cmdStatus();
       break;
     case "configure":
+      await cmdConfigure(args[1]);
+      break;
     case "unconfigure":
-      console.error(`Error: '${subcommand}' not yet implemented.`);
-      Deno.exit(1);
+      await cmdUnconfigure(args[1]);
       break;
     case "doctor":
       await cmdDoctor();
