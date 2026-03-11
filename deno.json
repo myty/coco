@@ -17,8 +17,11 @@
     "@std/toml": "jsr:@std/toml@^1.0.11",
     "@std/yaml": "jsr:@std/yaml@^1.0.12"
   },
+  "lint": {
+    "exclude": ["scripts/"]
+  },
   "tasks": {
-    "install": "deno install --global --allow-all -n coco --force src/cli/main.ts",
+    "install": "deno install --global --allow-all --config deno.json -n coco --force src/cli/main.ts",
     "dev": "deno run -A src/cli/main.ts",
     "test": "deno test --allow-all",
     "lint": "deno lint",

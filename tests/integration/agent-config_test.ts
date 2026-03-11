@@ -12,6 +12,7 @@ import {
   isAgentConfigured,
   unconfigureAgent,
   validateConfig,
+  verifyAgentConfig,
 } from "../../src/agents/config.ts";
 import { type CocoConfig, DEFAULT_CONFIG } from "../../src/config/store.ts";
 
@@ -39,84 +40,78 @@ function makeTempConfig(_configDir: string): CocoConfig {
 }
 
 // ---------------------------------------------------------------------------
-// Aider — YAML merge, backup/restore
+// Codex — TOML write with model_providers section
 // ---------------------------------------------------------------------------
 
-Deno.test("configureAgent(aider) — creates config file when none exists", async () => {
+Deno.test("configureAgent(codex) — creates config file when none exists", async () => {
   await withTempHome(async (homeDir) => {
     const config = makeTempConfig(homeDir);
-    const entry = await configureAgent("aider", 11434, config, {
+    const entry = await configureAgent("codex", 11434, config, {
       homeDir,
       skipValidation: true,
     });
 
-    assertEquals(entry.agentName, "aider");
+    assertEquals(entry.agentName, "codex");
     assertEquals(entry.backupPath, null); // no prior file
     assertEquals(entry.endpoint, "http://127.0.0.1:11434");
 
     const content = await Deno.readTextFile(entry.configPath);
-    assertStringIncludes(content, "openai-api-base:");
+    assertStringIncludes(content, "model_provider");
     assertStringIncludes(content, "http://127.0.0.1:11434");
-    assertStringIncludes(content, "openai-api-key: coco");
+    assertStringIncludes(content, "coco");
   });
 });
 
-Deno.test("configureAgent(aider) — backs up existing file before overwriting", async () => {
+Deno.test("configureAgent(codex) — backs up existing file before overwriting", async () => {
   await withTempHome(async (homeDir) => {
-    // Write an existing config
-    const existingPath = `${homeDir}/.aider.conf.yml`;
-    await Deno.writeTextFile(existingPath, "some-other-key: true\n");
+    const existingPath = `${homeDir}/.codex/config.toml`;
+    await Deno.mkdir(`${homeDir}/.codex`, { recursive: true });
+    await Deno.writeTextFile(existingPath, 'model = "gpt-4o"\n');
 
     const config = makeTempConfig(homeDir);
-    const entry = await configureAgent("aider", 11434, config, {
+    const entry = await configureAgent("codex", 11434, config, {
       homeDir,
       skipValidation: true,
     });
 
-    // Backup must exist and contain original content
     assertEquals(entry.backupPath, `${existingPath}.coco-backup`);
     const backup = await Deno.readTextFile(entry.backupPath!);
-    assertStringIncludes(backup, "some-other-key: true");
+    assertStringIncludes(backup, "gpt-4o");
 
-    // New file must contain coco keys
     const content = await Deno.readTextFile(entry.configPath);
-    assertStringIncludes(content, "openai-api-base:");
+    assertStringIncludes(content, "http://127.0.0.1:11434");
   });
 });
 
-Deno.test("configureAgent(aider) — preserves existing YAML keys on merge", async () => {
+Deno.test("configureAgent(codex) — preserves existing TOML keys on merge", async () => {
   await withTempHome(async (homeDir) => {
-    const existingPath = `${homeDir}/.aider.conf.yml`;
-    await Deno.writeTextFile(
-      existingPath,
-      "model: gpt-4\nauto-commits: false\n",
-    );
+    const existingPath = `${homeDir}/.codex/config.toml`;
+    await Deno.mkdir(`${homeDir}/.codex`, { recursive: true });
+    await Deno.writeTextFile(existingPath, 'approval_policy = "on-request"\n');
 
     const config = makeTempConfig(homeDir);
-    await configureAgent("aider", 11434, config, {
+    await configureAgent("codex", 11434, config, {
       homeDir,
       skipValidation: true,
     });
 
     const content = await Deno.readTextFile(existingPath);
-    assertStringIncludes(content, "model:");
-    assertStringIncludes(content, "auto-commits:");
-    assertStringIncludes(content, "openai-api-base:");
+    assertStringIncludes(content, "approval_policy");
+    assertStringIncludes(content, "model_provider");
   });
 });
 
-Deno.test("unconfigureAgent(aider) — removes file when backupPath is null", async () => {
+Deno.test("unconfigureAgent(codex) — removes file when backupPath is null", async () => {
   await withTempHome(async (homeDir) => {
     const config = makeTempConfig(homeDir);
-    const entry = await configureAgent("aider", 11434, config, {
+    const entry = await configureAgent("codex", 11434, config, {
       homeDir,
       skipValidation: true,
     });
     assertEquals(entry.backupPath, null);
 
-    // Reload config with the new entry
     const updatedConfig: CocoConfig = { ...config, agents: [entry] };
-    await unconfigureAgent("aider", updatedConfig);
+    await unconfigureAgent("codex", updatedConfig);
 
     let fileGone = false;
     try {
@@ -128,25 +123,25 @@ Deno.test("unconfigureAgent(aider) — removes file when backupPath is null", as
   });
 });
 
-Deno.test("unconfigureAgent(aider) — restores backup when one exists", async () => {
+Deno.test("unconfigureAgent(codex) — restores backup when one exists", async () => {
   await withTempHome(async (homeDir) => {
-    const existingPath = `${homeDir}/.aider.conf.yml`;
-    const originalContent = "model: gpt-4\n";
+    const existingPath = `${homeDir}/.codex/config.toml`;
+    await Deno.mkdir(`${homeDir}/.codex`, { recursive: true });
+    const originalContent = 'model = "gpt-4o"\n';
     await Deno.writeTextFile(existingPath, originalContent);
 
     const config = makeTempConfig(homeDir);
-    const entry = await configureAgent("aider", 11434, config, {
+    const entry = await configureAgent("codex", 11434, config, {
       homeDir,
       skipValidation: true,
     });
     const updatedConfig: CocoConfig = { ...config, agents: [entry] };
 
-    await unconfigureAgent("aider", updatedConfig);
+    await unconfigureAgent("codex", updatedConfig);
 
     const restored = await Deno.readTextFile(existingPath);
     assertEquals(restored, originalContent);
 
-    // Backup file should be gone after restore
     let backupGone = false;
     try {
       await Deno.stat(entry.backupPath!);
@@ -189,7 +184,7 @@ Deno.test("configureAgent(claude-code) — merges only ANTHROPIC keys, preserves
 // Cline — full JSON write
 // ---------------------------------------------------------------------------
 
-Deno.test("configureAgent(cline) — writes all three URL fields", async () => {
+Deno.test("configureAgent(cline) — writes globalState with openai provider fields", async () => {
   await withTempHome(async (homeDir) => {
     const config = makeTempConfig(homeDir);
     const entry = await configureAgent("cline", 11434, config, {
@@ -197,49 +192,74 @@ Deno.test("configureAgent(cline) — writes all three URL fields", async () => {
       skipValidation: true,
     });
 
-    const content = JSON.parse(await Deno.readTextFile(entry.configPath));
-    assertEquals(content.apiBaseUrl, "http://127.0.0.1:11434");
-    assertEquals(content.appBaseUrl, "http://127.0.0.1:11434");
-    assertEquals(content.mcpBaseUrl, "http://127.0.0.1:11434");
+    const state = JSON.parse(await Deno.readTextFile(entry.configPath));
+    assertEquals(state.welcomeViewCompleted, true);
+    assertEquals(state.actModeApiProvider, "openai");
+    assertEquals(state.planModeApiProvider, "openai");
+    assertEquals(state.openAiBaseUrl, "http://127.0.0.1:11434");
+    assertEquals(state.actModeOpenAiModelId, "gpt-4o");
+
+    const secretsPath = `${homeDir}/.cline/data/secrets.json`;
+    const secrets = JSON.parse(await Deno.readTextFile(secretsPath));
+    assertEquals(secrets.openAiApiKey, "coco");
   });
 });
 
 // ---------------------------------------------------------------------------
-// OpenCode / GPT-Engineer — env file
-// ---------------------------------------------------------------------------
-
-Deno.test("configureAgent(opencode) — writes env file with correct vars", async () => {
-  await withTempHome(async (homeDir) => {
-    const config = makeTempConfig(homeDir);
-    const entry = await configureAgent("opencode", 11434, config, {
-      homeDir,
-      skipValidation: true,
-    });
-
-    const content = await Deno.readTextFile(entry.configPath);
-    assertStringIncludes(content, "OPENAI_API_BASE=http://127.0.0.1:11434");
-    assertStringIncludes(content, "OPENAI_API_KEY=coco");
-  });
-});
-
-// ---------------------------------------------------------------------------
-// isAgentConfigured
+// isAgentConfigured + verifyAgentConfig
 // ---------------------------------------------------------------------------
 
 Deno.test("isAgentConfigured returns false when agent not in config", () => {
   const config = { ...DEFAULT_CONFIG, agents: [] };
-  assertEquals(isAgentConfigured("aider", config), false);
+  assertEquals(isAgentConfigured("codex", config), false);
 });
 
 Deno.test("isAgentConfigured returns true after configureAgent is called", async () => {
   await withTempHome(async (homeDir) => {
     const config = makeTempConfig(homeDir);
-    const entry = await configureAgent("aider", 11434, config, {
+    const entry = await configureAgent("codex", 11434, config, {
       homeDir,
       skipValidation: true,
     });
     const updatedConfig: CocoConfig = { ...config, agents: [entry] };
-    assertEquals(isAgentConfigured("aider", updatedConfig), true);
+    assertEquals(isAgentConfigured("codex", updatedConfig), true);
+  });
+});
+
+Deno.test("verifyAgentConfig returns true when config file contains endpoint", async () => {
+  await withTempHome(async (homeDir) => {
+    const config = makeTempConfig(homeDir);
+    const entry = await configureAgent("codex", 11434, config, {
+      homeDir,
+      skipValidation: true,
+    });
+    assertEquals(await verifyAgentConfig(entry), true);
+  });
+});
+
+Deno.test("verifyAgentConfig returns false when config file is missing", async () => {
+  await withTempHome(async (homeDir) => {
+    const config = makeTempConfig(homeDir);
+    const entry = await configureAgent("codex", 11434, config, {
+      homeDir,
+      skipValidation: true,
+    });
+    // Delete the config file to simulate external removal
+    await Deno.remove(entry.configPath);
+    assertEquals(await verifyAgentConfig(entry), false);
+  });
+});
+
+Deno.test("verifyAgentConfig returns false when config file no longer contains endpoint", async () => {
+  await withTempHome(async (homeDir) => {
+    const config = makeTempConfig(homeDir);
+    const entry = await configureAgent("codex", 11434, config, {
+      homeDir,
+      skipValidation: true,
+    });
+    // Overwrite with content that doesn't include the coco endpoint
+    await Deno.writeTextFile(entry.configPath, 'model = "gpt-4o"\n');
+    assertEquals(await verifyAgentConfig(entry), false);
   });
 });
 

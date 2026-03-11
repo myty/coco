@@ -6,7 +6,6 @@
  * supports reversible unconfigure.
  */
 
-import { parse as parseYaml, stringify as stringifyYaml } from "@std/yaml";
 import { parse as parseToml, stringify as stringifyToml } from "@std/toml";
 import { join } from "@std/path";
 import {
@@ -76,27 +75,15 @@ function claudeCodeConfigPath(homeDir: string): string {
 }
 
 function clineConfigPath(homeDir: string): string {
-  return join(homeDir, ".cline", "endpoints.json");
+  return join(homeDir, ".cline", "data", "globalState.json");
 }
 
-function kiloConfigPath(cwd: string): string {
-  return join(cwd, ".kilocode", "config.json");
+function clineSecretsPath(homeDir: string): string {
+  return join(homeDir, ".cline", "data", "secrets.json");
 }
 
-function openCodeEnvPath(homeDir: string): string {
-  return join(homeDir, ".coco", "env", "opencode.env");
-}
-
-function gooseConfigPath(homeDir: string): string {
-  return join(homeDir, ".goose", "config.toml");
-}
-
-function aiderConfigPath(homeDir: string): string {
-  return join(homeDir, ".aider.conf.yml");
-}
-
-function gptEngineerEnvPath(homeDir: string): string {
-  return join(homeDir, ".coco", "env", "gpt-engineer.env");
+function codexConfigPath(homeDir: string): string {
+  return join(homeDir, ".codex", "config.toml");
 }
 
 // ---------------------------------------------------------------------------
@@ -141,30 +128,9 @@ async function writeCline(
   port: number,
   options?: ConfigureOptions,
 ): Promise<WriteResult> {
-  const configPath = clineConfigPath(resolveHome(options));
-  let backupPath: string | null = null;
-
-  if (await fileExists(configPath)) {
-    backupPath = await backupFile(configPath);
-  }
-
-  const content = {
-    apiBaseUrl: `http://127.0.0.1:${port}`,
-    appBaseUrl: `http://127.0.0.1:${port}`,
-    mcpBaseUrl: `http://127.0.0.1:${port}`,
-  };
-
-  await ensureDir(configPath);
-  await Deno.writeTextFile(configPath, JSON.stringify(content, null, 2) + "\n");
-  return { configPath, backupPath };
-}
-
-async function writeKilo(
-  port: number,
-  options?: ConfigureOptions,
-): Promise<WriteResult> {
-  const cwd = options?.cwd ?? Deno.cwd();
-  const configPath = kiloConfigPath(cwd);
+  const homeDir = resolveHome(options);
+  const configPath = clineConfigPath(homeDir);
+  const secretsPath = clineSecretsPath(homeDir);
   let backupPath: string | null = null;
 
   let existing: Record<string, unknown> = {};
@@ -174,45 +140,44 @@ async function writeKilo(
     existing = JSON.parse(raw) as Record<string, unknown>;
   }
 
+  // Merge coco proxy settings into the flat globalState format used by the
+  // official Cline CLI. Setting welcomeViewCompleted prevents the setup wizard.
   const updated = {
     ...existing,
-    apiBaseUrl: `http://127.0.0.1:${port}`,
-    apiKey: "coco",
+    welcomeViewCompleted: true,
+    actModeApiProvider: "openai",
+    planModeApiProvider: "openai",
+    actModeOpenAiModelId: "gpt-4o",
+    planModeOpenAiModelId: "gpt-4o",
+    openAiBaseUrl: `http://127.0.0.1:${port}`,
   };
 
   await ensureDir(configPath);
   await Deno.writeTextFile(configPath, JSON.stringify(updated, null, 2) + "\n");
+
+  // API key is stored in a separate secrets file (plain JSON in CLI version).
+  const existingSecrets: Record<string, unknown> = (await fileExists(
+    secretsPath,
+  ))
+    ? JSON.parse(await Deno.readTextFile(secretsPath)) as Record<
+      string,
+      unknown
+    >
+    : {};
+  await Deno.writeTextFile(
+    secretsPath,
+    JSON.stringify({ ...existingSecrets, openAiApiKey: "coco" }, null, 2) +
+      "\n",
+  );
+
   return { configPath, backupPath };
 }
 
-async function writeOpenCode(
+async function writeCodex(
   port: number,
   options?: ConfigureOptions,
 ): Promise<WriteResult> {
-  const configPath = openCodeEnvPath(resolveHome(options));
-  let backupPath: string | null = null;
-
-  if (await fileExists(configPath)) {
-    backupPath = await backupFile(configPath);
-  }
-
-  const content = [
-    "# Written by coco configure opencode",
-    `OPENAI_API_BASE=http://127.0.0.1:${port}`,
-    "OPENAI_API_KEY=coco",
-    "",
-  ].join("\n");
-
-  await ensureDir(configPath);
-  await Deno.writeTextFile(configPath, content);
-  return { configPath, backupPath };
-}
-
-async function writeGoose(
-  port: number,
-  options?: ConfigureOptions,
-): Promise<WriteResult> {
-  const configPath = gooseConfigPath(resolveHome(options));
+  const configPath = codexConfigPath(resolveHome(options));
   let backupPath: string | null = null;
 
   let existing: Record<string, unknown> = {};
@@ -222,72 +187,28 @@ async function writeGoose(
     existing = parseToml(raw) as Record<string, unknown>;
   }
 
-  const existingOpenai = (existing.openai as Record<string, unknown>) ?? {};
+  const existingProviders =
+    (existing.model_providers as Record<string, unknown>) ?? {};
   const updated = {
     ...existing,
-    openai: {
-      ...existingOpenai,
-      base_url: `http://127.0.0.1:${port}`,
-      api_key: "coco",
+    model: "codex-mini-latest",
+    model_provider: "coco",
+    model_providers: {
+      ...existingProviders,
+      coco: {
+        name: "Coco",
+        base_url: `http://127.0.0.1:${port}/v1/`,
+        auth_method: "api_key",
+        api_key: "coco",
+      },
     },
-  };
-
-  await ensureDir(configPath);
-  await Deno.writeTextFile(configPath, stringifyToml(updated));
-  return { configPath, backupPath };
-}
-
-async function writeAider(
-  port: number,
-  options?: ConfigureOptions,
-): Promise<WriteResult> {
-  const configPath = aiderConfigPath(resolveHome(options));
-  let backupPath: string | null = null;
-
-  let existing: Record<string, unknown> = {};
-  if (await fileExists(configPath)) {
-    backupPath = await backupFile(configPath);
-    const raw = await Deno.readTextFile(configPath);
-    const parsed = parseYaml(raw);
-    if (parsed && typeof parsed === "object") {
-      existing = parsed as Record<string, unknown>;
-    }
-  }
-
-  const updated = {
-    ...existing,
-    "openai-api-base": `http://127.0.0.1:${port}`,
-    "openai-api-key": "coco",
   };
 
   await ensureDir(configPath);
   await Deno.writeTextFile(
     configPath,
-    "# Written by coco configure aider\n" + stringifyYaml(updated),
+    "# Written by coco configure codex\n" + stringifyToml(updated),
   );
-  return { configPath, backupPath };
-}
-
-async function writeGptEngineer(
-  port: number,
-  options?: ConfigureOptions,
-): Promise<WriteResult> {
-  const configPath = gptEngineerEnvPath(resolveHome(options));
-  let backupPath: string | null = null;
-
-  if (await fileExists(configPath)) {
-    backupPath = await backupFile(configPath);
-  }
-
-  const content = [
-    "# Written by coco configure gpt-engineer",
-    `OPENAI_API_BASE=http://127.0.0.1:${port}`,
-    "OPENAI_API_KEY=coco",
-    "",
-  ].join("\n");
-
-  await ensureDir(configPath);
-  await Deno.writeTextFile(configPath, content);
   return { configPath, backupPath };
 }
 
@@ -303,11 +224,7 @@ type AgentWriter = (
 const AGENT_WRITERS: Record<string, AgentWriter> = {
   "claude-code": writeClaudeCode,
   "cline": writeCline,
-  "kilo": writeKilo,
-  "opencode": writeOpenCode,
-  "goose": writeGoose,
-  "aider": writeAider,
-  "gpt-engineer": writeGptEngineer,
+  "codex": writeCodex,
 };
 
 // ---------------------------------------------------------------------------
@@ -334,6 +251,24 @@ export async function validateConfig(port: number): Promise<boolean> {
     });
     await res.body?.cancel();
     return res.status === 200;
+  } catch {
+    return false;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Verification
+// ---------------------------------------------------------------------------
+
+/**
+ * Verify that an agent's config file still exists and contains the Coco
+ * endpoint. Returns false if the file is missing or was overwritten by
+ * the agent (i.e., coco's settings are no longer present).
+ */
+export async function verifyAgentConfig(entry: ConfigEntry): Promise<boolean> {
+  try {
+    const content = await Deno.readTextFile(entry.configPath);
+    return content.includes(entry.endpoint);
   } catch {
     return false;
   }
