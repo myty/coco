@@ -1,13 +1,14 @@
-# Quickstart: Global Install & Daemon Autostart
+## Quickstart
 
-## Requirements
+
+### Requirements
 
 - [Deno](https://deno.com) installed (`curl -fsSL https://deno.land/install.sh | sh`)
 - Repository cloned: `git clone https://github.com/myty/coco && cd coco`
 
 ---
 
-## Step 1: Install `coco` globally
+### Step 1: Install `coco` globally
 
 **With Deno:**
 ```bash
@@ -22,14 +23,14 @@ mise run install
 After installation, `coco` is available in any terminal session:
 ```bash
 coco --version
-# Coco v0.2.0
+## Coco v0.2.0
 ```
 
 > **Note**: Ensure `~/.deno/bin` is in your `PATH`. The Deno installer adds this automatically.
 
 ---
 
-## Step 2: Authenticate with GitHub Copilot
+### Step 2: Authenticate with GitHub Copilot
 
 ```bash
 coco start
@@ -40,7 +41,7 @@ Follow the link shown in the terminal.
 
 ---
 
-## Step 3 (Optional): Register as a login service
+### Step 3 (Optional): Register as a login service
 
 To have Coco start automatically after every login:
 
@@ -61,26 +62,26 @@ coco uninstall-service
 
 ---
 
-## Verify
+### Verify
 
 ```bash
 coco status
-# Status: Running on http://localhost:11434
-# Copilot: Authenticated ✓
+## Status: Running on http://localhost:11434
+## Copilot: Authenticated ✓
 
 coco doctor
-# claude-code    installed     not configured
-# cline          detected      not configured
-# ...
+## claude-code    installed     not configured
+## cline          detected      not configured
+## ...
 ```
 
 ---
 
-## Configure an agent
+### Configure an agent
 
 ```bash
 coco configure claude-code
-# claude-code configured.
+## claude-code configured.
 ```
 
 Or use the interactive TUI:

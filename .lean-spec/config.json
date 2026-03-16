@@ -1,0 +1,16 @@
+{
+  "specsDir": "specs",
+  "draftStatus": {
+    "enabled": true
+  },
+  "validation": {
+    "maxLines": 2400,
+    "warnLines": 1800,
+    "maxTokens": 25000,
+    "warnTokens": 20000
+  },
+  "features": {
+    "tokenCounting": true,
+    "dependencyGraph": true
+  }
+}

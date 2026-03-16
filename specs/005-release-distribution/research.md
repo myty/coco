@@ -1,25 +1,26 @@
-# Research: Release Distribution
+## Research
+
 
 **Feature**: `005-release-distribution`\
 **Phase**: 0 — Research\
 **Status**: Complete
 
-## 1. `deno compile` — Cross-Platform Binaries
+### 1. `deno compile` — Cross-Platform Binaries
 
-### Decision
+#### Decision
 
 Use `deno compile` with explicit `--target` flags for each platform. Embed all
 required permissions at compile time. Use `deno.json`'s `compile.permissions`
 block to codify the permission set.
 
-### Rationale
+#### Rationale
 
 `deno compile` produces a single self-contained executable that bundles the V8
 snapshot, the TypeScript source, and all static imports. No Deno runtime
 installation is required on the target machine. This directly satisfies
 Principle V (Portability) and Principle VII (Self-Containment).
 
-### Target Triples
+#### Target Triples
 
 | Platform    | Deno `--target`             | Runner for CI                                  | Output filename           |
 | ----------- | --------------------------- | ---------------------------------------------- | ------------------------- |
@@ -32,7 +33,7 @@ Principle V (Portability) and Principle VII (Self-Containment).
 **Note**: Deno automatically appends `.exe` for Windows targets when `--output`
 does not already include the extension.
 
-### Required Permissions
+#### Required Permissions
 
 All permissions are baked into the binary at compile time:
 
@@ -62,7 +63,7 @@ These map to `deno.json`:
 }
 ```
 
-### Known Limitations
+#### Known Limitations
 
 - **Dynamic imports**: Not bundled unless `--include` is used. Claudio has no
   dynamic imports — not a concern.
@@ -73,30 +74,30 @@ These map to `deno.json`:
 - **Binary size**: Expect ~80–120 MB per binary (V8 snapshot included). Within
   GitHub's 2 GB release asset limit.
 
-### Alternatives Considered
+#### Alternatives Considered
 
 - **`deno bundle` + Node.js wrapper**: Rejected — requires Node.js on target.
 - **Packaging with `pkg` (Node)**: Rejected — adds complexity, not Deno-native.
 
 ---
 
-## 2. GitHub Actions Release Workflow
+### 2. GitHub Actions Release Workflow
 
-### Decision
+#### Decision
 
 A single workflow file (`.github/workflows/release.yml`) is triggered on
 `push: tags: v*`. It uses a matrix job to build all five binaries in parallel,
 then a dependent `release` job uploads them via
 `softprops/action-gh-release@v2`.
 
-### Rationale
+#### Rationale
 
 `softprops/action-gh-release@v2` is the modern standard for GitHub release
 creation in Actions — it handles creating the release, setting the body, and
 uploading assets in one step. The matrix pattern parallelises builds and keeps
 the YAML readable.
 
-### Workflow Structure
+#### Workflow Structure
 
 ```
 trigger: push tag v*
@@ -111,7 +112,7 @@ trigger: push tag v*
         downloads all artifacts → softprops/action-gh-release@v2
 ```
 
-### Key Actions Used
+#### Key Actions Used
 
 - `actions/checkout@v4`
 - `denoland/setup-deno@v1` with `deno-version: v2.x`
@@ -119,14 +120,14 @@ trigger: push tag v*
 - `actions/download-artifact@v4`
 - `softprops/action-gh-release@v2` (creates release + uploads assets)
 
-### Runner → Target Mapping
+#### Runner → Target Mapping
 
 - `macos-latest` → arm64 native (Apple Silicon)
 - `macos-13` → x64 native (Intel Haswell)
 - `ubuntu-latest` → x64 native; cross-compile arm64 with `--target` flag
 - `windows-latest` → x64 native
 
-### Alternatives Considered
+#### Alternatives Considered
 
 - **`goreleaser`**: Designed for Go, not Deno. Rejected.
 - **Single runner for all targets**: Slower (sequential), harder to cache.
@@ -134,9 +135,9 @@ trigger: push tag v*
 
 ---
 
-## 3. npm Shim Package
+### 3. npm Shim Package
 
-### Decision
+#### Decision
 
 Publish 6 npm packages using the `optionalDependencies` pattern:
 
@@ -147,7 +148,7 @@ Publish 6 npm packages using the `optionalDependencies` pattern:
 - `@claudio/linux-arm64` — Linux arm64 binary wrapper
 - `@claudio/win32-x64` — Windows x64 binary wrapper
 
-### Rationale
+#### Rationale
 
 This is the pattern used by esbuild, Biome, Turbo, and other high-performance
 CLI tools. npm evaluates `"os"` and `"cpu"` constraints in
@@ -155,7 +156,7 @@ CLI tools. npm evaluates `"os"` and `"cpu"` constraints in
 download ~80–120 MB instead of the full ~600 MB across all platforms. The main
 shim is pure JavaScript (~50 lines) and runs under Node.js without Deno.
 
-### npm Package Structure
+#### npm Package Structure
 
 **Main `claudio` package.json** (excerpt):
 
@@ -196,12 +197,12 @@ shim is pure JavaScript (~50 lines) and runs under Node.js without Deno.
    `deno run -A jsr:@myty/claudio`
 5. If neither: print error with GitHub Releases URL and exit 1
 
-### Version Synchronisation
+#### Version Synchronisation
 
 The npm package `version` field MUST match `deno.json`'s `version` field. A
 pre-publish script reads `deno.json` and writes all six `package.json` files.
 
-### Alternatives Considered
+#### Alternatives Considered
 
 - **Single npm package with bundled binary**: Too large (~80–120 MB per
   package). Rejected.
@@ -210,20 +211,20 @@ pre-publish script reads `deno.json` and writes all six `package.json` files.
 
 ---
 
-## 4. JSR Package
+### 4. JSR Package
 
-### Decision
+#### Decision
 
 Publish `@myty/claudio` to JSR on every tagged release using `deno publish` with
 OIDC trusted publishers (no stored API tokens required).
 
-### Rationale
+#### Rationale
 
 JSR is the preferred distribution channel for Deno-native TypeScript packages.
 OIDC trusted publishers means zero secrets to manage. `deno publish` validates
 types and formatting automatically.
 
-### deno.json Changes Required
+#### deno.json Changes Required
 
 ```json
 {
@@ -235,10 +236,10 @@ types and formatting automatically.
 }
 ```
 
-### JSR Publish Workflow
+#### JSR Publish Workflow
 
 ```yaml
-# Separate job in release.yml or standalone publish-jsr.yml
+## Separate job in release.yml or standalone publish-jsr.yml
 permissions:
   contents: read
   id-token: write # REQUIRED for OIDC
@@ -248,7 +249,7 @@ steps:
   - run: deno publish
 ```
 
-### JSR Requirements Checklist
+#### JSR Requirements Checklist
 
 - ✅ `name` field: `@myty/claudio`
 - ✅ `version` field: semver from `deno.json`
@@ -257,7 +258,7 @@ steps:
 - ✅ Passes `deno lint` and `deno fmt --check`
 - ✅ Trusted publisher configured on jsr.io for `myty/claudio` repo
 
-### Alternatives Considered
+#### Alternatives Considered
 
 - **Token-based publishing**: Requires secret rotation. Rejected in favour of
   OIDC.
@@ -265,22 +266,22 @@ steps:
 
 ---
 
-## 5. mise Backend
+### 5. mise Backend
 
-### Decision
+#### Decision
 
 Use the `github` backend (`github:myty/claudio`). No registration in an external
 registry is required. Release asset names follow a convention that mise's
 `github` backend auto-detects.
 
-### Rationale
+#### Rationale
 
 The `github` backend is the current recommended approach for tools distributed
 as GitHub release binaries. It uses an intelligent scoring system to match OS
 and architecture to the correct asset. The `ubi` backend (older) is now
 deprecated. The `aqua` backend requires a pull request to the aqua-registry.
 
-### Asset Naming Convention
+#### Asset Naming Convention
 
 mise's `github` backend scores assets using OS/arch keywords. The following
 naming convention ensures reliable auto-detection:
@@ -296,27 +297,27 @@ naming convention ensures reliable auto-detection:
 The convention `claudio-{os}-{arch}[.exe]` is consistent with mise's expected
 patterns and requires no extra configuration.
 
-### User Experience
+#### User Experience
 
 ```bash
-# Install globally
+## Install globally
 mise use -g claudio
 
-# Install specific version
+## Install specific version
 mise install claudio@0.2.0
 
-# Update
+## Update
 mise up claudio
 ```
 
-### .mise.toml (project-level, optional)
+#### .mise.toml (project-level, optional)
 
 ```toml
 [tools]
 claudio = "latest"
 ```
 
-### Alternatives Considered
+#### Alternatives Considered
 
 - **aqua backend**: Requires a PR to the upstream aqua-registry. Additional
   maintenance burden. Not worth it until adoption grows.
@@ -325,16 +326,16 @@ claudio = "latest"
 
 ---
 
-## 6. Version Synchronisation Strategy
+### 6. Version Synchronisation Strategy
 
-### Decision
+#### Decision
 
 `deno.json` is the single source of truth for the version. A helper script
 (`scripts/sync-version.ts`) reads the version from `deno.json` and writes it
 into all npm `package.json` files. This script runs as part of the release
 workflow before publishing to npm.
 
-### Version Flow
+#### Version Flow
 
 ```
 deno.json { "version": "X.Y.Z" }

@@ -1,10 +1,11 @@
-# Tasks: Launch Claude Code Subprocess
+## Tasks
+
 
 **Branch**: `004-launch-claude-code`\
 **Input**: `specs/004-launch-claude-code/spec.md`,
 `specs/004-launch-claude-code/plan.md`
 
-## Format: `[ID] [P?] [Story] Description`
+### Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
 - **[Story]**: Which user story this task belongs to
@@ -12,7 +13,7 @@
 
 ---
 
-## Phase 1: Setup
+### Phase 1: Setup
 
 **Purpose**: Prepare the new source file and update the server lifecycle
 interface.
@@ -25,7 +26,7 @@ interface.
 
 ---
 
-## Phase 2: Foundational
+### Phase 2: Foundational
 
 **Purpose**: Core launcher functions that both US1 and US2 depend on.
 
@@ -48,7 +49,7 @@ interface.
 
 ---
 
-## Phase 3: User Story 1 — Happy Path Launch (P1)
+### Phase 3: User Story 1 — Happy Path Launch (P1)
 
 **Story Goal**: After the proxy starts, Claude Code launches with correct env
 vars and inherited stdio; its exit code is propagated and the proxy stops
@@ -74,7 +75,7 @@ verify env vars are set, stdio is inherited, proxy stops, and Claudio exits 0.
 
 ---
 
-## Phase 4: User Story 2 — Claude Code Not Installed (P2)
+### Phase 4: User Story 2 — Claude Code Not Installed (P2)
 
 **Story Goal**: When `claude` is absent from PATH, Claudio prints calm install
 instructions and exits 1.
@@ -94,7 +95,7 @@ output contains both the npm command and the URL.
 
 ---
 
-## Phase 5: User Story 3 — Proxy Shutdown on Claude Code Exit (P1)
+### Phase 5: User Story 3 — Proxy Shutdown on Claude Code Exit (P1)
 
 **Story Goal**: Proxy stops cleanly whether Claude Code exits normally or via
 signal.
@@ -112,7 +113,7 @@ signal.
 
 ---
 
-## Phase 6: Polish
+### Phase 6: Polish
 
 **Purpose**: Edge cases, quality gate, and help text update.
 
@@ -131,7 +132,7 @@ signal.
 
 ---
 
-## Dependencies
+### Dependencies
 
 ```
 T001 → T003, T004, T005
@@ -147,7 +148,7 @@ Phase 3 and Phase 4 complete → Phase 5
 Phase 5 complete → Phase 6
 ```
 
-## Parallel Execution
+### Parallel Execution
 
 **Phase 1**: T001 and T002 are independent — run in parallel.
 
@@ -158,7 +159,7 @@ stories — can begin in parallel once Phase 2 is done.
 
 **Phase 6**: T013, T014 are independent — run in parallel.
 
-## Implementation Strategy
+### Implementation Strategy
 
 **MVP** (Stories 1 + 3 — the core flow): Complete Phases 1–3 + Phase 5. This
 gives a fully working `claudio` that launches Claude Code and shuts down

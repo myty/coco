@@ -1,11 +1,12 @@
-# Research: Global Install & Daemon Autostart
+## Research
+
 
 **Feature**: 008-install-autostart  
 **Date**: 2026-03-10
 
 ---
 
-## 1. Deno 2.x Global Install Command
+### 1. Deno 2.x Global Install Command
 
 **Decision**: Use `deno install --global -A -n coco src/cli/main.ts` (with `--force` for updates).
 
@@ -32,7 +33,7 @@ deno install --global --allow-all -n coco --force src/cli/main.ts
 
 ---
 
-## 2. .mise.toml Install Task
+### 2. .mise.toml Install Task
 
 **Decision**: Add `.mise.toml` at the repository root with a `[tasks.install]` entry wrapping `deno install`.
 
@@ -56,7 +57,7 @@ run = "deno install --global --allow-all -n coco --force src/cli/main.ts"
 
 ---
 
-## 3. macOS LaunchAgent
+### 3. macOS LaunchAgent
 
 **Decision**: Write a plist to `~/Library/LaunchAgents/com.coco.plist` and load via `launchctl bootstrap`.
 
@@ -106,7 +107,7 @@ launchctl bootout gui/$(id -u) ~/Library/LaunchAgents/com.coco.plist
 
 ---
 
-## 4. Linux systemd User Unit
+### 4. Linux systemd User Unit
 
 **Decision**: Write a `.service` file to `~/.config/systemd/user/coco.service` and enable with `systemctl --user enable --now`.
 
@@ -145,7 +146,7 @@ systemctl --user disable --now coco.service
 
 ---
 
-## 5. Binary Path Resolution
+### 5. Binary Path Resolution
 
 **Decision**: Reuse the existing `findBinary("coco")` from `src/lib/process.ts`.
 
@@ -170,7 +171,7 @@ if (!cocoPath) {
 
 ---
 
-## 6. Unsupported Platform Message
+### 6. Unsupported Platform Message
 
 **Decision**: Detect platform with `Deno.build.os`. Show calm "coming soon" message for Windows and non-systemd Linux.
 

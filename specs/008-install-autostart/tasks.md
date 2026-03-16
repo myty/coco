@@ -1,14 +1,16 @@
+## Tasks
+
 ---
 description: "Task list for Global Install & Daemon Autostart"
 ---
 
-# Tasks: Global Install & Daemon Autostart
+## Tasks: Global Install & Daemon Autostart
 
 **Input**: `/specs/008-install-autostart/`
 **Branch**: `008-install-autostart`
 **User Stories**: 3 (P1 global install, P2 daemon autostart, P3 README quickstart)
 
-## Format: `[ID] [P?] [Story?] Description`
+### Format: `[ID] [P?] [Story?] Description`
 
 - **[P]**: Can run in parallel (different files, no incomplete task dependencies)
 - **[Story]**: Which user story this belongs to (US1 = global install, US2 = daemon autostart, US3 = README)
@@ -16,7 +18,7 @@ description: "Task list for Global Install & Daemon Autostart"
 
 ---
 
-## Phase 1: Setup
+### Phase 1: Setup
 
 **Purpose**: Verify structure and confirm no blockers before implementation
 
@@ -26,7 +28,7 @@ No new project setup is required — this is an existing Deno/TypeScript project
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisite)
+### Phase 2: Foundational (Blocking Prerequisite)
 
 **Purpose**: Establish the `autostart.ts` module interface — US2 implementation blocks on this
 
@@ -38,7 +40,7 @@ No new project setup is required — this is an existing Deno/TypeScript project
 
 ---
 
-## Phase 3: User Story 1 — One-Command Global Install (Priority: P1) 🎯 MVP
+### Phase 3: User Story 1 — One-Command Global Install (Priority: P1) 🎯 MVP
 
 **Goal**: Developers can run a single command from the repo root to install `coco` globally in PATH
 
@@ -51,7 +53,7 @@ No new project setup is required — this is an existing Deno/TypeScript project
 
 ---
 
-## Phase 4: User Story 2 — Daemon Survives System Restarts (Priority: P2)
+### Phase 4: User Story 2 — Daemon Survives System Restarts (Priority: P2)
 
 **Goal**: `coco install-service` registers the daemon with the OS service manager; after reboot, `coco status` shows running with zero manual steps
 
@@ -59,7 +61,7 @@ No new project setup is required — this is an existing Deno/TypeScript project
 
 **Prerequisites**: T002 (autostart module interface) must be complete
 
-### Implementation for User Story 2
+#### Implementation for User Story 2
 
 - [x] T005 [US2] Implement macOS LaunchAgent path in `src/service/autostart.ts`: generate plist XML with absolute `coco` binary path (from `findBinary`), write to `~/Library/LaunchAgents/com.coco.plist`, run `launchctl bootout gui/$(id -u)` (ignore error) then `launchctl bootstrap gui/$(id -u) <plist>` — supports `dryRun` (return plist string, skip write/launchctl)
 - [x] T006 [US2] Implement Linux systemd path in `src/service/autostart.ts`: generate `.service` unit file with absolute binary path, write to `~/.config/systemd/user/coco.service`, run `systemctl --user daemon-reload && systemctl --user enable --now coco.service` — supports `dryRun`; detect non-systemd via `which systemctl` absence and throw `UnsupportedPlatformError`
@@ -70,7 +72,7 @@ No new project setup is required — this is an existing Deno/TypeScript project
 - [x] T011 [P] [US2] Add `cmdUninstallService()` function and `"uninstall-service"` route in `src/cli/main.ts`: calls `uninstallService()`; idempotent (not-installed → print "Coco service is not installed.", exit 0); catches errors (print, exit 1)
 - [x] T012 [US2] Update `showHelp()` in `src/cli/main.ts` to include `install-service` and `uninstall-service` in the commands list with brief descriptions
 
-### Tests for User Story 2
+#### Tests for User Story 2
 
 - [x] T013 [P] [US2] Write unit tests in `tests/unit/autostart_test.ts`: test plist XML content (dryRun, verify keys present), test systemd unit content (dryRun), test `UnsupportedPlatformError` thrown on mock unsupported OS, test `isServiceInstalled()` with temp files, test idempotency (install twice, uninstall when not installed)
 - [x] T014 [P] [US2] Write contract tests in `tests/contract/cli-install-service_test.ts`: verify `coco install-service` appears in `--help` output, verify `coco uninstall-service` appears in `--help` output, verify unsupported platform exits 0 with calm message
@@ -79,7 +81,7 @@ No new project setup is required — this is an existing Deno/TypeScript project
 
 ---
 
-## Phase 5: User Story 3 — README Quickstart (Priority: P3)
+### Phase 5: User Story 3 — README Quickstart (Priority: P3)
 
 **Goal**: A developer can follow the README quickstart from a fresh clone to a running Coco instance in under 5 minutes
 
@@ -91,7 +93,7 @@ No new project setup is required — this is an existing Deno/TypeScript project
 
 ---
 
-## Phase 6: Polish & Quality Gates
+### Phase 6: Polish & Quality Gates
 
 **Purpose**: Ensure all quality gates pass before merging
 
@@ -102,7 +104,7 @@ No new project setup is required — this is an existing Deno/TypeScript project
 
 ---
 
-## Dependencies
+### Dependencies
 
 ```
 T001 (verify structure)
@@ -118,7 +120,7 @@ T016 → T017 → T018 → T019 (polish — run after all above)
 
 ---
 
-## Parallel Execution
+### Parallel Execution
 
 **Maximum parallelism within US1** (after T001, no T002 dependency):
 ```
@@ -142,7 +144,7 @@ T011 (cmdUninstallService)─┤
 
 ---
 
-## Implementation Strategy
+### Implementation Strategy
 
 **MVP** = Phase 3 (US1) only: one-command global install with `deno task install` and `mise run install`. Delivers immediate developer value with zero risk — no OS-level changes.
 
@@ -159,7 +161,7 @@ T011 (cmdUninstallService)─┤
 
 ---
 
-## Summary
+### Summary
 
 | Phase | Story | Tasks | Files |
 |-------|-------|-------|-------|

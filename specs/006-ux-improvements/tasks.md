@@ -1,4 +1,5 @@
-# Tasks: UX Improvements
+## Tasks
+
 
 **Input**: Design documents from `/specs/006-ux-improvements/`
 **Prerequisites**: spec.md ✅, plan.md ✅, clarifications recorded 2026-03-08
@@ -7,14 +8,14 @@
 implementation and testing of each story. All three stories are independently
 deployable — no cross-dependencies.
 
-## Format: `[ID] [P?] [Story] Description`
+### Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no shared dependencies)
 - **[Story]**: Which user story this task belongs to (US1, US2, US3)
 
 ---
 
-## Phase 1: Setup
+### Phase 1: Setup
 
 **Purpose**: Confirm baseline passes and align all documents before any changes
 land.
@@ -30,7 +31,7 @@ land.
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+### Phase 2: Foundational (Blocking Prerequisites)
 
 **Purpose**: Create the session reader stub needed by US3 so contract tests can
 be written against it (TDD — stub first, tests second, implementation third).
@@ -47,7 +48,7 @@ must complete before T003.
 
 ---
 
-## Phase 3: User Story 1 — Extend Token Expiration (Priority: P1) 🎯 MVP
+### Phase 3: User Story 1 — Extend Token Expiration (Priority: P1) 🎯 MVP
 
 **Goal**: OAuth token `expiresAt` set to 30 days; users re-authenticate at most
 once per month.
@@ -55,7 +56,7 @@ once per month.
 **Independent Test**: After device flow completes, assert
 `token.expiresAt - token.createdAt === 30 * 24 * 60 * 60 * 1000`
 
-### Tests for User Story 1
+#### Tests for User Story 1
 
 - [ ] T004 [P] [US1] Add unit test in `tests/auth/auth_test.ts` — assert
       `token.expiresAt - token.createdAt` equals `2_592_000_000` ms (30 days)
@@ -64,7 +65,7 @@ once per month.
       `isTokenValid()` returns `true` for a token created 7 days ago and `false`
       for one created 31 days ago
 
-### Implementation for User Story 1
+#### Implementation for User Story 1
 
 - [ ] T006 [US1] In `src/cli/auth.ts` line ~53, change `8 * 60 * 60 * 1000` to
       `30 * 24 * 60 * 60 * 1000` in the `expiresAt` assignment inside
@@ -74,7 +75,7 @@ once per month.
 
 ---
 
-## Phase 4: User Story 2 — Clear Screen Before Launch (Priority: P2)
+### Phase 4: User Story 2 — Clear Screen Before Launch (Priority: P2)
 
 **Goal**: Terminal is cleared (TTY only) immediately before Claude Code starts,
 so Claude appears at the top with no claudio startup output above it.
@@ -83,13 +84,13 @@ so Claude appears at the top with no claudio startup output above it.
 appears at top. Run `claudio --help` (non-TUI path) — no clear fires. Pipe
 output (`claudio 2>&1 | cat`) — no ANSI clear codes in stream.
 
-### Tests for User Story 2
+#### Tests for User Story 2
 
 - [ ] T008 [P] [US2] Add test in `tests/contract/cli_test.ts` — spawn
       `claudio --help` with `stdout: "piped"` and assert output does NOT contain
       ANSI clear escape sequence (`\x1b[2J` or `\x1bc`)
 
-### Implementation for User Story 2
+#### Implementation for User Story 2
 
 - [ ] T009 [US2] In `src/cli/main.ts` `main()`, after `startServer()` returns
       and after `findClaudeBinary()` succeeds (i.e., just before the `try` block
@@ -104,7 +105,7 @@ output (`claudio 2>&1 | cat`) — no ANSI clear codes in stream.
 
 ---
 
-## Phase 5: User Story 3 — Exit Message Branding (Priority: P3)
+### Phase 5: User Story 3 — Exit Message Branding (Priority: P3)
 
 **Goal**: After Claude exits cleanly (exit code 0), claudio prints
 ``Run `claudio --resume <id>` to resume.`` (or generic fallback) so users have
@@ -116,7 +117,7 @@ appear. Simulate missing `~/.claude/` — verify generic fallback appears.
 
 **Dependency**: T003 (`src/cli/session.ts`) must be complete.
 
-### Tests for User Story 3
+#### Tests for User Story 3
 
 - [ ] T011 [P] [US3] Add contract tests in `tests/contract/session_test.ts` for
       `getLatestSessionId()` (write FIRST against the stub from T003 — tests
@@ -131,7 +132,7 @@ appear. Simulate missing `~/.claude/` — verify generic fallback appears.
   - When a mock/stub Claude exits with code 1, captured stdout does NOT contain
     ``Run `claudio` to resume`` (verifies FR-005)
 
-### Implementation for User Story 3
+#### Implementation for User Story 3
 
 - [ ] T013 [US3] Implement `getLatestSessionId()` in `src/cli/session.ts` using
       the path and session ID field confirmed by T002 — use `Deno.readDir` to
@@ -159,7 +160,7 @@ appear. Simulate missing `~/.claude/` — verify generic fallback appears.
 
 ---
 
-## Phase 6: Polish & Cross-Cutting Concerns
+### Phase 6: Polish & Cross-Cutting Concerns
 
 - [ ] T018 [P] Run full test suite one final time (`deno task test`) and confirm
       all tests green
@@ -169,7 +170,7 @@ appear. Simulate missing `~/.claude/` — verify generic fallback appears.
 
 ---
 
-## Dependencies
+### Dependencies
 
 ```
 T001 → T002 → T003 → T011 → T013 → T014 → T015 → T016
@@ -182,7 +183,7 @@ T002 → T017
 All three user story phases (3, 4, 5) are **independent of each other** — US1
 and US2 can begin in parallel once T001 completes.
 
-## Parallel Execution
+### Parallel Execution
 
 **After T001 (baseline passes):**
 
@@ -198,7 +199,7 @@ and US2 can begin in parallel once T001 completes.
 **US1 and US2 are fully parallelizable.** US3 requires T002/T003 first but is
 otherwise independent.
 
-## Implementation Strategy
+### Implementation Strategy
 
 **MVP** = Phase 3 (US1) alone — token expiry change ships value immediately with
 minimal risk.

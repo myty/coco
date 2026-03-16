@@ -1,10 +1,6 @@
-# Implementation Plan: UX Improvements
+## Plan
 
-**Branch**: `006-ux-improvements` | **Date**: 2026-03-08 | **Spec**:
-[spec.md](./spec.md) **Input**: Feature specification from
-`/specs/006-ux-improvements/spec.md`
-
-## Summary
+### Summary
 
 Three independent UX polish changes to the claudio CLI:
 
@@ -18,41 +14,9 @@ Three independent UX polish changes to the claudio CLI:
 
 No new dependencies. All changes are in `src/cli/main.ts` and `src/cli/auth.ts`.
 
-## Technical Context
+### Project Structure
 
-**Language/Version**: Deno (latest stable) + TypeScript\
-**Primary Dependencies**: Deno std/http, @github/copilot-sdk (no new deps)\
-**Storage**: Platform secure token storage (Keychain/Credential Manager/Secret
-Service)\
-**Testing**: `deno test` (existing test suite in `tests/`)\
-**Target Platform**: macOS, Linux, Windows (cross-platform CLI binary)\
-**Project Type**: CLI tool / proxy binary\
-**Performance Goals**: N/A (startup-path changes only)\
-**Constraints**: Must not break non-TTY/piped usage; must not intercept Claude's
-TUI\
-**Scale/Scope**: 2 source files, 3 one-line changes
-
-## Constitution Check
-
-_GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
-
-| Principle                  | Status  | Notes                                                                         |
-| -------------------------- | ------- | ----------------------------------------------------------------------------- |
-| I. Minimalism              | ✅ PASS | Three single-line changes; no new features, no new config surfaces            |
-| II. Calm UX                | ✅ PASS | Clear screen reinforces "Claudio disappears"; resume hint is quiet and direct |
-| III. Predictability        | ✅ PASS | Behavior is deterministic; TTY guard prevents piped-mode surprises            |
-| IV. Separation of Concerns | ✅ PASS | Changes are in startup/teardown path only; no interference with Claude's TUI  |
-| V. Portability             | ✅ PASS | `Deno.stdout.isTerminal()` is cross-platform; no new deps                     |
-| VI. Transparency           | ✅ PASS | No transformations changed; startup/teardown path only                        |
-| VII. Self-Containment      | ✅ PASS | No new SDK or CLI dependencies                                                |
-| VIII. Contract Testing     | ✅ PASS | No proxy contracts changed                                                    |
-| IX. Quality Gates          | ✅ PASS | Existing test suite covers auth token; new tests for TTY guard and exit hint  |
-
-No violations. No Complexity Tracking table needed.
-
-## Project Structure
-
-### Documentation (this feature)
+#### Documentation (this feature)
 
 ```text
 specs/006-ux-improvements/
@@ -61,7 +25,7 @@ specs/006-ux-improvements/
 └── tasks.md             # Phase 2 output (/speckit.tasks command)
 ```
 
-### Source Code (repository root)
+#### Source Code (repository root)
 
 ```text
 src/
@@ -81,7 +45,7 @@ tests/
 **Structure Decision**: Single-project layout; changes are surgical and
 localized to two existing files.
 
-## Phase 0: Research
+### Phase 0: Research
 
 _No NEEDS CLARIFICATION items. Token expiry preference confirmed by user (30
 days). All implementation details are known from codebase exploration._
@@ -94,9 +58,9 @@ days). All implementation details are known from codebase exploration._
 | `console.clear()` guarded by `Deno.stdout.isTerminal()`             | Prevents clearing output in piped/CI contexts       | Unconditional clear (breaks scripted use), ANSI escape directly (less portable) |
 | Post-exit resume hint (append after Claude exits, exit code 0 only) | Non-invasive; no PTY/pipe needed; doesn't break TUI | PTY interception to replace Claude's "claude" text (complex, fragile)           |
 
-## Phase 1: Design
+### Phase 1: Design
 
-### Data Model Changes
+#### Data Model Changes
 
 **AuthToken** (`src/cli/auth.ts`, line 53):
 
@@ -108,7 +72,7 @@ expiresAt: Date.now() + 8 * 60 * 60 * 1000,        // 8 hours
 expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000,  // 30 days
 ```
 
-### main() Control Flow Changes
+#### main() Control Flow Changes
 
 ```typescript
 // src/cli/main.ts — updated main() sequence
@@ -135,7 +99,7 @@ if (exitCode === 0) {
 }
 ```
 
-### Contracts
+#### Contracts
 
 No external interface changes. The proxy HTTP API is unchanged. No contracts/
 directory needed.

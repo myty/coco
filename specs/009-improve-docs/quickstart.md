@@ -1,19 +1,20 @@
-# Quickstart: Documentation Improvement Initiative
+## Quickstart
+
 
 **Purpose**: Quick implementation guide for documentation improvements
 **Target Audience**: Developers implementing the documentation changes
 **Estimated Time**: 2-4 hours for complete implementation
 
-## Overview
+### Overview
 
 This quickstart guide provides step-by-step instructions for implementing the documentation improvements defined in the specification. Follow these steps to enhance README.md, AGENTS.md, and constitution documentation with automated validation and maintenance.
 
-## Phase 1: Setup Validation Infrastructure (30 minutes)
+### Phase 1: Setup Validation Infrastructure (30 minutes)
 
-### Step 1: Create Documentation Configuration
+#### Step 1: Create Documentation Configuration
 
 ```bash
-# Create documentation configuration file
+## Create documentation configuration file
 cat > .docs-config.json << 'EOF'
 {
   "validation": {
@@ -44,10 +45,10 @@ cat > .docs-config.json << 'EOF'
 EOF
 ```
 
-### Step 2: Setup Markdown Linting
+#### Step 2: Setup Markdown Linting
 
 ```bash
-# Create markdownlint configuration
+## Create markdownlint configuration
 cat > .markdownlint.jsonc << 'EOF'
 {
   "extends": "markdownlint/style/prettier",
@@ -62,18 +63,18 @@ cat > .markdownlint.jsonc << 'EOF'
 EOF
 ```
 
-### Step 3: Create Validation Scripts Directory
+#### Step 3: Create Validation Scripts Directory
 
 ```bash
-# Create scripts directory structure
+## Create scripts directory structure
 mkdir -p scripts/docs
 cd scripts/docs
 ```
 
-### Step 4: Create Terminology Database
+#### Step 4: Create Terminology Database
 
 ```bash
-# Create terminology validation database
+## Create terminology validation database
 cat > terminology.json << 'EOF'
 {
   "version": "1.0.0",
@@ -119,9 +120,9 @@ cat > terminology.json << 'EOF'
 EOF
 ```
 
-## Phase 2: Create Validation Scripts (45 minutes)
+### Phase 2: Create Validation Scripts (45 minutes)
 
-### Step 1: Main Validation Script
+#### Step 1: Main Validation Script
 
 ```typescript
 // scripts/docs/validate.ts
@@ -358,7 +359,7 @@ if (import.meta.main) {
 }
 ```
 
-### Step 2: Progressive Disclosure Generator
+#### Step 2: Progressive Disclosure Generator
 
 ```typescript
 // scripts/docs/generate-disclosure.ts
@@ -477,15 +478,15 @@ if (import.meta.main) {
 }
 ```
 
-## Phase 3: Setup GitHub Actions (30 minutes)
+### Phase 3: Setup GitHub Actions (30 minutes)
 
-### Step 1: Create Documentation Validation Workflow
+#### Step 1: Create Documentation Validation Workflow
 
 ```bash
-# Create GitHub Actions workflow directory
+## Create GitHub Actions workflow directory
 mkdir -p .github/workflows
 
-# Create documentation validation workflow
+## Create documentation validation workflow
 cat > .github/workflows/docs-validation.yml << 'EOF'
 name: Documentation Validation
 on:
@@ -602,75 +603,75 @@ jobs:
 EOF
 ```
 
-## Phase 4: Improve Documentation Content (60+ minutes)
+### Phase 4: Improve Documentation Content (60+ minutes)
 
-### Step 1: Enhance README.md
+#### Step 1: Enhance README.md
 
 Apply progressive disclosure and consistency improvements:
 
 ```bash
-# Run validation to identify current issues
+## Run validation to identify current issues
 deno run --allow-read scripts/docs/validate.ts README.md
 
-# Apply progressive disclosure formatting
+## Apply progressive disclosure formatting
 deno run --allow-read --allow-write scripts/docs/generate-disclosure.ts README.md
 ```
 
-### Step 2: Update AGENTS.md
+#### Step 2: Update AGENTS.md
 
 ```bash
-# Validate current state
+## Validate current state
 deno run --allow-read scripts/docs/validate.ts AGENTS.md
 
-# Update technology stack information manually
-# Ensure all terminology is consistent
-# Add clear contribution guidelines
+## Update technology stack information manually
+## Ensure all terminology is consistent
+## Add clear contribution guidelines
 ```
 
-### Step 3: Review Constitution
+#### Step 3: Review Constitution
 
 ```bash
-# Validate constitution
+## Validate constitution
 deno run --allow-read scripts/docs/validate.ts constitution.md
 
-# Ensure principles are clearly numbered and actionable
-# Verify scope boundaries are explicit
-# Check that success criteria are measurable
+## Ensure principles are clearly numbered and actionable
+## Verify scope boundaries are explicit
+## Check that success criteria are measurable
 ```
 
-## Phase 5: Test and Validate (30 minutes)
+### Phase 5: Test and Validate (30 minutes)
 
-### Step 1: Run Full Validation
+#### Step 1: Run Full Validation
 
 ```bash
-# Test all documentation files
+## Test all documentation files
 deno run --allow-read scripts/docs/validate.ts README.md AGENTS.md constitution.md
 
-# Verify consistency score meets 95% target
-# Fix any terminology issues found
-# Resolve any broken links
+## Verify consistency score meets 95% target
+## Fix any terminology issues found
+## Resolve any broken links
 ```
 
-### Step 2: Test GitHub Actions
+#### Step 2: Test GitHub Actions
 
 ```bash
-# Commit changes and push to trigger workflow
+## Commit changes and push to trigger workflow
 git add .
 git commit -m "feat: implement documentation validation and improvements"
 git push origin 009-improve-docs
 
-# Monitor GitHub Actions workflow
-# Verify validation passes
-# Check that consistency score meets requirements
+## Monitor GitHub Actions workflow
+## Verify validation passes
+## Check that consistency score meets requirements
 ```
 
-### Step 3: Manual Validation
+#### Step 3: Manual Validation
 
 1. **User Experience Test**: Have a new user follow README for installation
 2. **Contributor Test**: Have a developer use AGENTS.md to set up environment
 3. **Maintainer Test**: Use constitution to evaluate a mock feature request
 
-## Success Criteria Checklist
+### Success Criteria Checklist
 
 - [ ] **SC-001**: New users complete installation in <10 minutes using README
 - [ ] **SC-002**: 95% of questions answered in documentation (test with FAQ analysis)
@@ -680,31 +681,31 @@ git push origin 009-improve-docs
 - [ ] **SC-006**: Automated validation prevents inconsistency
 - [ ] **SC-007**: Time to first contribution measurably improved
 
-## Maintenance
+### Maintenance
 
-### Daily
+#### Daily
 - Monitor GitHub Actions for validation failures
 - Review and merge automated formatting updates
 
-### Weekly
+#### Weekly
 - Review metrics and consistency scores
 - Update terminology database as needed
 
-### Monthly
+#### Monthly
 - Analyze user feedback for documentation gaps
 - Update success criteria measurements
 - Review and update validation rules
 
-## Troubleshooting
+### Troubleshooting
 
-### Common Issues
+#### Common Issues
 
 1. **Validation script fails**: Check Deno permissions and file paths
 2. **GitHub Actions timeout**: Reduce file set or optimize validation logic
 3. **Terminology conflicts**: Update terminology.json with new canonical forms
 4. **Progressive disclosure breaks**: Check HTML syntax in generated sections
 
-### Getting Help
+#### Getting Help
 
 - Check contracts in `contracts/` directory for interface requirements
 - Review research.md for implementation rationale

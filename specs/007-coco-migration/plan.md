@@ -1,9 +1,6 @@
-# Implementation Plan: Coco — Universal Local AI Gateway
+## Plan
 
-**Branch**: `007-coco-migration` | **Date**: 2026-03-10 | **Spec**: `specs/007-coco-migration/spec.md`  
-**Input**: Migrate the Claudio codebase into Coco — a universal AI gateway with background service, multi-API proxy, configuration manager, agent-detection engine, and minimal TUI.
-
-## Summary
+### Summary
 
 Coco evolves Claudio's narrow "launch Claude Code" purpose into a universal local AI
 gateway. The proxy (Anthropic-compatible `/v1/messages`) is preserved unchanged. New
@@ -17,54 +14,9 @@ The binary is renamed from `claudio` to `coco`. Two source files are deleted
 (`src/cli/launch.ts`, `src/cli/session.ts`). All other existing modules are preserved
 or lightly extended.
 
-## Technical Context
+### Project Structure
 
-**Language/Version**: Deno (latest stable) + TypeScript (strict mode)  
-**Primary Dependencies**: Deno std library only — `@std/fmt/colors` (ANSI helpers), `@std/toml` (Goose config merge), `@std/yaml` (Aider config merge); no third-party runtime deps  
-**Storage**: `~/.coco/config.json` (CocoConfig), `~/.coco/coco.pid` (daemon PID), `~/.coco/coco.log` (structured log)  
-**Testing**: `deno test --allow-all`  
-**Target Platform**: macOS (arm64, x64), Linux (x64, arm64), Windows (x64) — single compiled binary  
-**Project Type**: CLI + background service + TUI  
-**Performance Goals**: <150ms OpenAI proxy overhead; <200ms TUI first render; <1s `coco start`/`coco stop`  
-**Constraints**: Bind exclusively to `127.0.0.1`; single binary; no Copilot SDK/CLI deps; `~/.coco/` config dir  
-**Scale/Scope**: Local developer tool; bounded concurrency (handful of simultaneous agent connections)
-
-## Constitution Check
-
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
-
-### ⚠️ VIOLATIONS — JUSTIFIED AS CONSTITUTIONAL AMENDMENT
-
-The current Claudio Constitution (v1.3.0) explicitly conflicts with Coco's design in
-the following places. All violations are **justified** because this spec IS the
-constitutional amendment. `speckit.constitution` MUST be run before implementation
-to update the constitution to Coco v1.0.0.
-
-| Principle | Violation | Justification |
-|---|---|---|
-| I — Minimalism | "Does one thing: bridges Claude Code to Copilot models" | Coco's broader purpose is the migration goal; minimalism is preserved within each module |
-| IV — Separation of Concerns | "Must NOT continue running after Claude Code begins execution" | Coco runs as a persistent daemon; separation now applies between daemon and TUI |
-| V — Portability | "No background daemons or persistent processes" | Background daemon is Coco's core value; portability preserved via self-respawn single binary |
-| Non-Responsibilities | "Running as a background daemon" | Explicitly reversed by this migration |
-| Technical Standards | "No background daemons or persistent processes" | Same as Principle V |
-
-### ✅ PASSING — Unchanged Principles
-
-| Principle | Status |
-|---|---|
-| II — Calm UX | ✅ Pass — calm output preserved across all new modules |
-| III — Predictability | ✅ Pass — all transforms remain deterministic and spec-driven |
-| VI — Transparency | ✅ Pass — all transformations documented in contracts/ |
-| VII — Self-Containment | ✅ Pass — no SDK/CLI deps; pure HTTP to Copilot |
-| VIII — Contract Testing | ✅ Pass — contract tests required for all new endpoints and CLI commands |
-| IX — Quality Gates | ✅ Pass — same `deno lint && deno fmt --check && deno check && deno test` gates |
-
-**⛔ BLOCKED**: Implementation MUST NOT begin until `speckit.constitution` is run to
-produce Coco Constitution v1.0.0.
-
-## Project Structure
-
-### Documentation (this feature)
+#### Documentation (this feature)
 
 ```text
 specs/007-coco-migration/
@@ -79,7 +31,7 @@ specs/007-coco-migration/
 └── tasks.md             ← Phase 2 (speckit.tasks — not yet created)
 ```
 
-### Source Code (repository root)
+#### Source Code (repository root)
 
 ```text
 src/
@@ -110,7 +62,7 @@ src/
 ├── auth/ copilot/ lib/  # PRESERVED (lib gains log.ts + process.ts)
 └── version.ts           # MODIFIED — version bump
 
-# DELETED
+## DELETED
 src/cli/launch.ts        # replaced by service/ + agents/config.ts
 src/cli/session.ts       # replaced by TUI exit message
 
@@ -123,7 +75,7 @@ tests/
 **Structure Decision**: Single-project layout. All new modules added as sibling
 directories under `src/`. Mirrors existing Claudio structure exactly.
 
-## Complexity Tracking
+### Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |---|---|---|

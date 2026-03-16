@@ -1,10 +1,6 @@
-# Implementation Plan: Remove Copilot SDK — Direct HTTP Integration
+## Plan
 
-**Branch**: `003-remove-copilot-sdk` | **Date**: 2026-03-07 | **Spec**:
-`/specs/003-remove-copilot-sdk/spec.md` **Input**: Feature specification from
-`/specs/003-remove-copilot-sdk/spec.md`
-
-## Summary
+### Summary
 
 Replace all usage of `@github/copilot-sdk` (which spawns a CLI binary over
 JSON-RPC) with direct HTTPS calls to the GitHub Copilot API using Deno's
@@ -13,46 +9,9 @@ token exchange, caching, and OpenAI-format chat completions. The
 Anthropic-facing proxy API (`/v1/messages`) is unchanged; only the internal
 implementation changes.
 
-## Technical Context
+### Project Structure
 
-**Language/Version**: Deno (latest stable) + TypeScript **Primary
-Dependencies**: Deno std/http (existing), native `fetch` (built-in — no new
-deps) **Storage**: In-memory only for Copilot token cache; disk token store
-unchanged **Testing**: `deno test`, contract tests in `tests/contract/` **Target
-Platform**: macOS, Linux, Windows (local machine) **Project Type**: CLI with
-embedded HTTP proxy **Performance Goals**: Latency equal to or better than SDK
-(no CLI spawn overhead) **Constraints**: Zero new external runtime dependencies;
-must pass `deno task quality` **Scale/Scope**: Single-user local proxy; one
-active Copilot token at a time
-
-## Constitution Check
-
-_GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
-
-- **VII (Self-Containment)**: ✅ This feature directly satisfies Principle VII —
-  removes SDK and CLI dependency; all Copilot communication via stable HTTP
-  interface
-- **VI (Transparency)**: ✅ All request/response transformations are documented
-  in `research.md` and `data-model.md`; `contracts/copilot-http.md` defines the
-  HTTP contract
-- **I (Minimalism)**: ✅ New `src/copilot/` module is narrow — token exchange,
-  cache, HTTP client only; no new configuration surfaces
-- **III (Predictability)**: ✅ Stateless HTTP calls; deterministic token refresh
-  logic
-- **IV (Separation of Concerns)**: ✅ `src/copilot/` handles Copilot comms;
-  `src/server/` handles Anthropic API surface — concerns remain separated
-- **VIII (Contract Testing)**: ✅ Contract tests required for new
-  `src/copilot/client.ts` and updated `src/server/copilot.ts`
-- **IX (Quality Gates)**: ✅
-  `deno lint && deno fmt --check && deno check && deno test` must pass; SDK
-  removal must not require `patch:copilot-sdk` workaround
-
-_Post-design re-check_: All gates pass. No new external dependencies.
-Anthropic-facing contract is unchanged. SDK is fully removed.
-
-## Project Structure
-
-### Documentation (this feature)
+#### Documentation (this feature)
 
 ```text
 specs/003-remove-copilot-sdk/
@@ -66,7 +25,7 @@ specs/003-remove-copilot-sdk/
 └── tasks.md                  # Phase 2 output (/speckit.tasks)
 ```
 
-### Source Code (repository root)
+#### Source Code (repository root)
 
 ```text
 src/
@@ -97,6 +56,6 @@ deno.json                     # UPDATE: remove SDK import + patch task
 separates Copilot HTTP concerns from the server and CLI layers. Existing
 structure is preserved.
 
-## Complexity Tracking
+### Complexity Tracking
 
 > No constitution violations. No complexity justification required.

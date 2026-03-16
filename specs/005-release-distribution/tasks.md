@@ -1,8 +1,10 @@
+## Tasks
+
 ---
 description: "Task list for Release Distribution feature implementation"
 ---
 
-# Tasks: Release Distribution
+## Tasks: Release Distribution
 
 **Feature**: `005-release-distribution`\
 **Input**: Design documents from `specs/005-release-distribution/`\
@@ -13,7 +15,7 @@ contracts/ ✅ quickstart.md ✅\
 **Organization**: Tasks grouped by user story to enable independent
 implementation and testing.
 
-## Format: `[ID] [P?] [Story?] Description — file path`
+### Format: `[ID] [P?] [Story?] Description — file path`
 
 - **[P]**: Can run in parallel (different files, no blocking dependencies)
 - **[Story]**: User story label (US1–US4) — omitted for Setup, Foundational, and
@@ -22,7 +24,7 @@ implementation and testing.
 
 ---
 
-## Phase 1: Setup (Shared Infrastructure)
+### Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Scaffold all new directories and files; extend `deno.json` with
 fields required by every downstream phase. No story can begin until these exist.
@@ -49,7 +51,7 @@ fields required by every downstream phase. No story can begin until these exist.
 
 ---
 
-## Phase 2: Foundational (Version Infrastructure)
+### Phase 2: Foundational (Version Infrastructure)
 
 **Purpose**: Wire `deno.json` as the single source of truth for the version
 across all distribution channels. This phase **MUST** be complete before any
@@ -81,7 +83,7 @@ and all npm `package.json` versions match `deno.json` version. Run
 
 ---
 
-## Phase 2.5: Contract Tests — CLI Interface (Constitution VIII)
+### Phase 2.5: Contract Tests — CLI Interface (Constitution VIII)
 
 **Purpose**: Verify the stable CLI contract defined in
 `contracts/cli-interface.md` is upheld by the compiled binary and the Deno entry
@@ -112,7 +114,7 @@ alongside the existing 54 tests (59 total).
 
 ---
 
-## Phase 3: User Story 1 — GitHub Release Binary (Priority: P1) 🎯 MVP
+### Phase 3: User Story 1 — GitHub Release Binary (Priority: P1) 🎯 MVP
 
 **Goal**: Pushing a `v*` tag produces a GitHub Release with five self-contained
 platform binaries attached as assets.
@@ -164,7 +166,7 @@ exits `0`.
 
 ---
 
-## Phase 4: User Story 2 — npm Shim Package (Priority: P2)
+### Phase 4: User Story 2 — npm Shim Package (Priority: P2)
 
 **Goal**: `npm install -g claudio` installs the correct platform binary via
 `optionalDependencies` and places `claudio` on PATH. No Deno runtime required on
@@ -227,7 +229,7 @@ verify `claudio --version` matches tagged version and the correct
 
 ---
 
-## Phase 5: User Story 3 — JSR Package (Priority: P3)
+### Phase 5: User Story 3 — JSR Package (Priority: P3)
 
 **Goal**: `deno install -A -n claudio jsr:@myty/claudio` installs Claudio for
 Deno users. No compiled binary; runs from TypeScript source via Deno runtime.
@@ -255,7 +257,7 @@ verify `@myty/claudio` package appears on jsr.io with the correct version.
 
 ---
 
-## Phase 6: User Story 4 — mise Compatibility (Priority: P3)
+### Phase 6: User Story 4 — mise Compatibility (Priority: P3)
 
 **Goal**: `mise use -g claudio` auto-detects the current platform, downloads the
 matching binary from GitHub Releases, and puts `claudio` on PATH. Requires no
@@ -279,7 +281,7 @@ and the binary naming convention established in US1.
 
 ---
 
-## Phase 7: Polish & Cross-Cutting Concerns
+### Phase 7: Polish & Cross-Cutting Concerns
 
 **Purpose**: End-user documentation, operational runbook additions, and final
 end-to-end validation across all distribution channels.
@@ -307,9 +309,9 @@ end-to-end validation across all distribution channels.
 
 ---
 
-## Dependencies & Execution Order
+### Dependencies & Execution Order
 
-### Phase Dependencies
+#### Phase Dependencies
 
 ```
 Phase 1: Setup          — no dependencies; start immediately
@@ -322,7 +324,7 @@ Phase 6: US4            — needs Phase 3 GitHub Release assets (binary naming)
 Phase 7: Polish         — needs all user stories complete
 ```
 
-### User Story Dependencies
+#### User Story Dependencies
 
 | Story    | Blocks                                | Depends On                                           |
 | -------- | ------------------------------------- | ---------------------------------------------------- |
@@ -331,7 +333,7 @@ Phase 7: Polish         — needs all user stories complete
 | US3 (P3) | nothing                               | Phase 2 (deno.json fields) + US1 workflow file       |
 | US4 (P3) | nothing                               | US1 GitHub Release assets (binary naming convention) |
 
-### Within Each Phase
+#### Within Each Phase
 
 - T003, T004, T005 (Phase 1) can run in parallel — different directories
 - T006, T007, T008 (Phase 2) are sequential — T006 depends on T002; T007 depends
@@ -345,9 +347,9 @@ Phase 7: Polish         — needs all user stories complete
 
 ---
 
-## Parallel Execution Examples
+### Parallel Execution Examples
 
-### Phase 1 — Scaffold in parallel
+#### Phase 1 — Scaffold in parallel
 
 ```
 Task T003: Scaffold npm/claudio/ directory
@@ -355,7 +357,7 @@ Task T004: Scaffold npm/@claudio/ platform directories
 Task T005: Create scripts/sync-version.ts stub
 ```
 
-### Phase 3 — US1 release workflow (sequential, same file)
+#### Phase 3 — US1 release workflow (sequential, same file)
 
 ```
 Step 1: T009 — Create release.yml with quality job
@@ -368,7 +370,7 @@ Step 7: T015 — Add release job + manifest generation
 Step 8: T016 — Add softprops/action-gh-release step
 ```
 
-### Phase 4 — npm platform packages in parallel after T017
+#### Phase 4 — npm platform packages in parallel after T017
 
 ```
 After T017 (main package.json defined):
@@ -379,7 +381,7 @@ After T017 (main package.json defined):
   Task T024: @claudio/win32-x64/package.json
 ```
 
-### Phase 5+6 — After Phase 2 complete (can parallelize with US1/US2)
+#### Phase 5+6 — After Phase 2 complete (can parallelize with US1/US2)
 
 ```
 US3 (T026, T027): Add JSR publish job — independent of build matrix
@@ -388,9 +390,9 @@ US4 (T028, T029): mise.toml + README — independent of workflow
 
 ---
 
-## Implementation Strategy
+### Implementation Strategy
 
-### MVP Scope (User Story 1 only)
+#### MVP Scope (User Story 1 only)
 
 1. Complete Phase 1: Setup (T001–T005)
 2. Complete Phase 2: Foundational (T006–T008) — version sync wired
@@ -399,7 +401,7 @@ US4 (T028, T029): mise.toml + README — independent of workflow
    Release
 5. Binary users can install immediately via `curl` + `chmod`
 
-### Incremental Delivery
+#### Incremental Delivery
 
 ```
 MVP:  Phase 1 + 2 + US1  → GitHub Release binaries ✅
@@ -409,7 +411,7 @@ Add:  US4 (T028–T029)    → mise use -g claudio ✅
 Done: Phase 7 (T030–T033) → docs + validation ✅
 ```
 
-### Parallel Team Strategy
+#### Parallel Team Strategy
 
 With two developers after Phase 2 is complete:
 
@@ -423,7 +425,7 @@ Then: Developer A adds T025 (npm publish CI) once US2 packages exist
 
 ---
 
-## Task Count Summary
+### Task Count Summary
 
 | Phase                       | Tasks         | Stories       | [P] Tasks        |
 | --------------------------- | ------------- | ------------- | ---------------- |
@@ -439,7 +441,7 @@ Then: Developer A adds T025 (npm publish CI) once US2 packages exist
 
 ---
 
-## Key Invariants (Non-Negotiable)
+### Key Invariants (Non-Negotiable)
 
 From `plan.md` — these must hold after every release:
 

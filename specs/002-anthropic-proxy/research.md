@@ -1,6 +1,7 @@
-# Research: Anthropic-Compatible API Proxy
+## Research
 
-## Decision: HTTP Server Library
+
+### Decision: HTTP Server Library
 
 **Chosen**: Deno std/http (built-in)
 
@@ -14,7 +15,7 @@ dependencies needed. Matches Deno-first approach.
 
 ---
 
-## Decision: Request/Response Transformation
+### Decision: Request/Response Transformation
 
 **Chosen**: Manual transformation layer
 
@@ -30,7 +31,7 @@ Copilot formats. Both APIs evolve, manual gives flexibility.
 
 ---
 
-## Decision: Server Startup Strategy
+### Decision: Server Startup Strategy
 
 **Chosen**: Lazy start (start on first request)
 
@@ -43,7 +44,7 @@ processes. Claude Code will connect when ready.
 
 ---
 
-## Decision: Streaming Implementation
+### Decision: Streaming Implementation
 
 **Chosen**: SSE (Server-Sent Events) via Deno HTTP
 
@@ -57,7 +58,7 @@ processes. Claude Code will connect when ready.
 
 ---
 
-## Decision: Port Configuration
+### Decision: Port Configuration
 
 **Chosen**: Default port 8080, configurable via `CLAUDIO_PORT` env var
 
@@ -69,7 +70,7 @@ processes. Claude Code will connect when ready.
 
 ---
 
-## Decision: Error Response Format
+### Decision: Error Response Format
 
 **Chosen**: Anthropic error format
 
@@ -88,9 +89,9 @@ processes. Claude Code will connect when ready.
 
 ---
 
-## Key Technical Details
+### Key Technical Details
 
-### Anthropic /v1/messages Request Format
+#### Anthropic /v1/messages Request Format
 
 ```json
 {
@@ -104,7 +105,7 @@ processes. Claude Code will connect when ready.
 }
 ```
 
-### Anthropic /v1/messages Response Format
+#### Anthropic /v1/messages Response Format
 
 ```json
 {
@@ -124,7 +125,7 @@ processes. Claude Code will connect when ready.
 }
 ```
 
-### Copilot SDK Usage
+#### Copilot SDK Usage
 
 ```typescript
 const client = new CopilotClient();
@@ -132,7 +133,7 @@ const session = await client.createSession({ model: "gpt-4.1" });
 const response = await session.sendAndWait({ prompt: "Question?" });
 ```
 
-### SSE Events to Implement
+#### SSE Events to Implement
 
 - `message_start` - First event with message metadata
 - `content_block_start` - When content block begins

@@ -1,21 +1,22 @@
-# Tasks: Anthropic-Compatible API Proxy
+## Tasks
+
 
 **Feature**: 002-anthropic-proxy\
 **Date**: 2026-02-28\
 **Spec**: `/specs/002-anthropic-proxy/spec.md`
 
-## Overview
+### Overview
 
 Build a local HTTP server that exposes Anthropic-compatible endpoints
 (`/v1/messages`, `/v1/messages/count_tokens`) which proxy requests to the GitHub
 Copilot SDK.
 
-## Implementation Strategy
+### Implementation Strategy
 
 **MVP Scope**: User Story 1 - Core proxy functionality (non-streaming messages)\
 **Delivery**: Incremental - each user story phase is independently testable
 
-## Dependencies
+### Dependencies
 
 ```
 User Story 1 (P1) ──┬──> User Story 2 (P1)
@@ -28,7 +29,7 @@ User Story 3 (P2) ─┘        │
 
 All user stories depend on Setup and Foundational phases completing first.
 
-## Phase 1: Setup
+### Phase 1: Setup
 
 Project initialization and dependency setup.
 
@@ -36,7 +37,7 @@ Project initialization and dependency setup.
 - [x] T002 [P] Install @github/copilot-sdk npm package in deno.json imports
 - [x] T003 Configure Deno permissions for network access in deno.json
 
-## Phase 2: Foundational
+### Phase 2: Foundational
 
 Core types and infrastructure required before implementing user stories.
 
@@ -47,7 +48,7 @@ Core types and infrastructure required before implementing user stories.
       src/server/transform.ts
 - [x] T007a [P] Create server lifecycle module in src/server/server.ts
 
-## Phase 3: User Story 1 - Claude Code Connection (P1)
+### Phase 3: User Story 1 - Claude Code Connection (P1)
 
 Core proxy functionality: /v1/messages endpoint, non-streaming and streaming
 
@@ -67,7 +68,7 @@ Anthropic-formatted response
 - [x] T014 [P] [US1] Run quality gates: deno lint && deno fmt --check && deno
       check
 
-## Phase 4: User Story 2 - Server Lifecycle (P1)
+### Phase 4: User Story 2 - Server Lifecycle (P1)
 
 Lazy start, graceful shutdown, resource cleanup
 
@@ -84,7 +85,7 @@ server starts, send signal, verify clean shutdown
 - [x] T018 [P] [US2] Run quality gates: deno lint && deno fmt --check && deno
       check
 
-## Phase 5: User Story 3 - Error Handling (P2)
+### Phase 5: User Story 3 - Error Handling (P2)
 
 Anthropic-compatible error responses
 
@@ -101,7 +102,7 @@ error format
 - [x] T022 [P] [US3] Run quality gates: deno lint && deno fmt --check && deno
       check
 
-## Phase 6: Contract Tests (Per Constitution VI)
+### Phase 6: Contract Tests (Per Constitution VI)
 
 Verify API contracts for each user story per Constitution VI
 
@@ -113,7 +114,7 @@ Verify API contracts for each user story per Constitution VI
 - [x] T026 [P] [US3] Test error response formats in tests/contract/error_test.ts
 - [x] T027 Run all contract tests: deno test tests/contract/
 
-## Phase 7: Polish
+### Phase 7: Polish
 
 Cross-cutting concerns and final integration
 
@@ -123,7 +124,7 @@ Cross-cutting concerns and final integration
 
 ---
 
-## Summary
+### Summary
 
 | Metric             | Value |
 | ------------------ | ----- |
@@ -136,7 +137,7 @@ Cross-cutting concerns and final integration
 | Contract Tests     | 5     |
 | Polish Phase       | 2     |
 
-## Parallel Opportunities
+### Parallel Opportunities
 
 | Tasks             | Reason                        |
 | ----------------- | ----------------------------- |
@@ -148,7 +149,7 @@ Cross-cutting concerns and final integration
 | T013, T014        | Integration after endpoints   |
 | T023-T026         | Tests can run in parallel     |
 
-## Independent Test Criteria
+### Independent Test Criteria
 
 - **US1**: POST /v1/messages returns Anthropic-formatted response
 - **US2**: Server starts on first request, stops on SIGTERM

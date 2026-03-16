@@ -1,9 +1,10 @@
-# Quickstart: Release Distribution
+## Quickstart
+
 
 **Feature**: `005-release-distribution`\
 **Audience**: Developer working on the Claudio project
 
-## Prerequisites
+### Prerequisites
 
 - Deno 2.x installed
 - Node.js 18+ and npm 9+ installed (for npm shim development)
@@ -12,49 +13,49 @@
 
 ---
 
-## Local Development: Compile a Binary
+### Local Development: Compile a Binary
 
 ```bash
-# Compile for your current platform (no --target needed)
+## Compile for your current platform (no --target needed)
 deno compile \
   --allow-net --allow-env --allow-run --allow-read --allow-write \
   --output ./bin/claudio \
   src/cli/main.ts
 
-# Test the binary
+## Test the binary
 ./bin/claudio --version
 ```
 
-## Cross-Compile for All Platforms
+### Cross-Compile for All Platforms
 
 ```bash
-# macOS arm64
+## macOS arm64
 deno compile --allow-net --allow-env --allow-run --allow-read --allow-write \
   --target aarch64-apple-darwin --output bin/claudio-macos-arm64 src/cli/main.ts
 
-# macOS x64
+## macOS x64
 deno compile --allow-net --allow-env --allow-run --allow-read --allow-write \
   --target x86_64-apple-darwin --output bin/claudio-macos-x64 src/cli/main.ts
 
-# Linux x64
+## Linux x64
 deno compile --allow-net --allow-env --allow-run --allow-read --allow-write \
   --target x86_64-unknown-linux-gnu --output bin/claudio-linux-x64 src/cli/main.ts
 
-# Linux arm64
+## Linux arm64
 deno compile --allow-net --allow-env --allow-run --allow-read --allow-write \
   --target aarch64-unknown-linux-gnu --output bin/claudio-linux-arm64 src/cli/main.ts
 
-# Windows x64
+## Windows x64
 deno compile --allow-net --allow-env --allow-run --allow-read --allow-write \
   --target x86_64-pc-windows-msvc --output bin/claudio-windows-x64 src/cli/main.ts
-# Note: Deno auto-appends .exe → bin/claudio-windows-x64.exe
+## Note: Deno auto-appends .exe → bin/claudio-windows-x64.exe
 ```
 
 ---
 
-## Releasing a New Version
+### Releasing a New Version
 
-### 1. Update the version in `deno.json`
+#### 1. Update the version in `deno.json`
 
 ```json
 {
@@ -62,7 +63,7 @@ deno compile --allow-net --allow-env --allow-run --allow-read --allow-write \
 }
 ```
 
-### 2. Sync version to all dependent files
+#### 2. Sync version to all dependent files
 
 ```bash
 deno run -A scripts/sync-version.ts
@@ -74,7 +75,7 @@ This updates:
 - `npm/claudio/package.json` — version + optionalDependencies versions
 - `npm/@claudio/*/package.json` — version fields
 
-### 3. Commit, tag, and push
+#### 3. Commit, tag, and push
 
 ```bash
 git add deno.json src/version.ts npm/
@@ -83,7 +84,7 @@ git tag v0.3.0
 git push origin main --follow-tags
 ```
 
-### 4. Watch the release workflow
+#### 4. Watch the release workflow
 
 ```bash
 gh run watch
@@ -99,29 +100,29 @@ The GitHub Actions workflow will:
 
 ---
 
-## Install via Each Channel (Post-Release)
+### Install via Each Channel (Post-Release)
 
-### GitHub Release (direct download)
+#### GitHub Release (direct download)
 
 ```bash
-# macOS arm64
+## macOS arm64
 curl -L https://github.com/myty/claudio/releases/latest/download/claudio-macos-arm64 \
   -o /usr/local/bin/claudio && chmod +x /usr/local/bin/claudio
 ```
 
-### npm
+#### npm
 
 ```bash
 npm install -g claudio
 ```
 
-### JSR (Deno)
+#### JSR (Deno)
 
 ```bash
 deno install -A -n claudio jsr:@myty/claudio
 ```
 
-### mise
+#### mise
 
 ```bash
 mise use -g claudio
@@ -129,7 +130,7 @@ mise use -g claudio
 
 ---
 
-## Project Structure (this feature)
+### Project Structure (this feature)
 
 ```
 .github/
@@ -166,9 +167,9 @@ tests/
 
 ---
 
-## Troubleshooting
+### Troubleshooting
 
-### Binary not executable after npm install
+#### Binary not executable after npm install
 
 ```bash
 chmod +x $(which claudio)
@@ -177,7 +178,7 @@ chmod +x $(which claudio)
 If using pnpm or Yarn Berry, ensure `preferUnplugged: true` is in the platform
 package. This forces the package manager to materialise the binary to disk.
 
-### Wrong platform binary selected
+#### Wrong platform binary selected
 
 The shim uses `process.platform` + `process.arch`. Check:
 
@@ -189,7 +190,7 @@ Should print e.g. `darwin arm64`. If this doesn't match a supported platform,
 the shim falls back to `deno run` or prints an error with the GitHub Releases
 URL.
 
-### deno compile downloads target runtime on first run
+#### deno compile downloads target runtime on first run
 
 First cross-compile run downloads the Deno runtime for the target (~80–120 MB).
 This is cached in `~/.deno/dl`. Subsequent runs use the cache. CI pipelines

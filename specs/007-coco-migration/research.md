@@ -1,10 +1,11 @@
-# Research: Coco — Universal Local AI Gateway
+## Research
+
 
 **Branch**: `007-coco-migration` | **Phase**: 0
 
 ---
 
-## R-001: Deno Process Daemonisation
+### R-001: Deno Process Daemonisation
 
 **Decision**: Re-spawn the compiled `coco` binary as a detached child process using
 `Deno.Command` with `detached: true`, `stdin/stdout/stderr: "null"`, then exit the parent.
@@ -45,7 +46,7 @@ Deno.exit(0);  // parent exits immediately; child runs independently
 
 ---
 
-## R-002: Terminal UI Rendering in Deno (No npm)
+### R-002: Terminal UI Rendering in Deno (No npm)
 
 **Decision**: Pure ANSI/VT100 rendering using `Deno.stdout.write()` with escape sequences.
 Use `Deno.stdin.setRaw(true)` for single-keypress input. Use `@std/fmt/colors` from the
@@ -90,7 +91,7 @@ Cursor is hidden during render, shown on exit. TTY guard: only enter raw mode wh
 
 ---
 
-## R-003: OpenAI Chat Completions API Format
+### R-003: OpenAI Chat Completions API Format
 
 **Decision**: Implement full OpenAI v1 chat completions wire format as documented.
 
@@ -160,7 +161,7 @@ data: [DONE]
 
 ---
 
-## R-004: Agent Config File Locations
+### R-004: Agent Config File Locations
 
 **Decision**: Use a per-agent config writer that targets the canonical config path for
 each agent. Where agents use environment variables (Aider, GPT-Engineer), Coco writes
@@ -186,7 +187,7 @@ On `unconfigure`, the backup is restored; if no backup exists the file is remove
 
 ---
 
-## R-005: VS Code Extension & Binary Detection
+### R-005: VS Code Extension & Binary Detection
 
 **Decision**: Multi-strategy detection in priority order: (1) PATH binary, (2) VS Code
 extension directories across known editors, (3) JetBrains plugin directories.
@@ -225,7 +226,7 @@ extension directories across known editors, (3) JetBrains plugin directories.
 
 ---
 
-## R-006: Model Alias Map
+### R-006: Model Alias Map
 
 **Decision**: Bundle a default alias map in `src/agents/models.ts`. At runtime, merge
 with any user overrides from `~/.coco/config.json#modelMap`.
@@ -254,7 +255,7 @@ export const DEFAULT_MODEL_MAP: Record<string, string> = {
 
 ---
 
-## R-007: Constitution Amendment Required
+### R-007: Constitution Amendment Required
 
 **Finding**: The current Claudio Constitution (v1.3.0) explicitly forbids background
 daemons in three places (Principle V, Technical Standards, Non-Responsibilities).

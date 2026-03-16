@@ -1,4 +1,5 @@
-# Tasks: Documentation Improvement Initiative
+## Tasks
+
 
 **Input**: Design documents from `/specs/009-improve-docs/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
@@ -7,13 +8,13 @@
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
-## Format: `[ID] [P?] [Story] Description`
+### Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
 - **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
 - Include exact file paths in descriptions
 
-## Path Conventions
+### Path Conventions
 
 Documentation project structure based on plan.md:
 - Documentation files: `README.md`, `AGENTS.md`, `.specify/memory/constitution.md`
@@ -21,7 +22,7 @@ Documentation project structure based on plan.md:
 - GitHub Actions: `.github/workflows/`
 - Configuration files: Repository root
 
-## Phase 1: Setup (Shared Infrastructure)
+### Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and validation infrastructure
 
@@ -33,7 +34,7 @@ Documentation project structure based on plan.md:
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+### Phase 2: Foundational (Blocking Prerequisites)
 
 **Purpose**: Core validation infrastructure that MUST be complete before ANY user story documentation can be improved
 
@@ -51,13 +52,13 @@ Documentation project structure based on plan.md:
 
 ---
 
-## Phase 3: User Story 1 - Developer Onboarding Experience (Priority: P1) 🎯 MVP
+### Phase 3: User Story 1 - Developer Onboarding Experience (Priority: P1) 🎯 MVP
 
 **Goal**: New developers can quickly understand Claudio's purpose, install it correctly, and get it running with their GitHub Copilot subscription within 10 minutes
 
 **Independent Test**: Have a new developer follow the README from discovery to successful first run and verify they understand Claudio's purpose and value proposition
 
-### Implementation for User Story 1
+#### Implementation for User Story 1
 
 - [x] T013 [P] [US1] Run validation baseline on current `README.md`
 - [x] T014 [P] [US1] Analyze current README structure against user experience contract
@@ -74,13 +75,13 @@ Documentation project structure based on plan.md:
 
 ---
 
-## Phase 4: User Story 2 - Development Team Clarity (Priority: P2)
+### Phase 4: User Story 2 - Development Team Clarity (Priority: P2)
 
 **Goal**: Development team members can quickly understand project architecture, coding standards, and contribution guidelines to effectively work on the codebase
 
 **Independent Test**: Have a new contributor successfully set up development environment and make their first contribution following the guidelines
 
-### Implementation for User Story 2
+#### Implementation for User Story 2
 
 - [x] T023 [P] [US2] Run validation baseline on current `AGENTS.md`
 - [x] T024 [P] [US2] Analyze current AGENTS.md structure against developer requirements
@@ -98,13 +99,13 @@ Documentation project structure based on plan.md:
 
 ---
 
-## Phase 5: User Story 3 - Project Governance Clarity (Priority: P3)
+### Phase 5: User Story 3 - Project Governance Clarity (Priority: P3)
 
 **Goal**: Project maintainers and contributors understand the project's core principles, scope boundaries, and quality standards through a clear, actionable constitution
 
 **Independent Test**: Present maintainers with feature requests and verify they can make consistent decisions using constitutional principles within 5 minutes
 
-### Implementation for User Story 3
+#### Implementation for User Story 3
 
 - [x] T034 [P] [US3] Run validation baseline on current `.specify/memory/constitution.md`
 - [x] T035 [P] [US3] Analyze constitution structure against governance requirements
@@ -121,7 +122,7 @@ Documentation project structure based on plan.md:
 
 ---
 
-## Phase 6: Cross-Document Consistency & Automation
+### Phase 6: Cross-Document Consistency & Automation
 
 **Purpose**: Ensure consistency across all documentation files and enable automated maintenance
 
@@ -136,7 +137,7 @@ Documentation project structure based on plan.md:
 
 ---
 
-## Phase 7: Polish & Validation
+### Phase 7: Polish & Validation
 
 **Purpose**: Final validation and quality assurance across the complete documentation set
 
@@ -154,9 +155,9 @@ Documentation project structure based on plan.md:
 
 ---
 
-## Dependencies & Execution Order
+### Dependencies & Execution Order
 
-### Phase Dependencies
+#### Phase Dependencies
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
@@ -166,13 +167,13 @@ Documentation project structure based on plan.md:
 - **Cross-Document Consistency (Phase 6)**: Depends on all user stories being complete
 - **Polish (Phase 7)**: Depends on Cross-Document Consistency completion
 
-### User Story Dependencies
+#### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Independent but may reference US1 for consistency
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Independent but should align with US1/US2 principles
 
-### Within Each User Story
+#### Within Each User Story
 
 - Validation baseline before improvements
 - Structure analysis before content changes
@@ -181,7 +182,7 @@ Documentation project structure based on plan.md:
 - Validation testing after all changes complete
 - User scenario testing as final verification
 
-### Parallel Opportunities
+#### Parallel Opportunities
 
 - All Setup tasks marked [P] can run in parallel
 - All Foundational tasks marked [P] can run in parallel (within Phase 2)
@@ -193,22 +194,22 @@ Documentation project structure based on plan.md:
 
 ---
 
-## Parallel Example: User Story 1
+### Parallel Example: User Story 1
 
 ```bash
-# Launch baseline analysis for User Story 1 together:
+## Launch baseline analysis for User Story 1 together:
 Task: "Run validation baseline on current README.md"
 Task: "Analyze current README structure against user experience contract"
 
-# No parallel opportunities in content changes due to single file conflicts
-# But validation and testing can run in parallel after content complete
+## No parallel opportunities in content changes due to single file conflicts
+## But validation and testing can run in parallel after content complete
 ```
 
 ---
 
-## Implementation Strategy
+### Implementation Strategy
 
-### MVP First (User Story 1 Only)
+#### MVP First (User Story 1 Only)
 
 1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
@@ -216,7 +217,7 @@ Task: "Analyze current README structure against user experience contract"
 4. **STOP and VALIDATE**: Test README with new developer onboarding
 5. Deploy/demo if ready
 
-### Incremental Delivery
+#### Incremental Delivery
 
 1. Complete Setup + Foundational → Validation infrastructure ready
 2. Add User Story 1 (README) → Test independently → Deploy/Demo (MVP!)
@@ -225,7 +226,7 @@ Task: "Analyze current README structure against user experience contract"
 5. Add Cross-Document Consistency → Unified experience
 6. Add Polish → Production ready
 
-### Parallel Team Strategy
+#### Parallel Team Strategy
 
 With multiple developers:
 
@@ -238,9 +239,9 @@ With multiple developers:
 
 ---
 
-## Success Criteria Validation
+### Success Criteria Validation
 
-### Checkpoint Validations
+#### Checkpoint Validations
 
 - **After Phase 2**: Validation infrastructure works correctly
 - **After Phase 3**: README enables 10-minute onboarding (SC-001)
@@ -249,7 +250,7 @@ With multiple developers:
 - **After Phase 6**: 95% consistency score achieved (SC-005)
 - **After Phase 7**: All success criteria validated
 
-### Measurement Requirements
+#### Measurement Requirements
 
 - **SC-001**: Time new users from README discovery to first successful run
 - **SC-002**: Track percentage of questions answered within documentation
@@ -261,7 +262,7 @@ With multiple developers:
 
 ---
 
-## Notes
+### Notes
 
 - [P] tasks = different files or independent analysis, no dependencies
 - [Story] label maps task to specific user story for traceability

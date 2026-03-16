@@ -1,4 +1,5 @@
-# Tasks: Coco — Universal Local AI Gateway
+## Tasks
+
 
 **Input**: Design documents from `specs/007-coco-migration/`  
 **Prerequisites**: plan.md ✓ spec.md ✓ research.md ✓ data-model.md ✓ contracts/ ✓ quickstart.md ✓
@@ -7,7 +8,7 @@
 
 **Organization**: Tasks grouped by user story for independent implementation and delivery.
 
-## Format: `[ID] [P?] [Story] Description`
+### Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies on incomplete tasks)
 - **[Story]**: Which user story this task belongs to (US1–US6)
@@ -15,7 +16,7 @@
 
 ---
 
-## Pre-Flight Gate (REQUIRED — blocks all implementation)
+### Pre-Flight Gate (REQUIRED — blocks all implementation)
 
 > ⛔ **Constitution violation blocker.** The current Claudio Constitution v1.3.0 explicitly
 > prohibits background daemons in Principle V, Technical Standards, and Non-Responsibilities.
@@ -26,7 +27,7 @@
 
 ---
 
-## Phase 1: Setup (Shared Infrastructure)
+### Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Rename binary, scaffold new module directories, seed shared utilities, remove replaced files.
 
@@ -41,7 +42,7 @@
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+### Phase 2: Foundational (Blocking Prerequisites)
 
 **Purpose**: Core data types and registries that EVERY user story depends on. No user story can begin until this phase is complete.
 
@@ -57,7 +58,7 @@
 
 ---
 
-## Phase 3: User Story 1 — Background Service (Priority: P1) 🎯 MVP
+### Phase 3: User Story 1 — Background Service (Priority: P1) 🎯 MVP
 
 **Goal**: `coco start` daemonises the proxy; `coco stop/restart/status` manage it reliably.
 
@@ -75,7 +76,7 @@
 
 ---
 
-## Phase 4: User Story 3 — OpenAI-Compatible Endpoint (Priority: P1)
+### Phase 4: User Story 3 — OpenAI-Compatible Endpoint (Priority: P1)
 
 **Goal**: `POST /v1/chat/completions`, `GET /v1/models`, `GET /health` all return correct wire-format responses.
 
@@ -93,7 +94,7 @@
 
 ---
 
-## Phase 5: User Story 5 — Agent Detection (Priority: P2)
+### Phase 5: User Story 5 — Agent Detection (Priority: P2)
 
 **Goal**: `coco doctor` accurately classifies all 7 agents as `installed`, `detected`, or `not-installed`.
 
@@ -108,7 +109,7 @@
 
 ---
 
-## Phase 6: User Story 4 — Per-Agent Configuration (Priority: P2)
+### Phase 6: User Story 4 — Per-Agent Configuration (Priority: P2)
 
 **Goal**: `coco configure <agent>` writes the correct config file; `coco unconfigure <agent>` perfectly reverses it.
 
@@ -124,7 +125,7 @@
 
 ---
 
-## Phase 7: User Story 2 — TUI (Priority: P1 — depends on US1, US3, US4, US5)
+### Phase 7: User Story 2 — TUI (Priority: P1 — depends on US1, US3, US4, US5)
 
 **Goal**: Bare `coco` invocation on a TTY opens the TUI; Space toggles, Enter applies, `q` exits without changes.
 
@@ -140,7 +141,7 @@
 
 ---
 
-## Phase 8: User Story 6 — Coco Models List (Priority: P3)
+### Phase 8: User Story 6 — Coco Models List (Priority: P3)
 
 **Goal**: `coco models` prints available Copilot model IDs in calm, minimal output.
 
@@ -152,7 +153,7 @@
 
 ---
 
-## Final Phase: Polish & Cross-Cutting Concerns
+### Final Phase: Polish & Cross-Cutting Concerns
 
 **Purpose**: Distribution artifacts, documentation, final quality gate.
 
@@ -164,9 +165,9 @@
 
 ---
 
-## Dependencies & Execution Order
+### Dependencies & Execution Order
 
-### Phase Dependencies
+#### Phase Dependencies
 
 ```
 Phase 1 (Setup)
@@ -191,7 +192,7 @@ Phase 2 (Foundational) ◄── BLOCKS all user story phases
     Final Phase (Polish)
 ```
 
-### User Story Implementation Dependencies
+#### User Story Implementation Dependencies
 
 | Story | Phase | Depends On | Independent? |
 |---|---|---|---|
@@ -202,7 +203,7 @@ Phase 2 (Foundational) ◄── BLOCKS all user story phases
 | US2 TUI | 7 | US1 + US3 + US4 + US5 | ⚠️ Integrates all |
 | US6 Models List | 8 | US1 (auth flow) | ✅ Yes |
 
-### Within Each Phase
+#### Within Each Phase
 
 1. Contract tests / unit tests (marked `[P]`) — write FAILING first
 2. Data types and utilities
@@ -212,7 +213,7 @@ Phase 2 (Foundational) ◄── BLOCKS all user story phases
 
 ---
 
-## Parallel Opportunities per Story
+### Parallel Opportunities per Story
 
 ```
 Phase 1:  T002 ║ T003 ║ T004  (parallel — different new files)
@@ -227,9 +228,9 @@ Polish:   T041 ║ T042 ║ T043  (parallel — different doc files)
 
 ---
 
-## Implementation Strategy
+### Implementation Strategy
 
-### MVP (User Story 1 Only — Background Service)
+#### MVP (User Story 1 Only — Background Service)
 
 1. Complete Phase 1: Setup (T001–T006)
 2. Complete Phase 2: Foundational (T007–T011)
@@ -237,7 +238,7 @@ Polish:   T041 ║ T042 ║ T043  (parallel — different doc files)
 4. **STOP and VALIDATE**: `coco start/stop/restart/status` working with PID daemon
 5. Ship as `coco v0.2.0-alpha` — users can run the Anthropic proxy as a persistent service
 
-### Incremental Delivery
+#### Incremental Delivery
 
 | Milestone | Stories | Value delivered |
 |---|---|---|
@@ -247,7 +248,7 @@ Polish:   T041 ║ T042 ║ T043  (parallel — different doc files)
 | v0.2.0 | +US2 | TUI control surface; polished multi-agent experience |
 | v0.2.1 | +US6 | `coco models` inspection command |
 
-### Parallel Team Strategy
+#### Parallel Team Strategy
 
 After Phase 2 (Foundational) completes:
 
@@ -258,7 +259,7 @@ After Phase 2 (Foundational) completes:
 
 ---
 
-## Summary
+### Summary
 
 | Metric | Count |
 |---|---|

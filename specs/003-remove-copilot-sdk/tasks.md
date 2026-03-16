@@ -1,8 +1,10 @@
+## Tasks
+
 ---
 
-## description: "Task list template for feature implementation"
+### description: "Task list template for feature implementation"
 
-# Tasks: Remove Copilot SDK — Direct HTTP Integration
+## Tasks: Remove Copilot SDK — Direct HTTP Integration
 
 **Input**: Design documents from `/specs/003-remove-copilot-sdk/`
 **Prerequisites**: plan.md ✅, spec.md ✅, research.md ✅, data-model.md ✅,
@@ -16,7 +18,7 @@ interface.
 implementation and testing. US1 (Direct HTTP Communication) and US2 (Token
 Exchange) are tightly coupled foundations; US3 and US4 build on them cleanly.
 
-## Format: `[ID] [P?] [Story?] Description`
+### Format: `[ID] [P?] [Story?] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
 - **[Story]**: Which user story this task belongs to (US1–US4)
@@ -24,7 +26,7 @@ Exchange) are tightly coupled foundations; US3 and US4 build on them cleanly.
 
 ---
 
-## Phase 1: Setup
+### Phase 1: Setup
 
 **Purpose**: Create the new module structure before implementation begins.
 
@@ -34,7 +36,7 @@ Exchange) are tightly coupled foundations; US3 and US4 build on them cleanly.
 
 ---
 
-## Phase 2: Foundational — OpenAI Types (Shared by US1 + US2)
+### Phase 2: Foundational — OpenAI Types (Shared by US1 + US2)
 
 **Purpose**: Define all new OpenAI-format types that US1 and US2 both depend on.
 This phase MUST complete before any US1 or US2 implementation begins.
@@ -61,7 +63,7 @@ parallel.
 
 ---
 
-## Phase 3: User Story 2 — Token Exchange and Caching (Priority: P1) 🔑
+### Phase 3: User Story 2 — Token Exchange and Caching (Priority: P1) 🔑
 
 **Goal**: In-memory Copilot token cache with proactive refresh. No SDK involved.
 
@@ -70,7 +72,7 @@ made to `https://api.github.com/copilot_internal/v2/token`. Call again after
 setting cached token's `expiresAt` to `Date.now() - 1`; assert a second `fetch`
 call is made.
 
-### Contract Tests for User Story 2 ⚠️
+#### Contract Tests for User Story 2 ⚠️
 
 - [x] T004 [P] [US2] Write contract test `tests/contract/token_test.ts`:
   - Test `getToken()` with no cache → makes one GET to token endpoint, caches
@@ -84,7 +86,7 @@ call is made.
   - Test 429 response → throws `RateLimitError`
   - Use `fetch` stub/mock; do not make real network calls
 
-### Implementation for User Story 2
+#### Implementation for User Story 2
 
 - [x] T005 [US2] Create `src/copilot/token.ts`:
   - Module-level `let cachedToken: CopilotToken | null = null`
@@ -108,7 +110,7 @@ call is made.
 
 ---
 
-## Phase 4: User Story 1 — Direct Copilot HTTP Communication (Priority: P1) 🎯 MVP
+### Phase 4: User Story 1 — Direct Copilot HTTP Communication (Priority: P1) 🎯 MVP
 
 **Goal**: Replace the SDK session + CLI binary with direct `fetch` calls to the
 Copilot chat completions endpoint. Anthropic-facing API is unchanged.
@@ -117,7 +119,7 @@ Copilot chat completions endpoint. Anthropic-facing API is unchanged.
 response is Anthropic-formatted and that no CLI process was spawned (check via
 `ps aux`).
 
-### Contract Tests for User Story 1 ⚠️
+#### Contract Tests for User Story 1 ⚠️
 
 - [x] T006 [P] [US1] Write contract test
       `tests/contract/copilot_client_test.ts`:
@@ -135,7 +137,7 @@ response is Anthropic-formatted and that no CLI process was spawned (check via
   - Test 401 response → `authentication_error` in returned `ProxyResponse`
   - Test 503 response → `overloaded_error` in returned `ProxyResponse`
 
-### Implementation for User Story 1
+#### Implementation for User Story 1
 
 - [x] T007 [US1] Create `src/copilot/client.ts`:
   - `const COPILOT_CHAT_URL = "https://api.githubcopilot.com/chat/completions"`
@@ -194,7 +196,7 @@ SDK.
 
 ---
 
-## Phase 5: User Story 3 — Token Validation Without SDK (Priority: P2)
+### Phase 5: User Story 3 — Token Validation Without SDK (Priority: P2)
 
 **Goal**: Remove `CopilotClient` from `src/cli/auth.ts`; use token exchange as
 probe.
@@ -219,7 +221,7 @@ resolves → returns `true`. Call with stubbed `getToken` that throws
 
 ---
 
-## Phase 6: User Story 4 — SDK and Patch Script Removal (Priority: P2)
+### Phase 6: User Story 4 — SDK and Patch Script Removal (Priority: P2)
 
 **Goal**: Eliminate all SDK artifacts from the repository.
 
@@ -259,7 +261,7 @@ zero matches. `ls scripts/patch_copilot_sdk.ts` → file not found.
 
 ---
 
-## Phase 7: Polish & Final Validation
+### Phase 7: Polish & Final Validation
 
 **Purpose**: Quality gate, cleanup, and cross-cutting verification.
 
@@ -280,9 +282,9 @@ zero matches. `ls scripts/patch_copilot_sdk.ts` → file not found.
 
 ---
 
-## Dependencies & Execution Order
+### Dependencies & Execution Order
 
-### Phase Dependencies
+#### Phase Dependencies
 
 - **Setup (Phase 1)**: No dependencies — start immediately
 - **Foundational (Phase 2)**: Depends on Phase 1 — BLOCKS all implementation
@@ -296,7 +298,7 @@ zero matches. `ls scripts/patch_copilot_sdk.ts` → file not found.
   anywhere)
 - **Polish (Phase 7)**: Depends on all prior phases complete
 
-### Task-Level Critical Path
+#### Task-Level Critical Path
 
 ```
 T001 → T003 → T005 → T007 → T008 → T009 → T010 → T011 → T012 → T013 → T015–T020
@@ -304,7 +306,7 @@ T001 → T003 → T005 → T007 → T008 → T009 → T010 → T011 → T012 →
               T004 (parallel test)         T006 (parallel test)
 ```
 
-### Parallel Opportunities Within Phases
+#### Parallel Opportunities Within Phases
 
 - **Phase 2** (after T003 done): T004, T006, and T007 can all start in parallel
   (T007 imports `getToken` from T005 but can be written as a file stub before
@@ -315,30 +317,30 @@ T001 → T003 → T005 → T007 → T008 → T009 → T010 → T011 → T012 →
 
 ---
 
-## Parallel Execution Examples
+### Parallel Execution Examples
 
-### After T003 (Foundational Types) Done
+#### After T003 (Foundational Types) Done
 
 ```bash
-# T004 and T006 are fully independent and can launch simultaneously:
+## T004 and T006 are fully independent and can launch simultaneously:
 Task T004: "Write tests/contract/token_test.ts"     # tests only; needs T003 types
 Task T006: "Write tests/contract/copilot_client_test.ts"  # tests only; needs T003 types
-# T007 may be stubbed in parallel but requires T005 to compile — start after T005 if in doubt
+## T007 may be stubbed in parallel but requires T005 to compile — start after T005 if in doubt
 ```
 
-### Phase 6: SDK Cleanup
+#### Phase 6: SDK Cleanup
 
 ```bash
-# Run in parallel:
+## Run in parallel:
 Task T011: "Delete scripts/patch_copilot_sdk.ts"
 Task T012: "Update deno.json"
 ```
 
 ---
 
-## Implementation Strategy
+### Implementation Strategy
 
-### MVP (US1 + US2 only — Phases 1–4)
+#### MVP (US1 + US2 only — Phases 1–4)
 
 1. Complete Phase 1: Setup (`src/copilot/` directory)
 2. Complete Phase 2: OpenAI types (`T003`)
@@ -346,13 +348,13 @@ Task T012: "Update deno.json"
 4. Complete Phase 4: HTTP client + server rewrite (`T006`–`T009`)
 5. **STOP and VALIDATE**: `POST /v1/messages` works end-to-end, no SDK spawned
 
-### Full Delivery
+#### Full Delivery
 
 6. Complete Phase 5: Remove last SDK usage from auth (`T010`)
 7. Complete Phase 6: Delete SDK artifacts (`T011`–`T014`)
 8. Complete Phase 7: Quality gate (`T015`–`T020`)
 
-### Verification Checkpoints
+#### Verification Checkpoints
 
 After each phase, verify the phase checkpoint criterion before proceeding:
 
@@ -365,7 +367,7 @@ After each phase, verify the phase checkpoint criterion before proceeding:
 
 ---
 
-## Notes
+### Notes
 
 - `[P]` tasks touch different files and have no incomplete dependencies — safe
   to parallelize

@@ -1,10 +1,11 @@
-# Quickstart: Coco Development Guide
+## Quickstart
+
 
 **Feature**: `007-coco-migration` | **Branch**: `007-coco-migration`
 
 ---
 
-## Prerequisites
+### Prerequisites
 
 - Deno (latest stable) — `deno --version`
 - GitHub account with Copilot access
@@ -12,7 +13,7 @@
 
 ---
 
-## Quality Gates
+### Quality Gates
 
 Always run before committing:
 
@@ -28,58 +29,58 @@ deno task quality
 
 ---
 
-## Run Coco in Development
+### Run Coco in Development
 
 ```bash
-# Start the background service
+## Start the background service
 deno run --allow-all src/cli/main.ts start
 
-# Check status
+## Check status
 deno run --allow-all src/cli/main.ts status
 
-# Open the TUI
+## Open the TUI
 deno run --allow-all src/cli/main.ts
 
-# Configure an agent
+## Configure an agent
 deno run --allow-all src/cli/main.ts configure claude-code
 
-# Scan agents
+## Scan agents
 deno run --allow-all src/cli/main.ts doctor
 
-# Stop the service
+## Stop the service
 deno run --allow-all src/cli/main.ts stop
 ```
 
 ---
 
-## Test the OpenAI Proxy Endpoint
+### Test the OpenAI Proxy Endpoint
 
 ```bash
-# Start service first
+## Start service first
 deno run --allow-all src/cli/main.ts start
 
-# Non-streaming request
+## Non-streaming request
 curl -s http://localhost:11434/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer coco" \
   -d '{"model":"gpt-4o","messages":[{"role":"user","content":"Hello"}]}' | jq .
 
-# Streaming request
+## Streaming request
 curl -N http://localhost:11434/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer coco" \
   -d '{"model":"gpt-4o","messages":[{"role":"user","content":"Hello"}],"stream":true}'
 
-# List models
+## List models
 curl -s http://localhost:11434/v1/models -H "Authorization: Bearer coco" | jq .
 
-# Health check
+## Health check
 curl -s http://localhost:11434/health
 ```
 
 ---
 
-## Project Structure
+### Project Structure
 
 ```
 src/
@@ -135,53 +136,53 @@ tests/
 
 ---
 
-## New Module Responsibilities
+### New Module Responsibilities
 
-### `src/service/daemon.ts`
+#### `src/service/daemon.ts`
 - `startDaemon()` — spawn `coco --daemon`, write PID, exit parent
 - `stopDaemon()` — read PID, send SIGTERM, wait for process to exit, remove PID
 - `restartDaemon()` — stop + start
 - `isDaemonRunning()` — read PID + liveness check
 
-### `src/service/status.ts`
+#### `src/service/status.ts`
 - `getServiceState(): Promise<ServiceState>` — combines PID check + /health + auth check
 
-### `src/agents/registry.ts`
+#### `src/agents/registry.ts`
 - `AGENT_REGISTRY: AgentRecord[]` — the 7 canonical agent records
 - `getAgent(name: string): AgentRecord | undefined`
 
-### `src/agents/detector.ts`
+#### `src/agents/detector.ts`
 - `detectAll(): Promise<DetectionResult[]>` — runs all strategies for all agents
 - `detectOne(agent: AgentRecord): Promise<DetectionResult>`
 
-### `src/agents/config.ts`
+#### `src/agents/config.ts`
 - `configureAgent(agent: AgentRecord, port: number): Promise<ConfigEntry>`
 - `unconfigureAgent(agentName: string, config: CocoConfig): Promise<void>`
 - `validateConfig(port: number): Promise<boolean>` — test call
 
-### `src/tui/render.ts`
+#### `src/tui/render.ts`
 - `renderFull(state: TUIState): void` — initial full draw
 - `renderDirty(state: TUIState, changedRows: number[]): void` — partial redraw
 
-### `src/tui/input.ts`
+#### `src/tui/input.ts`
 - `enableRawMode(): Promise<string>` — returns saved terminal settings
 - `disableRawMode(saved: string): Promise<void>`
 - `readKey(): Promise<Key>` — returns semantic key enum
 
-### `src/config/store.ts`
+#### `src/config/store.ts`
 - `loadConfig(): Promise<CocoConfig>` — read ~/.coco/config.json (create defaults if absent)
 - `saveConfig(config: CocoConfig): Promise<void>` — write with schema validation
 
-### `src/lib/log.ts`
+#### `src/lib/log.ts`
 - `log(level, msg, meta?)` — append JSON log line to ~/.coco/coco.log
 
-### `src/lib/process.ts`
+#### `src/lib/process.ts`
 - `findBinary(name: string): Promise<string | null>` — generalises existing `findClaudeBinary()`
 - `isProcessAlive(pid: number): Promise<boolean>` — kill -0 / PowerShell
 
 ---
 
-## Files Removed
+### Files Removed
 
 | File | Replacement |
 |---|---|
@@ -190,12 +191,12 @@ tests/
 
 ---
 
-## Constitutional Amendment Required
+### Constitutional Amendment Required
 
 Before implementing, run:
 
 ```bash
-# Update constitution from Claudio v1.3.0 → Coco v1.0.0
+## Update constitution from Claudio v1.3.0 → Coco v1.0.0
 ```
 
 Use `speckit.constitution` to amend:
@@ -206,7 +207,7 @@ Use `speckit.constitution` to amend:
 
 ---
 
-## Key Conventions (unchanged from Claudio)
+### Key Conventions (unchanged from Claudio)
 
 - **Calm output**: Short, emotionally neutral messages. No stack traces to users.
 - **Explicit transforms**: All Anthropic/OpenAI ↔ Copilot translations are documented in contracts/.

@@ -1,6 +1,7 @@
-# Research: Remove Copilot SDK — Direct HTTP Integration
+## Research
 
-## Decision: GitHub Copilot Token Exchange Endpoint
+
+### Decision: GitHub Copilot Token Exchange Endpoint
 
 **Chosen**: `GET https://api.github.com/copilot_internal/v2/token`
 
@@ -40,7 +41,7 @@ Accept: application/json
 
 ---
 
-## Decision: Chat Completions Endpoint
+### Decision: Chat Completions Endpoint
 
 **Chosen**: `POST https://api.githubcopilot.com/chat/completions`
 
@@ -113,7 +114,7 @@ data: [DONE]
 
 ---
 
-## Decision: Model Listing for Token Validation
+### Decision: Model Listing for Token Validation
 
 **Chosen**: Use the token exchange endpoint as a liveness probe for
 `validateToken`
@@ -131,7 +132,7 @@ valid and the user has a Copilot subscription. This replaces
 
 ---
 
-## Decision: Anthropic → OpenAI Message Mapping
+### Decision: Anthropic → OpenAI Message Mapping
 
 **Chosen**: Prepend `system` as a `{ role: "system" }` message; pass
 `messages[]` as-is
@@ -150,7 +151,7 @@ non-standard.
 
 ---
 
-## Decision: OpenAI → Anthropic Response Mapping
+### Decision: OpenAI → Anthropic Response Mapping
 
 **Non-streaming**:
 
@@ -173,7 +174,7 @@ data: [DONE]                        →  (consumed; triggers message_stop flush 
 
 ---
 
-## Decision: In-Memory Copilot Token Cache
+### Decision: In-Memory Copilot Token Cache
 
 **Chosen**: Module-level singleton with an expiry check on every access
 
@@ -190,7 +191,7 @@ OAuth token (long-lived) continues to be stored on disk via the existing
 
 ---
 
-## Key HTTP Error Mappings
+### Key HTTP Error Mappings
 
 | Copilot API HTTP status | Scenario                     | Anthropic error type                             |
 | ----------------------- | ---------------------------- | ------------------------------------------------ |
@@ -201,7 +202,7 @@ OAuth token (long-lived) continues to be stored on disk via the existing
 
 ---
 
-## Files Affected
+### Files Affected
 
 | File                           | Action      | Reason                                                 |
 | ------------------------------ | ----------- | ------------------------------------------------------ |

@@ -1,12 +1,13 @@
-# Quickstart: Remove Copilot SDK Migration
+## Quickstart
 
-## What changed
+
+### What changed
 
 Claudio no longer uses the `@github/copilot-sdk` npm package or any Copilot CLI
 binary. All communication with GitHub Copilot happens over plain HTTPS using
 Deno's built-in `fetch`.
 
-## Architecture
+### Architecture
 
 ```
 Claude Code
@@ -29,20 +30,20 @@ src/server/router.ts  →  src/server/copilot.ts
      /copilot_internal/v2/token
 ```
 
-## Running locally
+### Running locally
 
 ```bash
-# Quality gate (must pass before any merge)
+## Quality gate (must pass before any merge)
 deno task quality
 
-# Start dev server (no patch step needed)
+## Start dev server (no patch step needed)
 deno task dev
 
-# Run tests
+## Run tests
 deno test --allow-all
 ```
 
-## Token flow
+### Token flow
 
 1. On first proxy request, `src/copilot/token.ts` calls the token exchange
    endpoint using the GitHub OAuth token from `~/.claudio/tokens.json`.
@@ -51,7 +52,7 @@ deno test --allow-all
 3. The token is refreshed automatically ~25 minutes in (60-second safety
    margin).
 
-## Environment variables
+### Environment variables
 
 | Variable       | Default | Description       |
 | -------------- | ------- | ----------------- |
@@ -60,12 +61,12 @@ deno test --allow-all
 No additional variables are required. The GitHub OAuth token is read from the
 token store, not from the environment.
 
-## Verifying the migration
+### Verifying the migration
 
 ```bash
-# Should return zero matches
+## Should return zero matches
 grep -r "@github/copilot-sdk" src/ tests/ deno.json
 
-# Should not exist
+## Should not exist
 ls scripts/patch_copilot_sdk.ts 2>/dev/null && echo "FOUND" || echo "DELETED OK"
 ```

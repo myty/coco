@@ -1,8 +1,10 @@
+## Tasks
+
 ---
 
-## description: "Task list for implementing Copilot Authentication feature"
+### description: "Task list for implementing Copilot Authentication feature"
 
-# Tasks: Copilot Authentication
+## Tasks: Copilot Authentication
 
 **Input**: Design documents from `/specs/001-copilot-auth/` **Prerequisites**:
 plan.md (required), spec.md (required for user stories), research.md,
@@ -14,20 +16,20 @@ constitution
 **Organization**: Tasks are grouped by user story to enable independent
 implementation and testing of each story.
 
-## Format: `[ID] [P?] [Story] Description`
+### Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
 - **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3, US4)
 - Include exact file paths in descriptions
 
-## Path Conventions
+### Path Conventions
 
 - **Single project**: `src/`, `tests/` at repository root
 - Paths shown below assume single project structure per plan.md
 
 ---
 
-## Phase 1: Setup (Shared Infrastructure)
+### Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
@@ -39,7 +41,7 @@ implementation and testing of each story.
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+### Phase 2: Foundational (Blocking Prerequisites)
 
 **Purpose**: Core infrastructure that MUST be complete before ANY user story can
 be implemented
@@ -56,7 +58,7 @@ parallel
 
 ---
 
-## Phase 3: User Story 1 - First-Time Authentication (Priority: P1) 🎯 MVP
+### Phase 3: User Story 1 - First-Time Authentication (Priority: P1) 🎯 MVP
 
 **Goal**: Users can authenticate with GitHub Copilot using device flow via
 Copilot SDK
@@ -64,7 +66,7 @@ Copilot SDK
 **Independent Test**: Run Claudio in fresh environment - system prompts for
 auth, completes device flow, stores token
 
-### Implementation for User Story 1
+#### Implementation for User Story 1
 
 - [x] T009 [P] [US1] Create Copilot SDK auth integration in src/auth/copilot.ts
 - [x] T010 [US1] Implement device flow initiation and polling in
@@ -80,14 +82,14 @@ testable independently
 
 ---
 
-## Phase 4: User Story 2 - Returning User Authentication (Priority: P1)
+### Phase 4: User Story 2 - Returning User Authentication (Priority: P1)
 
 **Goal**: Returning users authenticate seamlessly without re-authentication
 
 **Independent Test**: Run Claudio twice - second run uses cached credentials
 without prompting
 
-### Implementation for User Story 2
+#### Implementation for User Story 2
 
 - [x] T015 [P] [US2] Implement token validation in src/lib/token.ts
 - [x] T016 [US2] Implement token cache loading on startup in src/auth/copilot.ts
@@ -98,14 +100,14 @@ independently
 
 ---
 
-## Phase 5: User Story 3 - Authentication Failure Handling (Priority: P2)
+### Phase 5: User Story 3 - Authentication Failure Handling (Priority: P2)
 
 **Goal**: Users receive clear error messages for auth failures
 
 **Independent Test**: Test with invalid credentials, expired tokens, network
 failures
 
-### Implementation for User Story 3
+#### Implementation for User Story 3
 
 - [x] T018 [P] [US3] Implement token expiration detection in src/lib/token.ts
 - [x] T019 [US3] Implement re-authentication trigger in src/auth/copilot.ts
@@ -114,14 +116,14 @@ failures
 
 ---
 
-## Phase 6: User Story 4 - Secure Credential Storage (Priority: P2)
+### Phase 6: User Story 4 - Secure Credential Storage (Priority: P2)
 
 **Goal**: Tokens stored securely using platform mechanisms, never logged
 
 **Independent Test**: Verify tokens not in logs, stored in Keychain/Credential
 Manager
 
-### Implementation for User Story 4
+#### Implementation for User Story 4
 
 - [x] T022 [P] [US4] Implement platform secure storage integration in
       src/lib/token.ts
@@ -134,7 +136,7 @@ Manager
 
 ---
 
-## Phase 7: Polish & Cross-Cutting Concerns
+### Phase 7: Polish & Cross-Cutting Concerns
 
 **Purpose**: Improvements that affect multiple user stories
 
@@ -145,9 +147,9 @@ Manager
 
 ---
 
-## Dependencies & Execution Order
+### Dependencies & Execution Order
 
-### Phase Dependencies
+#### Phase Dependencies
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user
@@ -156,7 +158,7 @@ Manager
   - User stories can proceed in parallel after Phase 2
 - **Polish (Final Phase)**: Depends on all user stories being complete
 
-### User Story Dependencies
+#### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No
   dependencies on other stories
@@ -165,13 +167,13 @@ Manager
 - **User Story 3 (P2)**: Can start after Foundational (Phase 2) - Independent
 - **User Story 4 (P2)**: Can start after Foundational (Phase 2) - Independent
 
-### Within Each User Story
+#### Within Each User Story
 
 - Models/services before CLI integration
 - Core implementation before edge cases
 - Story complete before moving to next priority
 
-### Parallel Opportunities
+#### Parallel Opportunities
 
 - All Setup tasks marked [P] can run in parallel
 - All Foundational tasks marked [P] can run in parallel
@@ -180,7 +182,7 @@ Manager
 
 ---
 
-## Notes
+### Notes
 
 - [P] tasks = different files, no dependencies
 - [Story] label maps task to specific user story for traceability

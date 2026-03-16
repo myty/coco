@@ -147,12 +147,25 @@ tests/
 - **Web standards** - Use web platform APIs when available
 - **Standard library** - Prefer Deno std library (`@std/yaml`, `@std/toml`, `@std/path`)
 
+### Specification Workflow
+- **LeanSpec-first** - All feature specifications live under `specs/` as single-file `README.md` documents
+- **Global conventions** - Use `CONVENTIONS.md` as the project-wide constitution and governance baseline
+
 ## Development Commands
 
 ### Core Development
 ```bash
 deno task dev                   # Start development server with file watching
 deno run -A src/cli/main.ts start   # Start daemon in dev mode
+```
+
+### Spec Workflow
+```bash
+lean-spec new                   # Create a new feature spec
+lean-spec plan                  # Plan an existing spec
+lean-spec validate              # Validate all specs
+lean-spec backfill --assignee --all  # Backfill LeanSpec frontmatter metadata
+lean-spec board                 # View spec board/status
 ```
 
 ### Quality Assurance
@@ -178,6 +191,11 @@ deno task sync-version          # Sync version across all artifacts
 ```
 
 ## Recent Changes
+
+- **2026-03-15**: LeanSpec migration completed
+  - Migrated Speckit multi-file specs to LeanSpec single-file `README.md` format in `specs/`
+  - Added root `CONVENTIONS.md` as the canonical global conventions file
+  - Adopted LeanSpec workflow commands (`new`, `plan`, `validate`, `backfill`, `board`)
 
 - **2026-03-10**: Coco v0.2.0 — full migration from Claudio
   - Added background daemon service (start/stop/restart/status)

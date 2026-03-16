@@ -1,6 +1,7 @@
-# Research: Copilot Authentication
+## Research
 
-## Decision: Use Copilot SDK for Authentication
+
+### Decision: Use Copilot SDK for Authentication
 
 **Rationale**: The Copilot SDK handles device flow authentication internally,
 reducing code complexity and maintenance burden. This aligns with the Minimalism
@@ -14,7 +15,7 @@ principle.
 
 ---
 
-## Decision: Deno with npm Compatibility Layer
+### Decision: Deno with npm Compatibility Layer
 
 **Rationale**:
 
@@ -29,7 +30,7 @@ principle.
 
 ---
 
-## Decision: File-Based Token Cache with Platform Secure Storage
+### Decision: File-Based Token Cache with Platform Secure Storage
 
 **Rationale**:
 
@@ -45,7 +46,7 @@ principle.
 
 ---
 
-## Decision: Minimal CLI Output
+### Decision: Minimal CLI Output
 
 **Rationale**: Constitution II. Calm UX requires quiet, reassuring output.
 Terminal performance requires minimal I/O.
