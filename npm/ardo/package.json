@@ -1,10 +1,9 @@
 {
-  "name": "coco",
+  "name": "ardo",
   "version": "0.2.0",
   "description": "Universal local AI gateway — route any coding agent through GitHub Copilot",
-  "deprecated": "Package renamed to \"ardo\". Install with: npm install -g ardo",
   "bin": {
-    "coco": "./bin/coco.js"
+    "ardo": "./bin/ardo.js"
   },
   "engines": {
     "node": ">=18"

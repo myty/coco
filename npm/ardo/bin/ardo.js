@@ -4,10 +4,6 @@
 
 const { spawnSync } = require("child_process");
 
-console.error(
-  "Warning: npm package 'coco' is deprecated and renamed to 'ardo'.",
-);
-
 // Map Node.js platform+arch to @ardo/* package name
 const PLATFORM_MAP = {
   "darwin arm64": "@ardo/darwin-arm64",

@@ -1,11 +1,11 @@
 {
-  "name": "@coco/linux-arm64",
+  "name": "@ardo/win32-x64",
   "version": "0.2.0",
   "os": [
-    "linux"
+    "win32"
   ],
   "cpu": [
-    "arm64"
+    "x64"
   ],
   "preferUnplugged": true,
   "bin": {}

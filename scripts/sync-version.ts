@@ -24,17 +24,22 @@ await Deno.writeTextFile(
 );
 console.log(`  ✓ src/version.ts`);
 
-// 2. Update npm/claudio/package.json (version + optionalDependencies versions)
-const mainPkgPath = join(repoRoot, "npm", "claudio", "package.json");
-const mainPkg = JSON.parse(await Deno.readTextFile(mainPkgPath));
-mainPkg.version = version;
-if (mainPkg.optionalDependencies) {
-  for (const key of Object.keys(mainPkg.optionalDependencies)) {
-    mainPkg.optionalDependencies[key] = version;
+// 2. Update npm/ardo and npm/coco package.json (version + optionalDependencies)
+for (const pkgName of ["ardo", "coco"]) {
+  const mainPkgPath = join(repoRoot, "npm", pkgName, "package.json");
+  const mainPkg = JSON.parse(await Deno.readTextFile(mainPkgPath));
+  mainPkg.version = version;
+  if (mainPkg.optionalDependencies) {
+    for (const key of Object.keys(mainPkg.optionalDependencies)) {
+      mainPkg.optionalDependencies[key] = version;
+    }
   }
+  await Deno.writeTextFile(
+    mainPkgPath,
+    JSON.stringify(mainPkg, null, 2) + "\n",
+  );
+  console.log(`  ✓ npm/${pkgName}/package.json`);
 }
-await Deno.writeTextFile(mainPkgPath, JSON.stringify(mainPkg, null, 2) + "\n");
-console.log(`  ✓ npm/claudio/package.json`);
 
 // 3. Update each platform package.json
 const platforms = [
@@ -45,12 +50,14 @@ const platforms = [
   "win32-x64",
 ];
 
-for (const platform of platforms) {
-  const pkgPath = join(repoRoot, "npm", "@claudio", platform, "package.json");
-  const pkg = JSON.parse(await Deno.readTextFile(pkgPath));
-  pkg.version = version;
-  await Deno.writeTextFile(pkgPath, JSON.stringify(pkg, null, 2) + "\n");
-  console.log(`  ✓ npm/@claudio/${platform}/package.json`);
+for (const scope of ["@ardo", "@coco"]) {
+  for (const platform of platforms) {
+    const pkgPath = join(repoRoot, "npm", scope, platform, "package.json");
+    const pkg = JSON.parse(await Deno.readTextFile(pkgPath));
+    pkg.version = version;
+    await Deno.writeTextFile(pkgPath, JSON.stringify(pkg, null, 2) + "\n");
+    console.log(`  ✓ npm/${scope}/${platform}/package.json`);
+  }
 }
 
 console.log(`\nAll artifacts synced to version ${version} ✅`);

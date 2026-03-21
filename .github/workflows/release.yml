@@ -27,23 +27,23 @@ jobs:
           - platform: macos-arm64
             runner: macos-latest
             target: aarch64-apple-darwin
-            artifact: claudio-macos-arm64
+            artifact: ardo-macos-arm64
           - platform: macos-x64
             runner: macos-13
             target: x86_64-apple-darwin
-            artifact: claudio-macos-x64
+            artifact: ardo-macos-x64
           - platform: linux-x64
             runner: ubuntu-latest
             target: x86_64-unknown-linux-gnu
-            artifact: claudio-linux-x64
+            artifact: ardo-linux-x64
           - platform: linux-arm64
             runner: ubuntu-latest
             target: aarch64-unknown-linux-gnu
-            artifact: claudio-linux-arm64
+            artifact: ardo-linux-arm64
           - platform: windows-x64
             runner: windows-latest
             target: x86_64-pc-windows-msvc
-            artifact: claudio-windows-x64.exe
+            artifact: ardo-windows-x64.exe
     steps:
       - uses: actions/checkout@v6
       - uses: denoland/setup-deno@v2
@@ -78,7 +78,7 @@ jobs:
       - uses: actions/checkout@v6
       - uses: actions/download-artifact@v8
         with:
-          pattern: claudio-*
+          pattern: ardo-*
           merge-multiple: true
       - name: Generate release manifest
         run: |
@@ -89,9 +89,9 @@ jobs:
           # Build checksums array
           CHECKSUMS="["
           FIRST=true
-          for f in claudio-*; do
+          for f in ardo-*; do
             SHA256=$(sha256sum "$f" | awk '{print $1}')
-            PLATFORM="${f#claudio-}"
+            PLATFORM="${f#ardo-}"
             FILENAME="$f"
             DOWNLOAD_URL="https://github.com/${{ github.repository }}/releases/download/${TAG}/${FILENAME}"
             if [ "$FIRST" = true ]; then
@@ -117,7 +117,7 @@ jobs:
       - uses: softprops/action-gh-release@v2
         with:
           files: |
-            claudio-*
+            ardo-*
             release-manifest.json
           generate_release_notes: true
 
@@ -135,7 +135,7 @@ jobs:
           deno-version: v2.x
       # One-Time Setup: In your JSR package settings, enable "Publish from CI"
       # and add this repository as a trusted publisher.
-      # See: https://jsr.io/@myty/claudio/settings
+      # See: https://jsr.io/@ardo-org/ardo/settings
       - name: Publish to JSR
         run: deno publish
 
@@ -155,38 +155,40 @@ jobs:
       - name: Download all build artifacts
         uses: actions/download-artifact@v4
         with:
-          pattern: claudio-*
+          pattern: ardo-*
           merge-multiple: true
       - name: Copy binaries into platform packages and publish
         run: |
           # Publish platform packages first (they must exist before main package)
           declare -A PLATFORM_MAP=(
-            ["claudio-macos-arm64"]="darwin-arm64"
-            ["claudio-macos-x64"]="darwin-x64"
-            ["claudio-linux-x64"]="linux-x64"
-            ["claudio-linux-arm64"]="linux-arm64"
-            ["claudio-windows-x64.exe"]="win32-x64"
+            ["ardo-macos-arm64"]="darwin-arm64"
+            ["ardo-macos-x64"]="darwin-x64"
+            ["ardo-linux-x64"]="linux-x64"
+            ["ardo-linux-arm64"]="linux-arm64"
+            ["ardo-windows-x64.exe"]="win32-x64"
           )
 
           for artifact in "${!PLATFORM_MAP[@]}"; do
             platform="${PLATFORM_MAP[$artifact]}"
-            pkg_dir="npm/@claudio/${platform}"
+            pkg_dir="npm/@ardo/${platform}"
             bin_dir="${pkg_dir}/bin"
             mkdir -p "${bin_dir}"
 
             if [[ "$artifact" == *.exe ]]; then
-              cp "${artifact}" "${bin_dir}/claudio.exe"
+              cp "${artifact}" "${bin_dir}/ardo.exe"
             else
-              cp "${artifact}" "${bin_dir}/claudio"
-              chmod +x "${bin_dir}/claudio"
+              cp "${artifact}" "${bin_dir}/ardo"
+              chmod +x "${bin_dir}/ardo"
             fi
 
-            echo "Publishing @claudio/${platform}..."
+            echo "Publishing @ardo/${platform}..."
             npm publish "${pkg_dir}" --access public
           done
 
-          # Publish main shim package last
-          echo "Publishing claudio..."
-          npm publish npm/claudio --access public
+          # Publish main package first, then legacy shim package.
+          echo "Publishing ardo..."
+          npm publish npm/ardo --access public
+          echo "Publishing deprecated coco shim..."
+          npm publish npm/coco --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

@@ -1,8 +1,12 @@
 {
   "name": "@coco/darwin-x64",
   "version": "0.2.0",
-  "os": ["darwin"],
-  "cpu": ["x64"],
+  "os": [
+    "darwin"
+  ],
+  "cpu": [
+    "x64"
+  ],
   "preferUnplugged": true,
   "bin": {}
 }

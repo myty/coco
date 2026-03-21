@@ -1,5 +1,5 @@
 {
-  "name": "@coco/linux-arm64",
+  "name": "@ardo/linux-arm64",
   "version": "0.2.0",
   "os": [
     "linux"

@@ -1,20 +1,11 @@
-# coco (deprecated)
+# ardo
 
-This package has been renamed to `ardo`.
-
-Use the new package:
-
-```bash
-npm install -g ardo
-```
-
-The `coco` package remains as a compatibility shim and forwards execution to
-Ardo binaries.
+Universal local AI gateway for routing coding agents through GitHub Copilot.
 
 ## Installation
 
 ```bash
-npm install -g coco
+npm install -g ardo
 ```
 
 ## Supported Platforms
@@ -29,11 +20,11 @@ npm install -g coco
 
 ## How it works
 
-When you run `coco`, the shim:
+When you run `ardo`, the shim:
 
 1. Detects your platform and resolves the matching `@ardo/<os>-<arch>`
    optional dependency
-2. Runs the Ardo native binary directly — no Deno runtime required
+2. Runs the native binary directly — no Deno runtime required
 3. If no platform binary is available, falls back to
    `deno run jsr:@ardo-org/ardo` (requires [Deno](https://deno.land) installed)
 4. If neither is available, prints an error with a link to manual download

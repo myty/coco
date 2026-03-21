@@ -1,5 +1,5 @@
 {
-  "name": "@myty/coco",
+  "name": "@ardo-org/ardo",
   "version": "0.2.0",
   "exports": {
     ".": "./src/cli/main.ts"
