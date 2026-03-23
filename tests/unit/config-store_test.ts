@@ -33,6 +33,9 @@ Deno.test("loadConfig — returns DEFAULT_CONFIG on first run", async () => {
     assertEquals(config.modelMap, {});
     assertEquals(config.modelMappingPolicy, "compatible");
     assertEquals(config.lastStarted, null);
+    assertEquals(config.usageMetrics.persist, false);
+    assertEquals(config.usageMetrics.snapshotIntervalMs, 60_000);
+    assertEquals(config.usageMetrics.filePath, null);
   });
 });
 
@@ -115,6 +118,11 @@ Deno.test("saveConfig + loadConfig — round-trip", async () => {
         enableDiagnostics: true,
         highWaterMark: 32768,
       },
+      usageMetrics: {
+        persist: true,
+        snapshotIntervalMs: 120_000,
+        filePath: "/tmp/ardo-usage.json",
+      },
     };
     await saveConfig(config);
     const loaded = await loadConfig();
@@ -125,6 +133,9 @@ Deno.test("saveConfig + loadConfig — round-trip", async () => {
     assertEquals(loaded.lastStarted, "2026-01-01T00:00:00.000Z");
     assertEquals(loaded.streaming.flushTimeoutMs, 100);
     assertEquals(loaded.streaming.enableDiagnostics, true);
+    assertEquals(loaded.usageMetrics.persist, true);
+    assertEquals(loaded.usageMetrics.snapshotIntervalMs, 120_000);
+    assertEquals(loaded.usageMetrics.filePath, "/tmp/ardo-usage.json");
   });
 });
 

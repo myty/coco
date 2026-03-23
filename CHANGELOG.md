@@ -6,7 +6,8 @@ All notable changes to this project are documented in this file.
 
 ### Changed
 
-- Renamed project identity from Coco to Ardo across runtime, docs, and distribution assets.
+- Renamed project identity from Coco to Ardo across runtime, docs, and
+  distribution assets.
 - Switched canonical CLI command from `coco` to `ardo`.
 - Switched canonical config/state path from `~/.coco` to `~/.ardo`.
 - Switched canonical environment prefix from `COCO_*` to `ARDO_*`.
@@ -20,4 +21,5 @@ All notable changes to this project are documented in this file.
 ### Deprecated
 
 - npm package `coco` is deprecated and now acts as a compatibility shim.
-- Legacy Coco compatibility (`coco` command and `COCO_*` variables) will be removed in `1.0.0`.
+- Legacy Coco compatibility (`coco` command and `COCO_*` variables) will be
+  removed in `1.0.0`.

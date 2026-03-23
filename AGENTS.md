@@ -170,11 +170,11 @@ tests/
 
 ### Specification Workflow
 
-- **LeanSpec-first** - All feature specifications live under `specs/`, with
-  each spec `README.md` serving as the canonical entrypoint. Some historical or
-  expanded specs also retain supporting artifacts such as `PLAN.md`,
-  `TASKS.md`, `CONTRACTS.md`, or `DATA_MODEL.md`; see `specs/README.md` for
-  the repository's current spec model
+- **LeanSpec-first** - All feature specifications live under `specs/`, with each
+  spec `README.md` serving as the canonical entrypoint. Some historical or
+  expanded specs also retain supporting artifacts such as `PLAN.md`, `TASKS.md`,
+  `CONTRACTS.md`, or `DATA_MODEL.md`; see `specs/README.md` for the repository's
+  current spec model
 - **Global conventions** - Use `CONVENTIONS.md` as the project-wide constitution
   and governance baseline
 

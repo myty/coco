@@ -1,7 +1,10 @@
 import { assert, assertEquals } from "@std/assert";
 import { handleRequest } from "../../src/server/router.ts";
 import { stopClient } from "../../src/server/copilot.ts";
-import { getGlobalDiagnostics, resetGlobalDiagnostics } from "../../src/lib/streaming-diagnostics.ts";
+import {
+  getGlobalDiagnostics,
+  resetGlobalDiagnostics,
+} from "../../src/lib/streaming-diagnostics.ts";
 
 const BASE = "http://localhost";
 
@@ -15,7 +18,10 @@ function postJSON(path: string, body: unknown): Request {
 
 const VALID_STREAMING_BODY = {
   model: "claude-3-5-sonnet-20241022",
-  messages: [{ role: "user", content: "Say 'Hello' and then count to 5 slowly." }],
+  messages: [{
+    role: "user",
+    content: "Say 'Hello' and then count to 5 slowly.",
+  }],
   max_tokens: 50,
   stream: true,
 };
@@ -72,7 +78,10 @@ Deno.test(
 
     assertEquals(res.status, 200);
     assertEquals(res.headers.get("Content-Type"), "text/event-stream");
-    assertEquals(res.headers.get("Cache-Control"), "no-cache, no-store, must-revalidate");
+    assertEquals(
+      res.headers.get("Cache-Control"),
+      "no-cache, no-store, must-revalidate",
+    );
     assertEquals(res.headers.get("Connection"), "keep-alive");
     assertEquals(res.headers.get("X-Accel-Buffering"), "no");
     assertEquals(res.headers.get("X-Content-Type-Options"), "nosniff");
@@ -90,7 +99,7 @@ Deno.test(
     } catch {
       // Ignore cleanup errors
     }
-  }
+  },
 );
 
 Deno.test(
@@ -121,7 +130,10 @@ Deno.test(
 
         // Should have recorded some chunks
         assert(metrics.totalChunks >= 0, "Should have recorded chunk metrics");
-        assert(metrics.sessionStart > 0, "Should have valid session start time");
+        assert(
+          metrics.sessionStart > 0,
+          "Should have valid session start time",
+        );
       }
 
       await res.body?.cancel();
@@ -145,11 +157,12 @@ Deno.test(
         // Performance expectations:
         // - First chunk should arrive quickly (< 5 seconds for test environment)
         // - Should have multiple chunks for a counting response
-        assert(metrics.firstChunkTime < 5000,
-          `First chunk took too long: ${metrics.firstChunkTime}ms`);
+        assert(
+          metrics.firstChunkTime < 5000,
+          `First chunk took too long: ${metrics.firstChunkTime}ms`,
+        );
 
-        assert(metrics.chunks.length >= 1,
-          "Should receive at least one chunk");
+        assert(metrics.chunks.length >= 1, "Should receive at least one chunk");
 
         console.log(`Streaming performance:
   - First chunk: ${metrics.firstChunkTime}ms
@@ -183,7 +196,10 @@ Deno.test(
       // Should return streaming headers regardless of backend availability
       if (res.status === 200) {
         assertEquals(res.headers.get("Content-Type"), "text/event-stream");
-        assertEquals(res.headers.get("Cache-Control"), "no-cache, no-store, must-revalidate");
+        assertEquals(
+          res.headers.get("Cache-Control"),
+          "no-cache, no-store, must-revalidate",
+        );
         assertEquals(res.headers.get("X-Accel-Buffering"), "no");
       }
 
@@ -203,14 +219,23 @@ Deno.test("Streaming configuration validation", async () => {
   const streaming = DEFAULT_CONFIG.streaming;
 
   // Validate default configuration
-  assert(streaming.flushTimeoutMs > 0 && streaming.flushTimeoutMs <= 1000,
-    "flushTimeoutMs should be reasonable");
-  assert(streaming.maxBufferBytes >= 512 && streaming.maxBufferBytes <= 2048,
-    "maxBufferBytes should be reasonable");
-  assertEquals(streaming.enableAggressiveFlushing, true,
-    "Should enable aggressive flushing by default");
-  assertEquals(streaming.enableDiagnostics, false,
-    "Should disable diagnostics in production by default");
-  assert(streaming.highWaterMark >= 1024,
-    "highWaterMark should be adequate");
+  assert(
+    streaming.flushTimeoutMs > 0 && streaming.flushTimeoutMs <= 1000,
+    "flushTimeoutMs should be reasonable",
+  );
+  assert(
+    streaming.maxBufferBytes >= 512 && streaming.maxBufferBytes <= 2048,
+    "maxBufferBytes should be reasonable",
+  );
+  assertEquals(
+    streaming.enableAggressiveFlushing,
+    true,
+    "Should enable aggressive flushing by default",
+  );
+  assertEquals(
+    streaming.enableDiagnostics,
+    false,
+    "Should disable diagnostics in production by default",
+  );
+  assert(streaming.highWaterMark >= 1024, "highWaterMark should be adequate");
 });

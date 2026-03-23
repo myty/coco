@@ -3,26 +3,27 @@ status: complete
 created: 2026-03-21
 priority: critical
 tags:
-- rename
-- config
-- environment
-- migration
+  - rename
+  - config
+  - environment
+  - migration
 parent: 014-coco-to-ardo-rename
 created_at: 2026-03-21T02:09:18.091392Z
 updated_at: 2026-03-21T02:20:19.308913Z
 completed_at: 2026-03-21T02:20:19.308913Z
 transitions:
-- status: in-progress
-  at: 2026-03-21T02:17:41.128297Z
-- status: complete
-  at: 2026-03-21T02:20:19.308913Z
+  - status: in-progress
+    at: 2026-03-21T02:17:41.128297Z
+  - status: complete
+    at: 2026-03-21T02:20:19.308913Z
 ---
 
 # Ardo Rename Child: Config and Environment Migration
 
 ## Overview
 
-Migrate configuration and environment variable conventions from Coco to Ardo while preserving existing users through fallback and compatibility behavior.
+Migrate configuration and environment variable conventions from Coco to Ardo
+while preserving existing users through fallback and compatibility behavior.
 
 ## Design
 
@@ -36,7 +37,8 @@ This child spec owns filesystem and process configuration transitions:
 
 ## Plan
 
-- [x] Define config path migration policy (`copy`, `move`, or lazy fallback) and rollback behavior.
+- [x] Define config path migration policy (`copy`, `move`, or lazy fallback) and
+      rollback behavior.
 - [x] Implement default path resolution to `~/.ardo`.
 - [x] Implement compatibility handling for existing `~/.coco` state.
 - [x] Add canonical `ARDO_*` variables and compatibility behavior for `COCO_*`.
@@ -56,8 +58,10 @@ Maps from umbrella requirements: R-001, R-012, R-013, R-014, R-015, R-022.
 
 Implementation progress (2026-03-21):
 
-- Canonical config directory moved to `~/.ardo` with optional env override `ARDO_CONFIG_DIR`.
-- Legacy config support preserved via non-destructive copy migration from `~/.coco/config.json` when canonical file is missing.
+- Canonical config directory moved to `~/.ardo` with optional env override
+  `ARDO_CONFIG_DIR`.
+- Legacy config support preserved via non-destructive copy migration from
+  `~/.coco/config.json` when canonical file is missing.
 - Legacy env fallback implemented with warnings:
   - `COCO_CONFIG_DIR` -> `ARDO_CONFIG_DIR`
   - `COCO_PORT` -> `ARDO_PORT`

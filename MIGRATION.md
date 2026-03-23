@@ -2,7 +2,8 @@
 
 This repository has been renamed from **Coco** to **Ardo**.
 
-Ardo is now the canonical project name, command name, package name, and configuration namespace.
+Ardo is now the canonical project name, command name, package name, and
+configuration namespace.
 
 ## What Changed
 
@@ -15,17 +16,17 @@ Ardo is now the canonical project name, command name, package name, and configur
 
 ## Before/After Mapping
 
-| Area | Before | After |
-| --- | --- | --- |
-| Repository | `github.com/myty/coco` | `github.com/ardo-org/ardo` |
-| Website | n/a | `https://ardo-org.github.io/ardo/` |
-| CLI command | `coco` | `ardo` |
-| Deno/JSR install | `jsr:@myty/coco` | `jsr:@ardo-org/ardo` |
-| npm package | `coco` | `ardo` |
-| Config directory | `~/.coco` | `~/.ardo` |
-| PID file | `~/.coco/coco.pid` | `~/.ardo/ardo.pid` |
-| Log file | `~/.coco/coco.log` | `~/.ardo/ardo.log` |
-| Env prefix | `COCO_*` | `ARDO_*` |
+| Area             | Before                 | After                              |
+| ---------------- | ---------------------- | ---------------------------------- |
+| Repository       | `github.com/myty/coco` | `github.com/ardo-org/ardo`         |
+| Website          | n/a                    | `https://ardo-org.github.io/ardo/` |
+| CLI command      | `coco`                 | `ardo`                             |
+| Deno/JSR install | `jsr:@myty/coco`       | `jsr:@ardo-org/ardo`               |
+| npm package      | `coco`                 | `ardo`                             |
+| Config directory | `~/.coco`              | `~/.ardo`                          |
+| PID file         | `~/.coco/coco.pid`     | `~/.ardo/ardo.pid`                 |
+| Log file         | `~/.coco/coco.log`     | `~/.ardo/ardo.log`                 |
+| Env prefix       | `COCO_*`               | `ARDO_*`                           |
 
 ## Upgrade Steps
 
@@ -49,13 +50,17 @@ deno install --global --allow-all -n ardo jsr:@ardo-org/ardo
 
 ## Compatibility Behavior
 
-- Running `coco` still works in the compatibility window and prints a deprecation warning.
-- `COCO_*` variables are still accepted as fallback when matching `ARDO_*` values are not set.
-- Existing data under `~/.coco` is supported through non-destructive migration/fallback behavior.
+- Running `coco` still works in the compatibility window and prints a
+  deprecation warning.
+- `COCO_*` variables are still accepted as fallback when matching `ARDO_*`
+  values are not set.
+- Existing data under `~/.coco` is supported through non-destructive
+  migration/fallback behavior.
 
 ## Deprecation Timeline
 
 - Current series (`0.x`): compatibility mode is enabled.
-- Next major (`1.0.0`): legacy `coco` command and `COCO_*` compatibility are planned for removal.
+- Next major (`1.0.0`): legacy `coco` command and `COCO_*` compatibility are
+  planned for removal.
 
 The team will announce final removal details in release notes before `1.0.0`.

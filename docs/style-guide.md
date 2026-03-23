@@ -50,7 +50,8 @@
 
 ### Links and References
 
-- Use descriptive link text: `[GitHub Releases](https://github.com/ardo-org/ardo/releases)`
+- Use descriptive link text:
+  `[GitHub Releases](https://github.com/ardo-org/ardo/releases)`
 - Prefer relative links for internal documents
 - Always test external links
 - Include protocol for external URLs: `https://example.com`

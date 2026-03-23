@@ -25,6 +25,15 @@ export interface StreamingConfig {
   highWaterMark: number;
 }
 
+export interface UsageMetricsConfig {
+  /** Enable periodic snapshot persistence to disk. Default: false. */
+  persist: boolean;
+  /** Snapshot interval in milliseconds when persistence is enabled. Default: 60000ms. */
+  snapshotIntervalMs: number;
+  /** Optional absolute path for persisted metrics file. Default: ~/.ardo/usage.json */
+  filePath: string | null;
+}
+
 export interface CocoConfig {
   /** TCP port the proxy listens on. Default: 11434. */
   port: number;
@@ -43,6 +52,8 @@ export interface CocoConfig {
   lastStarted: string | null;
   /** Streaming configuration for response delivery. */
   streaming: StreamingConfig;
+  /** Usage metrics configuration for aggregation and optional persistence. */
+  usageMetrics: UsageMetricsConfig;
 }
 
 export const DEFAULT_CONFIG: CocoConfig = {
@@ -58,6 +69,11 @@ export const DEFAULT_CONFIG: CocoConfig = {
     enableAggressiveFlushing: true,
     enableDiagnostics: false,
     highWaterMark: 16384,
+  },
+  usageMetrics: {
+    persist: false,
+    snapshotIntervalMs: 60_000,
+    filePath: null,
   },
 };
 
@@ -193,14 +209,46 @@ function validate(config: CocoConfig): void {
 
   // Validate streaming configuration
   if (config.streaming) {
-    if (config.streaming.flushTimeoutMs < 1 || config.streaming.flushTimeoutMs > 10000) {
-      throw new Error(`Invalid streaming.flushTimeoutMs: ${config.streaming.flushTimeoutMs}. Must be 1-10000ms.`);
+    if (
+      config.streaming.flushTimeoutMs < 1 ||
+      config.streaming.flushTimeoutMs > 10000
+    ) {
+      throw new Error(
+        `Invalid streaming.flushTimeoutMs: ${config.streaming.flushTimeoutMs}. Must be 1-10000ms.`,
+      );
     }
-    if (config.streaming.maxBufferBytes < 64 || config.streaming.maxBufferBytes > 1048576) {
-      throw new Error(`Invalid streaming.maxBufferBytes: ${config.streaming.maxBufferBytes}. Must be 64 bytes - 1MB.`);
+    if (
+      config.streaming.maxBufferBytes < 64 ||
+      config.streaming.maxBufferBytes > 1048576
+    ) {
+      throw new Error(
+        `Invalid streaming.maxBufferBytes: ${config.streaming.maxBufferBytes}. Must be 64 bytes - 1MB.`,
+      );
     }
-    if (config.streaming.highWaterMark < 1024 || config.streaming.highWaterMark > 1048576) {
-      throw new Error(`Invalid streaming.highWaterMark: ${config.streaming.highWaterMark}. Must be 1024 bytes - 1MB.`);
+    if (
+      config.streaming.highWaterMark < 1024 ||
+      config.streaming.highWaterMark > 1048576
+    ) {
+      throw new Error(
+        `Invalid streaming.highWaterMark: ${config.streaming.highWaterMark}. Must be 1024 bytes - 1MB.`,
+      );
+    }
+  }
+
+  if (config.usageMetrics) {
+    if (
+      config.usageMetrics.snapshotIntervalMs < 1000 ||
+      config.usageMetrics.snapshotIntervalMs > 86_400_000
+    ) {
+      throw new Error(
+        `Invalid usageMetrics.snapshotIntervalMs: ${config.usageMetrics.snapshotIntervalMs}. Must be 1000ms - 86400000ms.`,
+      );
+    }
+    if (
+      config.usageMetrics.filePath !== null &&
+      !config.usageMetrics.filePath.trim()
+    ) {
+      throw new Error("Invalid usageMetrics.filePath: cannot be empty string");
     }
   }
 }
@@ -217,6 +265,11 @@ export async function loadConfig(): Promise<CocoConfig> {
       streaming: {
         ...DEFAULT_CONFIG.streaming,
         ...(parsed.streaming || {}),
+      },
+      // Ensure usage metrics config has defaults if partially specified
+      usageMetrics: {
+        ...DEFAULT_CONFIG.usageMetrics,
+        ...(parsed.usageMetrics || {}),
       },
     });
     validate(config);

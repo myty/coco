@@ -1,4 +1,5 @@
 import { stopClient } from "./copilot.ts";
+import { shutdownUsageMetrics } from "./usage-metrics.ts";
 import { loadConfig } from "../config/store.ts";
 import { log, setLogLevel } from "../lib/log.ts";
 import { saveConfig } from "../config/store.ts";
@@ -6,6 +7,11 @@ import { saveConfig } from "../config/store.ts";
 export interface ServerConfig {
   port: number;
   hostname: string;
+  usageMetrics: {
+    persist: boolean;
+    snapshotIntervalMs: number;
+    filePath: string | null;
+  };
 }
 
 export async function getConfig(): Promise<ServerConfig> {
@@ -18,11 +24,13 @@ export async function getConfig(): Promise<ServerConfig> {
   return {
     port: config.port,
     hostname: "127.0.0.1",
+    usageMetrics: config.usageMetrics,
   };
 }
 
 export async function shutdown(): Promise<void> {
   log("info", "Server shutting down");
+  await shutdownUsageMetrics();
   await stopClient();
 }
 

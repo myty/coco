@@ -35,8 +35,8 @@ Some specs also keep supporting artifacts such as `PLAN.md`, `TASKS.md`,
 `CHECKLISTS.md`, or `SPECIFICATION.md`. These files provide additional planning
 or historical context, but the spec README remains the primary place to start.
 
-Spec status is defined by LeanSpec metadata and workflow, not by the presence
-or count of supporting files.
+Spec status is defined by LeanSpec metadata and workflow, not by the presence or
+count of supporting files.
 
 ## Spec Status Values
 

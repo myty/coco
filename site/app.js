@@ -6,7 +6,7 @@ if (headerSentinel && siteHeader) {
     ([entry]) => {
       siteHeader.classList.toggle("is-stuck", !entry.isIntersecting);
     },
-    { threshold: 0 }
+    { threshold: 0 },
   );
   observer.observe(headerSentinel);
 }
@@ -22,12 +22,12 @@ for (const button of copyButtons) {
       await navigator.clipboard.writeText(command);
       const original = button.textContent;
       button.textContent = "Copied";
-      window.setTimeout(() => {
+      setTimeout(() => {
         button.textContent = original;
       }, 1400);
     } catch {
       button.textContent = "Copy failed";
-      window.setTimeout(() => {
+      setTimeout(() => {
         button.textContent = "Copy";
       }, 1400);
     }

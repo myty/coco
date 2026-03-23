@@ -416,9 +416,9 @@ class StreamingProcessor {
 
     // Look for natural break points
     const breakPoints = [
-      /^(.*[.!?]\s+)/,  // After sentence endings
-      /^(.*[,;:]\s+)/,  // After clause separators
-      /^(.*\s+)/,       // After any whitespace
+      /^(.*[.!?]\s+)/, // After sentence endings
+      /^(.*[,;:]\s+)/, // After clause separators
+      /^(.*\s+)/, // After any whitespace
     ];
 
     for (const pattern of breakPoints) {

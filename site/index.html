@@ -40,16 +40,20 @@
         <section class="hero section">
           <div class="hero-copy reveal">
             <p class="eyebrow">Works with Cline, Codex, and Claude Code</p>
-            <h1>Your GitHub Copilot subscription. Now for the agents that don't support it yet.</h1>
+            <h1>
+              Your GitHub Copilot subscription. Now for the agents that don't
+              support it yet.
+            </h1>
             <p class="hero-body">
-              Ardo runs locally and proxies Cline, Codex, and Claude Code through
-              your existing GitHub Copilot subscription. No extra API keys. No
-              separate billing. Just authenticate once and point your agents at
-              127.0.0.1.
+              Ardo runs locally and proxies Cline, Codex, and Claude Code
+              through your existing GitHub Copilot subscription. No extra API
+              keys. No separate billing. Just authenticate once and point your
+              agents at 127.0.0.1.
             </p>
             <div class="hero-actions">
               <a class="button button-primary" href="#install">Install Ardo</a>
-              <a class="button button-secondary" href="#how-it-works">See the flow</a>
+              <a class="button button-secondary" href="#how-it-works"
+              >See the flow</a>
             </div>
             <ul class="hero-points" aria-label="Key facts">
               <li>Local-only service on 127.0.0.1</li>
@@ -58,7 +62,10 @@
             </ul>
           </div>
 
-          <div class="hero-panel reveal reveal-delay-1" aria-label="Ardo overview">
+          <div
+            class="hero-panel reveal reveal-delay-1"
+            aria-label="Ardo overview"
+          >
             <div class="terminal-card">
               <div class="terminal-topline">
                 <span></span>
@@ -68,7 +75,10 @@
               <div class="terminal-body">
                 <p><span class="prompt">$</span> ardo status</p>
                 <p>Service:&nbsp;&nbsp;Not installed</p>
-                <p>State:&nbsp;&nbsp;&nbsp;&nbsp;Running at http://localhost:11434</p>
+                <p>
+                  State:&nbsp;&nbsp;&nbsp;&nbsp;Running at
+                  http://localhost:11434
+                </p>
                 <p>Agents:&nbsp;&nbsp;&nbsp;claude-code, cline</p>
                 <p>Copilot:&nbsp;&nbsp;Authenticated ✓</p>
                 <p class="terminal-gap"></p>
@@ -88,15 +98,18 @@
         <section id="why" class="section section-grid reveal">
           <div class="section-heading">
             <p class="eyebrow">Why Ardo</p>
-            <h2>You already have GitHub Copilot. You shouldn't need another subscription to use your favorite agents.</h2>
+            <h2>
+              You already have GitHub Copilot. You shouldn't need another
+              subscription to use your favorite agents.
+            </h2>
           </div>
           <div class="card-grid three-up">
             <article class="info-card accent-sand">
               <h3>One login, really</h3>
               <p>
-                Authenticate once with GitHub Copilot. Every agent you add
-                after that routes through the same subscription — no new API
-                keys, no new billing.
+                Authenticate once with GitHub Copilot. Every agent you add after
+                that routes through the same subscription — no new API keys, no
+                new billing.
               </p>
             </article>
             <article class="info-card accent-mint">
@@ -111,14 +124,17 @@
               <h3>Easy to undo</h3>
               <p>
                 Agent config is reversible by design. Run
-                <code>ardo unconfigure</code> and your agents go back to
-                exactly where they were.
+                <code>ardo unconfigure</code> and your agents go back to exactly
+                where they were.
               </p>
             </article>
           </div>
         </section>
 
-        <section id="what-it-does" class="section section-grid reveal reveal-delay-1">
+        <section
+          id="what-it-does"
+          class="section section-grid reveal reveal-delay-1"
+        >
           <div class="section-heading narrow">
             <p class="eyebrow">What It Does</p>
             <h2>Translate the compatibility layer, not your workflow.</h2>
@@ -169,7 +185,8 @@
             <h2>The recommended path should be obvious.</h2>
             <p>
               Most users should install with npm. Deno, direct binary, and
-              source-based setup remain available when they fit your environment.
+              source-based setup remain available when they fit your
+              environment.
             </p>
           </div>
 
@@ -177,15 +194,26 @@
             <article class="install-card featured-install">
               <div class="install-label">Recommended</div>
               <h3>npm</h3>
-              <p>Use this if you want the shortest path on a machine with Node.js 18+.</p>
+              <p>
+                Use this if you want the shortest path on a machine with Node.js
+                18+.
+              </p>
               <div class="code-block">
                 <code>npm install -g ardo</code>
-                <button class="copy-button" data-copy="npm install -g ardo">Copy</button>
+                <button class="copy-button" data-copy="npm install -g ardo">
+                  Copy
+                </button>
               </div>
               <ol class="step-list">
                 <li>Install Ardo globally.</li>
-                <li>Run <code>ardo start</code> and complete GitHub authentication.</li>
-                <li>Run <code>ardo configure claude-code</code> or another supported agent.</li>
+                <li>
+                  Run <code>ardo start</code> and complete GitHub
+                  authentication.
+                </li>
+                <li>
+                  Run <code>ardo configure claude-code</code> or another
+                  supported agent.
+                </li>
               </ol>
             </article>
 
@@ -194,21 +222,33 @@
               <p>Useful when Deno is already part of your toolchain.</p>
               <div class="code-block compact">
                 <code>deno install -A -g jsr:@ardo-org/ardo</code>
-                <button class="copy-button" data-copy="deno install -A -g jsr:@ardo-org/ardo">Copy</button>
+                <button
+                  class="copy-button"
+                  data-copy="deno install -A -g jsr:@ardo-org/ardo"
+                >
+                  Copy
+                </button>
               </div>
             </article>
 
             <article class="install-card">
               <h3>Direct binary</h3>
-              <p>Download a platform build from GitHub Releases when you do not want a runtime dependency.</p>
+              <p>
+                Download a platform build from GitHub Releases when you do not
+                want a runtime dependency.
+              </p>
               <div class="link-row">
-                <a href="https://github.com/ardo-org/ardo/releases">Open releases</a>
+                <a href="https://github.com/ardo-org/ardo/releases"
+                >Open releases</a>
               </div>
             </article>
 
             <article class="install-card">
               <h3>From source</h3>
-              <p>Good for contributors or if you want to inspect the code before installing.</p>
+              <p>
+                Good for contributors or if you want to inspect the code before
+                installing.
+              </p>
               <div class="code-block stacked">
                 <code>git clone https://github.com/ardo-org/ardo.git</code>
                 <code>cd ardo</code>
@@ -226,7 +266,10 @@
           <div class="flow-board" aria-label="Request flow diagram">
             <div class="flow-node">
               <h3>Coding agent</h3>
-              <p>Claude Code, Cline, or Codex sends a request to a local endpoint.</p>
+              <p>
+                Claude Code, Cline, or Codex sends a request to a local
+                endpoint.
+              </p>
             </div>
             <div class="flow-arrow">→</div>
             <div class="flow-node flow-node-primary">
@@ -261,7 +304,10 @@
         <section id="agents" class="section reveal">
           <div class="section-heading narrow">
             <p class="eyebrow">Supported Agents</p>
-            <h2>Built-in support tracks the current registry, not aspirational marketing copy.</h2>
+            <h2>
+              Built-in support tracks the current registry, not aspirational
+              marketing copy.
+            </h2>
           </div>
           <div class="card-grid three-up">
             <article class="agent-card">
@@ -287,7 +333,10 @@
           <div class="demo-grid">
             <div class="demo-frame">
               <div class="demo-title">CLI preview</div>
-              <pre class="demo-code">$ ardo
+              <pre
+                class="demo-code"
+              >
+$ ardo
 
 Ardo - Local AI Gateway
 Status: Running on http://localhost:11434
@@ -300,8 +349,8 @@ Copilot: Authenticated ✓
             <div class="demo-copy">
               <p>
                 This release includes a styled preview block so the site has a
-                dedicated media area from day one. Replace it later with real TUI
-                screenshots, a short walkthrough video, or annotated command
+                dedicated media area from day one. Replace it later with real
+                TUI screenshots, a short walkthrough video, or annotated command
                 captures.
               </p>
             </div>
@@ -313,7 +362,11 @@ Copilot: Authenticated ✓
             <p class="eyebrow">Positioning</p>
             <h2>Manual setup works. Ardo makes the local path coherent.</h2>
           </div>
-          <div class="comparison-table" role="table" aria-label="Comparison table">
+          <div
+            class="comparison-table"
+            role="table"
+            aria-label="Comparison table"
+          >
             <div class="comparison-row comparison-head" role="row">
               <span role="columnheader">Approach</span>
               <span role="columnheader">What you manage</span>
@@ -321,13 +374,18 @@ Copilot: Authenticated ✓
             </div>
             <div class="comparison-row" role="row">
               <span role="cell">Per-agent manual setup</span>
-              <span role="cell">Separate provider wiring, local endpoints, and config details per tool</span>
+              <span role="cell"
+              >Separate provider wiring, local endpoints, and config details per
+                tool</span>
               <span role="cell">You keep every setup detail in your head</span>
             </div>
             <div class="comparison-row" role="row">
               <span role="cell">Ardo</span>
-              <span role="cell">One local gateway, one install flow, reversible agent configuration</span>
-              <span role="cell">The compatibility surface becomes explicit and shared</span>
+              <span role="cell"
+              >One local gateway, one install flow, reversible agent
+                configuration</span>
+              <span role="cell"
+              >The compatibility surface becomes explicit and shared</span>
             </div>
           </div>
         </section>
@@ -340,23 +398,38 @@ Copilot: Authenticated ✓
           <div class="faq-list">
             <details>
               <summary>Do I need a GitHub Copilot subscription?</summary>
-              <p>Yes. Ardo routes requests through GitHub Copilot, so you need an active Copilot-backed account.</p>
+              <p>
+                Yes. Ardo routes requests through GitHub Copilot, so you need an
+                active Copilot-backed account.
+              </p>
             </details>
             <details>
               <summary>Does Ardo expose an API on my network?</summary>
-              <p>No. The server configuration binds to 127.0.0.1, which keeps the service local to your machine.</p>
+              <p>
+                No. The server configuration binds to 127.0.0.1, which keeps the
+                service local to your machine.
+              </p>
             </details>
             <details>
               <summary>Can I undo a configuration change?</summary>
-              <p>Yes. Ardo supports unconfiguring supported agents and is designed around reversible configuration management.</p>
+              <p>
+                Yes. Ardo supports unconfiguring supported agents and is
+                designed around reversible configuration management.
+              </p>
             </details>
             <details>
               <summary>Which agents are supported right now?</summary>
-              <p>The current built-in registry includes Claude Code, Cline, and Codex.</p>
+              <p>
+                The current built-in registry includes Claude Code, Cline, and
+                Codex.
+              </p>
             </details>
             <details>
               <summary>Do I need Deno to use Ardo?</summary>
-              <p>No. npm and direct binary installs do not require Deno. Deno is only needed for the JSR and source-based paths.</p>
+              <p>
+                No. npm and direct binary installs do not require Deno. Deno is
+                only needed for the JSR and source-based paths.
+              </p>
             </details>
           </div>
         </section>
@@ -370,20 +443,23 @@ Copilot: Authenticated ✓
             <article class="status-card">
               <h3>Current release posture</h3>
               <p>
-                Ardo is at v0.2.0 and focused on a local proxy loop: authenticate,
-                start the service, configure a supported agent, and route requests.
+                Ardo is at v0.2.0 and focused on a local proxy loop:
+                authenticate, start the service, configure a supported agent,
+                and route requests.
               </p>
             </article>
             <article class="status-card">
               <h3>What to watch</h3>
               <p>
-                Future work is tracked in repository specs and releases. The site
-                does not promise unsupported agents or hosted features ahead of
-                implementation.
+                Future work is tracked in repository specs and releases. The
+                site does not promise unsupported agents or hosted features
+                ahead of implementation.
               </p>
               <div class="status-links">
-                <a href="https://github.com/ardo-org/ardo/tree/main/specs">Browse specs</a>
-                <a href="https://github.com/ardo-org/ardo/releases">Read releases</a>
+                <a href="https://github.com/ardo-org/ardo/tree/main/specs"
+                >Browse specs</a>
+                <a href="https://github.com/ardo-org/ardo/releases"
+                >Read releases</a>
               </div>
             </article>
           </div>
@@ -394,8 +470,11 @@ Copilot: Authenticated ✓
         <p>Ardo is a universal local AI gateway for GitHub Copilot.</p>
         <div class="footer-links">
           <a href="https://github.com/ardo-org/ardo">Repository</a>
-          <a href="https://github.com/ardo-org/ardo/blob/main/README.md">README</a>
-          <a href="https://github.com/ardo-org/ardo/tree/main/specs/013-github-pages-website">Spec 13</a>
+          <a href="https://github.com/ardo-org/ardo/blob/main/README.md"
+          >README</a>
+          <a
+            href="https://github.com/ardo-org/ardo/tree/main/specs/013-github-pages-website"
+          >Spec 13</a>
         </div>
       </footer>
     </div>

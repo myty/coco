@@ -53,17 +53,19 @@ export async function handleMessages(req: Request): Promise<Response> {
           try {
             controller.enqueue(encoder.encode(data));
           } catch (err) {
-            if (err instanceof TypeError && err.message.includes('full')) {
+            if (err instanceof TypeError && err.message.includes("full")) {
               backpressureCount++;
               // Implement exponential backoff for backpressure
               const delay = Math.min(100 * backpressureCount, 1000);
-              await new Promise(resolve => setTimeout(resolve, delay));
+              await new Promise((resolve) => setTimeout(resolve, delay));
 
               if (!isClosed) {
                 // Retry the enqueue
                 controller.enqueue(encoder.encode(data));
               }
-            } else if (err instanceof TypeError && err.message.includes('close')) {
+            } else if (
+              err instanceof TypeError && err.message.includes("close")
+            ) {
               // Stream is already closed, ignore
               isClosed = true;
             } else {

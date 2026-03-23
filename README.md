@@ -1,6 +1,7 @@
 # Ardo
 
-**Use your GitHub Copilot subscription with the agents that don't support it yet.**
+**Use your GitHub Copilot subscription with the agents that don't support it
+yet.**
 
 Cline, Codex, and Claude Code are great. But none of them let you use GitHub
 Copilot as a model provider. Ardo fixes that — it runs a local proxy that speaks
@@ -9,13 +10,15 @@ subscription. One login. No extra API keys.
 
 Website: https://ardo-org.github.io/ardo/
 
-Migration guide: [MIGRATION.md](MIGRATION.md)
-Release notes: [CHANGELOG.md](CHANGELOG.md)
+Migration guide: [MIGRATION.md](MIGRATION.md) Release notes:
+[CHANGELOG.md](CHANGELOG.md)
 
 ## Features
 
 - 🔗 **Anthropic + OpenAI compatible** — `/v1/messages` and
   `/v1/chat/completions` endpoints
+- 📊 **Usage telemetry endpoint** — `GET /v1/usage` for aggregated request,
+  status, and latency metrics
 - 🚀 **Background service** — `ardo start` / `ardo stop` / `ardo restart`
 - 🤖 **Multi-agent support** — Claude Code, Cline, and Codex
 - 🖥️ **Minimal TUI** — bare `ardo` opens a radio-toggle interface for batch
@@ -34,6 +37,7 @@ Coding agent → ardo proxy (127.0.0.1:11434) → GitHub Copilot API
                 │
                 ├── POST /v1/messages           (Anthropic)
                 ├── POST /v1/chat/completions   (OpenAI)
+                ├── GET  /v1/usage
                 ├── GET  /v1/models
                 └── GET  /health
 ```
@@ -47,7 +51,6 @@ Coding agent → ardo proxy (127.0.0.1:11434) → GitHub Copilot API
 
 <details>
 <summary>📖 From Source (Development / Try It Out)</summary>
-
 
 Clone the repository and install globally with a single command:
 
@@ -82,7 +85,6 @@ ardo --version
 <details>
 <summary>📖 npm (No Deno Required)</summary>
 
-
 **Node.js ≥18 required**
 
 ```bash
@@ -104,7 +106,6 @@ The npm package automatically downloads the native binary for your platform:
 <details>
 <summary>📖 JSR (Deno Runtime)</summary>
 
-
 ```bash
 deno install -A -g jsr:@ardo-org/ardo
 ```
@@ -113,7 +114,6 @@ deno install -A -g jsr:@ardo-org/ardo
 
 <details>
 <summary>📖 Direct Binary Download</summary>
-
 
 Download platform-specific binaries from
 [GitHub Releases](https://github.com/ardo-org/ardo/releases).
@@ -124,7 +124,6 @@ Download platform-specific binaries from
 
 <details>
 <summary>📖 TUI (recommended for first-time setup)</summary>
-
 
 ```bash
 ardo          # opens the interactive TUI
@@ -154,29 +153,27 @@ Keys: **Space** toggles selection, **Enter** applies, **↑/↓** moves cursor,
 <details>
 <summary>📖 CLI Commands</summary>
 
-
-| Command                        | Description                                                 |
-| ------------------------------ | ----------------------------------------------------------- |
-| `ardo`                         | Open the interactive TUI (on TTY) or print status (non-TTY) |
-| `ardo start`                   | Start the background proxy service                          |
-| `ardo stop`                    | Stop the background proxy service                           |
-| `ardo restart`                 | Restart the background proxy service                        |
-| `ardo status`                  | Print service and auth status                               |
-| `ardo configure <agent>`       | Write config for a specific agent                           |
-| `ardo unconfigure <agent>`     | Revert config for a specific agent                          |
-| `ardo doctor`                  | Scan and report all agents' states                          |
-| `ardo models`                  | List available Copilot model IDs                            |
-| `ardo model-policy [compatible\|strict]` | Show or set model mapping policy               |
-| `ardo install-service`         | Register daemon with OS login service manager               |
-| `ardo uninstall-service`       | Remove daemon from OS login service manager                 |
-| `ardo --help`                  | Show help                                                   |
-| `ardo --version`               | Show version                                                |
+| Command                                  | Description                                                 |
+| ---------------------------------------- | ----------------------------------------------------------- |
+| `ardo`                                   | Open the interactive TUI (on TTY) or print status (non-TTY) |
+| `ardo start`                             | Start the background proxy service                          |
+| `ardo stop`                              | Stop the background proxy service                           |
+| `ardo restart`                           | Restart the background proxy service                        |
+| `ardo status`                            | Print service and auth status                               |
+| `ardo configure <agent>`                 | Write config for a specific agent                           |
+| `ardo unconfigure <agent>`               | Revert config for a specific agent                          |
+| `ardo doctor`                            | Scan and report all agents' states                          |
+| `ardo models`                            | List available Copilot model IDs                            |
+| `ardo model-policy [compatible\|strict]` | Show or set model mapping policy                            |
+| `ardo install-service`                   | Register daemon with OS login service manager               |
+| `ardo uninstall-service`                 | Remove daemon from OS login service manager                 |
+| `ardo --help`                            | Show help                                                   |
+| `ardo --version`                         | Show version                                                |
 
 </details>
 
 <details>
 <summary>🚀 Quick Start</summary>
-
 
 ```bash
 # 1. Install ardo
@@ -201,14 +198,61 @@ ardo install-service
 </details>
 
 <details>
+<summary>📖 Usage Metrics API</summary>
+
+Ardo exposes a local metrics snapshot endpoint:
+
+```bash
+curl http://127.0.0.1:11434/v1/usage
+```
+
+Response shape:
+
+```json
+{
+  "process": {
+    "started_at": "2026-03-23T00:00:00.000Z",
+    "updated_at": "2026-03-23T00:01:00.000Z"
+  },
+  "totals": {
+    "requests": 0,
+    "success": 0,
+    "errors": 0
+  },
+  "endpoints": {
+    "/v1/messages": {
+      "calls": 0,
+      "status": { "2xx": 0, "4xx": 0, "5xx": 0 },
+      "latency_ms": { "count": 0, "min": 0, "max": 0, "avg": 0 }
+    }
+  },
+  "models": {},
+  "agents": {}
+}
+```
+
+Persistence is optional and configurable via `~/.ardo/config.json`:
+
+```json
+{
+  "usageMetrics": {
+    "persist": false,
+    "snapshotIntervalMs": 60000,
+    "filePath": null
+  }
+}
+```
+
+</details>
+
+<details>
 <summary>📖 Supported Agents</summary>
 
-
-| Agent        | Binary         | Extension                |
-| ------------ | -------------- | ------------------------ |
-| Claude Code  | `claude`       | `anthropic.claude-code`  |
-| Cline        | `cline`        | `saoudrizwan.claude-dev` |
-| Codex        | `codex`        | —                        |
+| Agent       | Binary   | Extension                |
+| ----------- | -------- | ------------------------ |
+| Claude Code | `claude` | `anthropic.claude-code`  |
+| Cline       | `cline`  | `saoudrizwan.claude-dev` |
+| Codex       | `codex`  | —                        |
 
 </details>
 
@@ -253,7 +297,6 @@ deno task compile
 <details>
 <summary>📖 "Authentication failed"</summary>
 
-
 - Verify you have an active GitHub Copilot subscription
 - Try again — device flow tokens sometimes need a moment
 
@@ -261,7 +304,6 @@ deno task compile
 
 <details>
 <summary>📖 "Port already in use"</summary>
-
 
 - Ardo automatically scans for an available port starting from 11434
 - Check `ardo status` to see the actual port in use
@@ -271,7 +313,6 @@ deno task compile
 <details>
 <summary>🔧 "Agent is misconfigured"</summary>
 
-
 - Run `ardo unconfigure <agent>` then `ardo configure <agent>` again
 - Run `ardo doctor` for a full status report
 
@@ -279,7 +320,6 @@ deno task compile
 
 <details>
 <summary>📖 macOS "Cannot open" error (binary download)</summary>
-
 
 - Run `xattr -d com.apple.quarantine ardo` to remove quarantine
 
