@@ -79,7 +79,7 @@ Deno.test("configureAgent(codex) — backs up existing file before overwriting",
       skipValidation: true,
     });
 
-    assertEquals(entry.backupPath, `${existingPath}.ardo-backup`);
+    assertEquals(entry.backupPath, `${entry.configPath}.ardo-backup`);
     const backup = await Deno.readTextFile(entry.backupPath!);
     assertStringIncludes(backup, "gpt-4o");
 

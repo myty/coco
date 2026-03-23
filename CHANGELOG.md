@@ -20,6 +20,5 @@ All notable changes to this project are documented in this file.
 
 ### Deprecated
 
-- npm package `coco` is deprecated and now acts as a compatibility shim.
 - Legacy Coco compatibility (`coco` command and `COCO_*` variables) will be
   removed in `1.0.0`.

@@ -1,4 +1,4 @@
-import { join } from "@std/path";
+import { basename, join } from "@std/path";
 import { configDir, loadConfig, saveConfig } from "../config/store.ts";
 import { isProcessAlive } from "../lib/process.ts";
 import { log } from "../lib/log.ts";
@@ -50,6 +50,18 @@ async function removePid(): Promise<void> {
       // Ignore — file may not exist
     }
   }
+}
+
+function isDenoExecutable(path: string): boolean {
+  const name = basename(path).toLowerCase();
+  return name === "deno" || name === "deno.exe";
+}
+
+function daemonSpawnArgs(self: string): string[] {
+  if (isDenoExecutable(self)) {
+    return ["run", "--allow-all", Deno.mainModule, "--daemon"];
+  }
+  return ["--daemon"];
 }
 
 // ---------------------------------------------------------------------------
@@ -111,7 +123,7 @@ export async function startDaemon(): Promise<StartResult> {
   // Self-spawn current CLI entrypoint with --daemon
   const self = Deno.execPath();
   const child = new Deno.Command(self, {
-    args: ["run", "--allow-all", Deno.mainModule, "--daemon"],
+    args: daemonSpawnArgs(self),
     stdin: "null",
     stdout: "null",
     stderr: "null",
@@ -121,7 +133,18 @@ export async function startDaemon(): Promise<StartResult> {
   await writePid(child.pid);
   child.unref();
 
-  return { already: false, port };
+  // Avoid reporting success when the child exits immediately (common spawn issue).
+  for (let i = 0; i < 10; i++) {
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    if (await isProcessAlive(child.pid)) {
+      return { already: false, port };
+    }
+  }
+
+  await removePid();
+  throw new Error(
+    "Failed to start daemon process. Check ~/.ardo/ardo.log for details.",
+  );
 }
 
 /**

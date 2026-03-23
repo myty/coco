@@ -12,7 +12,7 @@ configuration namespace.
 - Canonical config/state directory is now `~/.ardo`.
 - Canonical environment variables now use `ARDO_`.
 - npm package `ardo` is now canonical.
-- npm package `coco` remains available as a deprecated compatibility shim.
+- npm package `coco` has been discontinued; use the canonical `ardo` package.
 
 ## Before/After Mapping
 

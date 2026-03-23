@@ -118,17 +118,12 @@ function createEndpointMetrics(): EndpointMetrics {
   return {
     calls: 0,
     status: { "2xx": 0, "4xx": 0, "5xx": 0 },
-function incrementDimension(
-  map: Record<string, number>,
-  key: string | undefined,
-): void {
+    latency_ms: { count: 0, min: 0, max: 0, avg: 0 },
   };
 }
 
 function classifyStatus(status: number): keyof StatusBuckets | null {
-async function readPersistedSnapshot(
-  path: string,
-): Promise<UsageMetricsSnapshot | null> {
+  if (status >= 200 && status < 300) return "2xx";
   if (status >= 400 && status < 500) return "4xx";
   if (status >= 500 && status < 600) return "5xx";
   return null;
@@ -137,6 +132,7 @@ async function readPersistedSnapshot(
 function updateLatency(metrics: LatencyMetrics, elapsedMs: number): void {
   const latency = Number.isFinite(elapsedMs) && elapsedMs >= 0 ? elapsedMs : 0;
   metrics.count += 1;
+
   if (metrics.count === 1) {
     metrics.min = latency;
     metrics.max = latency;
@@ -163,12 +159,7 @@ async function readPersistedSnapshot(
   try {
     const raw = await Deno.readTextFile(path);
     const parsed = JSON.parse(raw) as UsageMetricsSnapshot;
-
     if (!parsed || typeof parsed !== "object") return null;
-export async function initializeUsageMetrics(
-  initOptions?: UsageMetricsOptions,
-): Promise<void> {
-
     return parsed;
   } catch (err) {
     if (err instanceof Deno.errors.NotFound) return null;

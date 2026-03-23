@@ -1,8 +1,8 @@
 // sync-version.ts — reads version from deno.json and propagates to all distribution artifacts
 
-import { join } from "@std/path";
+import { fromFileUrl, join } from "@std/path";
 
-const repoRoot = new URL("../", import.meta.url).pathname;
+const repoRoot = fromFileUrl(new URL("../", import.meta.url));
 
 // Read version from deno.json
 const denoJsonPath = join(repoRoot, "deno.json");
@@ -24,8 +24,8 @@ await Deno.writeTextFile(
 );
 console.log(`  ✓ src/version.ts`);
 
-// 2. Update npm/ardo and npm/coco package.json (version + optionalDependencies)
-for (const pkgName of ["ardo", "coco"]) {
+// 2. Update npm/ardo package.json (version + optionalDependencies)
+for (const pkgName of ["ardo"]) {
   const mainPkgPath = join(repoRoot, "npm", pkgName, "package.json");
   const mainPkg = JSON.parse(await Deno.readTextFile(mainPkgPath));
   mainPkg.version = version;
@@ -41,7 +41,7 @@ for (const pkgName of ["ardo", "coco"]) {
   console.log(`  ✓ npm/${pkgName}/package.json`);
 }
 
-// 3. Update each platform package.json
+// 3. Update each @ardo platform package.json
 const platforms = [
   "darwin-arm64",
   "darwin-x64",
@@ -50,14 +50,12 @@ const platforms = [
   "win32-x64",
 ];
 
-for (const scope of ["@ardo", "@coco"]) {
-  for (const platform of platforms) {
-    const pkgPath = join(repoRoot, "npm", scope, platform, "package.json");
-    const pkg = JSON.parse(await Deno.readTextFile(pkgPath));
-    pkg.version = version;
-    await Deno.writeTextFile(pkgPath, JSON.stringify(pkg, null, 2) + "\n");
-    console.log(`  ✓ npm/${scope}/${platform}/package.json`);
-  }
+for (const platform of platforms) {
+  const pkgPath = join(repoRoot, "npm", "@ardo", platform, "package.json");
+  const pkg = JSON.parse(await Deno.readTextFile(pkgPath));
+  pkg.version = version;
+  await Deno.writeTextFile(pkgPath, JSON.stringify(pkg, null, 2) + "\n");
+  console.log(`  ✓ npm/@ardo/${platform}/package.json`);
 }
 
 console.log(`\nAll artifacts synced to version ${version} ✅`);

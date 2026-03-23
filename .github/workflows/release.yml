@@ -185,10 +185,8 @@ jobs:
             npm publish "${pkg_dir}" --access public
           done
 
-          # Publish main package first, then legacy shim package.
+          # Publish main package after platform packages.
           echo "Publishing ardo..."
           npm publish npm/ardo --access public
-          echo "Publishing deprecated coco shim..."
-          npm publish npm/coco --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

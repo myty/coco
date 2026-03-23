@@ -7,7 +7,7 @@
  */
 
 import { parse as parseToml, stringify as stringifyToml } from "@std/toml";
-import { join } from "@std/path";
+import { dirname, join } from "@std/path";
 import {
   type CocoConfig,
   type ConfigEntry,
@@ -59,11 +59,7 @@ async function backupFile(path: string): Promise<string> {
 
 /** Ensure all parent directories of `path` exist. */
 async function ensureDir(path: string): Promise<void> {
-  const parts = path.split("/");
-  parts.pop(); // remove filename
-  if (parts.length > 0) {
-    await Deno.mkdir(parts.join("/"), { recursive: true });
-  }
+  await Deno.mkdir(dirname(path), { recursive: true });
 }
 
 // ---------------------------------------------------------------------------

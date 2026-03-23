@@ -1,6 +1,7 @@
 {
-  "name": "@ardo-org/ardo",
-  "version": "0.2.0",
+  "name": "@muxlai/muxlai",
+  "version": "0.3.0",
+  "license": "MIT",
   "exports": {
     ".": "./src/cli/main.ts"
   },

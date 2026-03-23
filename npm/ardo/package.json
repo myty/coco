@@ -1,6 +1,7 @@
 {
   "name": "ardo",
-  "version": "0.2.0",
+  "version": "0.3.0",
+  "license": "MIT",
   "description": "Universal local AI gateway — route any coding agent through GitHub Copilot",
   "bin": {
     "ardo": "./bin/ardo.js"
@@ -9,10 +10,10 @@
     "node": ">=18"
   },
   "optionalDependencies": {
-    "@ardo/darwin-arm64": "0.2.0",
-    "@ardo/darwin-x64": "0.2.0",
-    "@ardo/linux-x64": "0.2.0",
-    "@ardo/linux-arm64": "0.2.0",
-    "@ardo/win32-x64": "0.2.0"
+    "@ardo/darwin-arm64": "0.3.0",
+    "@ardo/darwin-x64": "0.3.0",
+    "@ardo/linux-x64": "0.3.0",
+    "@ardo/linux-arm64": "0.3.0",
+    "@ardo/win32-x64": "0.3.0"
   }
 }

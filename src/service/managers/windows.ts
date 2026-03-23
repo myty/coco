@@ -63,20 +63,20 @@ export class WindowsServiceManager implements ServiceManager {
     const ardoPath = await findFirstBinary(["ardo", "coco"]);
     if (!ardoPath) {
       if (opts.dryRun) {
-        const cmd = "ardo --daemon";
+        const cmd = "ardo";
         let configContent: string;
         try {
           configContent = await crossGenerateConfig({
             system: false,
             name: SERVICE_NAME,
-            cmd,
+            cmd: `${cmd} --daemon`,
           });
         } catch {
           configContent = `sc create ${SERVICE_NAME} binPath="ardo --daemon"`;
         }
         return {
           installed: true,
-          binaryPath: "ardo",
+          binaryPath: cmd,
           configPath: "Windows SCM registry",
           configContent,
         };

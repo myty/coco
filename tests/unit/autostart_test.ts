@@ -346,6 +346,18 @@ Deno.test({
 });
 
 Deno.test({
+  name: "installService dryRun — Windows returns SCM config metadata",
+  ignore: Deno.build.os !== "windows",
+  async fn() {
+    const result = await getServiceManager().install({ dryRun: true });
+    assertEquals(result.installed, true);
+    assertStringIncludes(result.configPath, "Windows SCM registry");
+    assertStringIncludes(result.configContent, "ardo");
+    assertStringIncludes(result.configContent, "--daemon");
+  },
+});
+
+Deno.test({
   name: "UnsupportedPlatformError has correct message format",
   fn() {
     const err = new UnsupportedPlatformError("Windows");
