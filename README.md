@@ -1,17 +1,38 @@
-# Ardo
+# lomux
 
 **Use your GitHub Copilot subscription with the agents that don't support it
 yet.**
 
 Cline, Codex, and Claude Code are great. But none of them let you use GitHub
-Copilot as a model provider. Ardo fixes that — it runs a local proxy that speaks
+Copilot as a model provider. lomux fixes that — it runs a local proxy that speaks
 Anthropic and OpenAI protocols, backed entirely by your existing Copilot
 subscription. One login. No extra API keys.
 
-Website: https://ardo-org.github.io/ardo/
+Website: https://lomux-org.github.io/lomux/
 
 Migration guide: [MIGRATION.md](MIGRATION.md) Release notes:
 [CHANGELOG.md](CHANGELOG.md)
+
+## Why The Name lomux
+
+lomux is built from two ideas that define the product:
+
+- **lo**: everything runs on localhost and stays local-first by design.
+- **mux**: this tool multiplexes multiple coding agents through one local gateway.
+
+The result is a short, memorable command that reflects what the software actually does.
+It is quick to type, distinct across package ecosystems, and consistent across CLI,
+repository, website, and release artifacts.
+
+## Logo Refresh
+
+The current logo asset is temporary during the rename rollout. The project is
+moving to a dedicated lomux logo with these constraints:
+
+- Works at favicon size and terminal-adjacent UI contexts.
+- Communicates routing/gateway behavior without becoming visually noisy.
+- Includes monochrome and full-color variants for docs and site usage.
+- Ships with source files and export sizes for web and package assets.
 
 ## Features
 
@@ -19,21 +40,21 @@ Migration guide: [MIGRATION.md](MIGRATION.md) Release notes:
   `/v1/chat/completions` endpoints
 - 📊 **Usage telemetry endpoint** — `GET /v1/usage` for aggregated request,
   status, and latency metrics
-- 🚀 **Background service** — `ardo start` / `ardo stop` / `ardo restart`
+- 🚀 **Background service** — `lomux start` / `lomux stop` / `lomux restart`
 - 🤖 **Multi-agent support** — Claude Code, Cline, and Codex
-- 🖥️ **Minimal TUI** — bare `ardo` opens a radio-toggle interface for batch
+- 🖥️ **Minimal TUI** — bare `lomux` opens a radio-toggle interface for batch
   configuration
 - 🔍 **Agent detection** — scans PATH and VS Code extension dirs to find
   installed agents
-- ♻️ **Reversible config** — every `ardo configure` is undone by
-  `ardo unconfigure`
+- ♻️ **Reversible config** — every `lomux configure` is undone by
+  `lomux unconfigure`
 - ⚡ **Stream support** — real-time streaming responses
 - 📦 **Multiple install methods** — npm, Deno/JSR, or direct binary
 
 ## How It Works
 
 ```
-Coding agent → ardo proxy (127.0.0.1:11434) → GitHub Copilot API
+Coding agent → lomux proxy (127.0.0.1:11434) → GitHub Copilot API
                 │
                 ├── POST /v1/messages           (Anthropic)
                 ├── POST /v1/chat/completions   (OpenAI)
@@ -42,8 +63,8 @@ Coding agent → ardo proxy (127.0.0.1:11434) → GitHub Copilot API
                 └── GET  /health
 ```
 
-1. **`ardo start`** — authenticates with GitHub and starts the background proxy
-2. **`ardo configure <agent>`** — writes the agent's config file to point at
+1. **`lomux start`** — authenticates with GitHub and starts the background proxy
+2. **`lomux configure <agent>`** — writes the agent's config file to point at
    `http://127.0.0.1:11434`
 3. The agent's API calls are translated and forwarded to GitHub Copilot
 
@@ -55,7 +76,7 @@ Coding agent → ardo proxy (127.0.0.1:11434) → GitHub Copilot API
 Clone the repository and install globally with a single command:
 
 ```bash
-git clone https://github.com/ardo-org/ardo.git && cd ardo
+git clone https://github.com/lomux-org/lomux.git && cd lomux
 ```
 
 **With Deno:**
@@ -70,11 +91,11 @@ deno task install
 mise run install
 ```
 
-After installation, `ardo` is available in any terminal:
+After installation, `lomux` is available in any terminal:
 
 ```bash
-ardo --version
-# Ardo v0.2.0
+lomux --version
+# lomux v0.3.0
 ```
 
 </details>
@@ -88,7 +109,7 @@ ardo --version
 **Node.js ≥18 required**
 
 ```bash
-npm install -g ardo
+npm install -g lomux
 ```
 
 The npm package automatically downloads the native binary for your platform:
@@ -107,7 +128,7 @@ The npm package automatically downloads the native binary for your platform:
 <summary>📖 JSR (Deno Runtime)</summary>
 
 ```bash
-deno install -A -g jsr:@ardo-org/ardo
+deno install -A -g jsr:@lomux/lomux
 ```
 
 </details>
@@ -116,7 +137,7 @@ deno install -A -g jsr:@ardo-org/ardo
 <summary>📖 Direct Binary Download</summary>
 
 Download platform-specific binaries from
-[GitHub Releases](https://github.com/ardo-org/ardo/releases).
+[GitHub Releases](https://github.com/lomux-org/lomux/releases).
 
 </details>
 
@@ -126,11 +147,11 @@ Download platform-specific binaries from
 <summary>📖 TUI (recommended for first-time setup)</summary>
 
 ```bash
-ardo          # opens the interactive TUI
+lomux          # opens the interactive TUI
 ```
 
 ```
-Ardo — Local AI Gateway
+lomux — Local AI Gateway
 ──────────────────────────────────────────────
 Status: Running on http://localhost:11434
 Copilot: Authenticated ✓
@@ -155,20 +176,20 @@ Keys: **Space** toggles selection, **Enter** applies, **↑/↓** moves cursor,
 
 | Command                                  | Description                                                 |
 | ---------------------------------------- | ----------------------------------------------------------- |
-| `ardo`                                   | Open the interactive TUI (on TTY) or print status (non-TTY) |
-| `ardo start`                             | Start the background proxy service                          |
-| `ardo stop`                              | Stop the background proxy service                           |
-| `ardo restart`                           | Restart the background proxy service                        |
-| `ardo status`                            | Print service and auth status                               |
-| `ardo configure <agent>`                 | Write config for a specific agent                           |
-| `ardo unconfigure <agent>`               | Revert config for a specific agent                          |
-| `ardo doctor`                            | Scan and report all agents' states                          |
-| `ardo models`                            | List available Copilot model IDs                            |
-| `ardo model-policy [compatible\|strict]` | Show or set model mapping policy                            |
-| `ardo install-service`                   | Register daemon with OS login service manager               |
-| `ardo uninstall-service`                 | Remove daemon from OS login service manager                 |
-| `ardo --help`                            | Show help                                                   |
-| `ardo --version`                         | Show version                                                |
+| `lomux`                                   | Open the interactive TUI (on TTY) or print status (non-TTY) |
+| `lomux start`                             | Start the background proxy service                          |
+| `lomux stop`                              | Stop the background proxy service                           |
+| `lomux restart`                           | Restart the background proxy service                        |
+| `lomux status`                            | Print service and auth status                               |
+| `lomux configure <agent>`                 | Write config for a specific agent                           |
+| `lomux unconfigure <agent>`               | Revert config for a specific agent                          |
+| `lomux doctor`                            | Scan and report all agents' states                          |
+| `lomux models`                            | List available Copilot model IDs                            |
+| `lomux model-policy [compatible\|strict]` | Show or set model mapping policy                            |
+| `lomux install-service`                   | Register daemon with OS login service manager               |
+| `lomux uninstall-service`                 | Remove daemon from OS login service manager                 |
+| `lomux --help`                            | Show help                                                   |
+| `lomux --version`                         | Show version                                                |
 
 </details>
 
@@ -176,23 +197,23 @@ Keys: **Space** toggles selection, **Enter** applies, **↑/↓** moves cursor,
 <summary>🚀 Quick Start</summary>
 
 ```bash
-# 1. Install ardo
+# 1. Install lomux
 deno task install
 
 # 2. Start the proxy (authenticates with GitHub Copilot on first run)
-ardo start
+lomux start
 
 # 3. Configure an agent
-ardo configure claude-code
+lomux configure claude-code
 
 # 4. Check what's running
-ardo doctor
+lomux doctor
 
 # 5. (Optional) Register as a login service
-ardo install-service
+lomux install-service
 
 # To remove the login service later:
-# ardo uninstall-service
+# lomux uninstall-service
 ```
 
 </details>
@@ -200,7 +221,7 @@ ardo install-service
 <details>
 <summary>📖 Usage Metrics API</summary>
 
-Ardo exposes a local metrics snapshot endpoint:
+lomux exposes a local metrics snapshot endpoint:
 
 ```bash
 curl http://127.0.0.1:11434/v1/usage
@@ -231,7 +252,7 @@ Response shape:
 }
 ```
 
-Persistence is optional and configurable via `~/.ardo/config.json`:
+Persistence is optional and configurable via `~/.lomux/config.json`:
 
 ```json
 {
@@ -267,7 +288,7 @@ src/
 ├── tui/              # Renderer and raw-mode input
 ├── auth/             # GitHub OAuth device flow
 ├── copilot/          # GitHub Copilot API client
-├── config/           # ~/.ardo/config.json store
+├── config/           # ~/.lomux/config.json store
 └── lib/              # Shared utilities (log, process, errors, token)
 ```
 
@@ -279,7 +300,7 @@ src/
 
 ```bash
 # Clone and run quality checks
-git clone https://github.com/ardo-org/ardo.git && cd ardo
+git clone https://github.com/lomux-org/lomux.git && cd lomux
 deno task quality
 
 # Run in development mode
@@ -305,23 +326,23 @@ deno task compile
 <details>
 <summary>📖 "Port already in use"</summary>
 
-- Ardo automatically scans for an available port starting from 11434
-- Check `ardo status` to see the actual port in use
+- lomux automatically scans for an available port starting from 11434
+- Check `lomux status` to see the actual port in use
 
 </details>
 
 <details>
 <summary>🔧 "Agent is misconfigured"</summary>
 
-- Run `ardo unconfigure <agent>` then `ardo configure <agent>` again
-- Run `ardo doctor` for a full status report
+- Run `lomux unconfigure <agent>` then `lomux configure <agent>` again
+- Run `lomux doctor` for a full status report
 
 </details>
 
 <details>
 <summary>📖 macOS "Cannot open" error (binary download)</summary>
 
-- Run `xattr -d com.apple.quarantine ardo` to remove quarantine
+- Run `xattr -d com.apple.quarantine lomux` to remove quarantine
 
 </details>
 

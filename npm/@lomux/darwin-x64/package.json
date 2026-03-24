@@ -1,5 +1,5 @@
 {
-  "name": "@ardo/darwin-x64",
+  "name": "@lomux/darwin-x64",
   "version": "0.3.0",
   "os": [
     "darwin"
@@ -7,6 +7,5 @@
   "cpu": [
     "x64"
   ],
-  "preferUnplugged": true,
-  "bin": {}
+  "preferUnplugged": true
 }

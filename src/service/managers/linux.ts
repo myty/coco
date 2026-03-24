@@ -12,8 +12,8 @@ import type { ServiceManager } from "./interfaces.ts";
 // Constants
 // ---------------------------------------------------------------------------
 
-const SERVICE_NAME = "ardo.service";
-const LEGACY_SERVICE_NAME = "coco.service";
+const SERVICE_NAME = "lomux.service";
+const LEGACY_SERVICE_NAME = "lomux.service";
 
 // ---------------------------------------------------------------------------
 // Private helpers
@@ -32,12 +32,12 @@ function legacyUnitPath(home: string): string {
 }
 
 function logPath(home: string): string {
-  return join(home, ".ardo", "ardo.log");
+  return join(home, ".lomux", "lomux.log");
 }
 
 function generateUnit(binaryPath: string, log: string): string {
   return `[Unit]
-Description=Ardo Local AI Gateway
+Description=Lomux Local AI Gateway
 After=network.target
 
 [Service]
@@ -129,28 +129,28 @@ export class LinuxServiceManager implements ServiceManager {
     const up = unitPath(home);
     const lp = logPath(home);
 
-    const ardoPath = await findFirstBinary(["ardo", "coco"]);
-    if (!ardoPath) {
+    const lomuxPath = await findFirstBinary(["lomux"]);
+    if (!lomuxPath) {
       if (opts.dryRun) {
-        const configContent = generateUnit("ardo", lp);
+        const configContent = generateUnit("lomux", lp);
         return {
           installed: true,
-          binaryPath: "ardo",
+          binaryPath: "lomux",
           configPath: up,
           configContent,
         };
       }
       throw new Error(
-        "Neither 'ardo' nor legacy 'coco' is installed globally. Run: deno task install",
+        "Neither 'lomux' nor legacy 'lomux' is installed globally. Run: deno task install",
       );
     }
 
-    const configContent = generateUnit(ardoPath, lp);
+    const configContent = generateUnit(lomuxPath, lp);
 
     if (opts.dryRun) {
       return {
         installed: true,
-        binaryPath: ardoPath,
+        binaryPath: lomuxPath,
         configPath: up,
         configContent,
       };
@@ -166,7 +166,7 @@ export class LinuxServiceManager implements ServiceManager {
 
     return {
       installed: true,
-      binaryPath: ardoPath,
+      binaryPath: lomuxPath,
       configPath: up,
       configContent,
     };

@@ -11,7 +11,7 @@ import type { ServiceManager } from "./interfaces.ts";
 // Constants
 // ---------------------------------------------------------------------------
 
-const PLIST_LABEL = "com.ardo";
+const PLIST_LABEL = "com.lomux";
 // ---------------------------------------------------------------------------
 // Private helpers
 // ---------------------------------------------------------------------------
@@ -21,15 +21,15 @@ function homeDir(override?: string): string {
 }
 
 function plistPath(home: string): string {
-  return join(home, "Library", "LaunchAgents", "com.ardo.plist");
+  return join(home, "Library", "LaunchAgents", "com.lomux.plist");
 }
 
 function legacyPlistPath(home: string): string {
-  return join(home, "Library", "LaunchAgents", "com.coco.plist");
+  return join(home, "Library", "LaunchAgents", "com.lomux.plist");
 }
 
 function logPath(home: string): string {
-  return join(home, ".ardo", "ardo.log");
+  return join(home, ".lomux", "lomux.log");
 }
 
 function generatePlist(binaryPath: string, log: string): string {
@@ -131,28 +131,28 @@ export class MacOSServiceManager implements ServiceManager {
     const pp = plistPath(home);
     const lp = logPath(home);
 
-    const ardoPath = await findFirstBinary(["ardo", "coco"]);
-    if (!ardoPath) {
+    const lomuxPath = await findFirstBinary(["lomux"]);
+    if (!lomuxPath) {
       if (opts.dryRun) {
-        const configContent = generatePlist("ardo", lp);
+        const configContent = generatePlist("lomux", lp);
         return {
           installed: true,
-          binaryPath: "ardo",
+          binaryPath: "lomux",
           configPath: pp,
           configContent,
         };
       }
       throw new Error(
-        "Neither 'ardo' nor legacy 'coco' is installed globally. Run: deno task install",
+        "Neither 'lomux' nor legacy 'lomux' is installed globally. Run: deno task install",
       );
     }
 
-    const configContent = generatePlist(ardoPath, lp);
+    const configContent = generatePlist(lomuxPath, lp);
 
     if (opts.dryRun) {
       return {
         installed: true,
-        binaryPath: ardoPath,
+        binaryPath: lomuxPath,
         configPath: pp,
         configContent,
       };
@@ -171,7 +171,7 @@ export class MacOSServiceManager implements ServiceManager {
 
     return {
       installed: true,
-      binaryPath: ardoPath,
+      binaryPath: lomuxPath,
       configPath: pp,
       configContent,
     };

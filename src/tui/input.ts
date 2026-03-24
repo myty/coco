@@ -1,5 +1,5 @@
 /**
- * Terminal key-input handling for the Ardo TUI.
+ * Terminal key-input handling for the Lomux TUI.
  *
  * Wraps @cliffy/keypress which manages raw mode automatically.
  */

@@ -1,5 +1,5 @@
 {
-  "name": "@ardo/win32-x64",
+  "name": "@lomux/win32-x64",
   "version": "0.3.0",
   "os": [
     "win32"
@@ -7,6 +7,5 @@
   "cpu": [
     "x64"
   ],
-  "preferUnplugged": true,
-  "bin": {}
+  "preferUnplugged": true
 }

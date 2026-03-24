@@ -24,8 +24,8 @@ await Deno.writeTextFile(
 );
 console.log(`  ✓ src/version.ts`);
 
-// 2. Update npm/ardo package.json (version + optionalDependencies)
-for (const pkgName of ["ardo"]) {
+// 2. Update npm/lomux package.json (version + optionalDependencies)
+for (const pkgName of ["lomux"]) {
   const mainPkgPath = join(repoRoot, "npm", pkgName, "package.json");
   const mainPkg = JSON.parse(await Deno.readTextFile(mainPkgPath));
   mainPkg.version = version;
@@ -41,7 +41,7 @@ for (const pkgName of ["ardo"]) {
   console.log(`  ✓ npm/${pkgName}/package.json`);
 }
 
-// 3. Update each @ardo platform package.json
+// 3. Update each @lomux platform package.json
 const platforms = [
   "darwin-arm64",
   "darwin-x64",
@@ -51,11 +51,11 @@ const platforms = [
 ];
 
 for (const platform of platforms) {
-  const pkgPath = join(repoRoot, "npm", "@ardo", platform, "package.json");
+  const pkgPath = join(repoRoot, "npm", "@lomux", platform, "package.json");
   const pkg = JSON.parse(await Deno.readTextFile(pkgPath));
   pkg.version = version;
   await Deno.writeTextFile(pkgPath, JSON.stringify(pkg, null, 2) + "\n");
-  console.log(`  ✓ npm/@ardo/${platform}/package.json`);
+  console.log(`  ✓ npm/@lomux/${platform}/package.json`);
 }
 
 console.log(`\nAll artifacts synced to version ${version} ✅`);

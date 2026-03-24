@@ -9,15 +9,15 @@ import { log } from "../lib/log.ts";
 
 function legacyDir(): string {
   const home = Deno.env.get("HOME") ?? Deno.env.get("USERPROFILE") ?? ".";
-  return join(home, ".coco");
+  return join(home, ".lomux");
 }
 
 function pidPath(): string {
-  return join(configDir(), "ardo.pid");
+  return join(configDir(), "lomux.pid");
 }
 
 function legacyPidPath(): string {
-  return join(legacyDir(), "coco.pid");
+  return join(legacyDir(), "lomux.pid");
 }
 
 // ---------------------------------------------------------------------------
@@ -143,7 +143,7 @@ export async function startDaemon(): Promise<StartResult> {
 
   await removePid();
   throw new Error(
-    "Failed to start daemon process. Check ~/.ardo/ardo.log for details.",
+    "Failed to start daemon process. Check ~/.lomux/lomux.log for details.",
   );
 }
 

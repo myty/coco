@@ -1,6 +1,6 @@
 # Documentation Style Guide
 
-**Purpose**: Maintain consistency across all documentation in the Ardo project
+**Purpose**: Maintain consistency across all documentation in the lomux project
 **Scope**: README.md, AGENTS.md, constitution.md, and supporting documentation
 **Last Updated**: 2026-03-20
 
@@ -11,13 +11,13 @@
 - **Professional and approachable** - Technical but accessible
 - **Helpful and encouraging** - Assume good intent, provide clear guidance
 - **Concise and actionable** - Get to the point, provide specific steps
-- **Consistent with Ardo's calm UX principles** - No excitement or hyperbole
+- **Consistent with lomux's calm UX principles** - No excitement or hyperbole
 
 ### Writing Style
 
 - **Second person** - Use "you" for instructions and guidance
 - **Present tense** - Describe current capabilities and state
-- **Active voice** - "Ardo validates" not "validation is performed"
+- **Active voice** - "lomux validates" not "validation is performed"
 - **Parallel structure** - Consistent formatting in lists and steps
 
 ## Formatting Standards
@@ -51,7 +51,7 @@
 ### Links and References
 
 - Use descriptive link text:
-  `[GitHub Releases](https://github.com/ardo-org/ardo/releases)`
+  `[GitHub Releases](https://github.com/lomux-org/lomux/releases)`
 - Prefer relative links for internal documents
 - Always test external links
 - Include protocol for external URLs: `https://example.com`
@@ -62,6 +62,7 @@
 
 Use these exact spellings and capitalizations:
 
+- lomux (always lowercase as the product name)
 - GitHub
 - TypeScript
 - Deno
@@ -113,7 +114,7 @@ Use contextually appropriate emojis in progressive disclosure summaries:
 ### README.md
 
 - **Purpose**: User onboarding and project overview
-- **Target audience**: End users discovering and installing Ardo
+- **Target audience**: End users discovering and installing lomux
 - **Reading time target**: 5-10 minutes
 - **Structure**: Title → Features → Installation → Usage → Development
 - **Progressive disclosure**: Use for advanced config, troubleshooting

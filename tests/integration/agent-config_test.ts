@@ -3,7 +3,7 @@
  *
  * These tests use temp directories to avoid touching real config files.
  * The validateConfig() probe tests require a running daemon and are marked
- * ignore: true -- enable them with `ardo start` before running manually.
+ * ignore: true -- enable them with `lomux start` before running manually.
  */
 
 import { assertEquals, assertStringIncludes } from "@std/assert";
@@ -14,7 +14,7 @@ import {
   validateConfig,
   verifyAgentConfig,
 } from "../../src/agents/config.ts";
-import { type CocoConfig, DEFAULT_CONFIG } from "../../src/config/store.ts";
+import { type LomuxConfig, DEFAULT_CONFIG } from "../../src/config/store.ts";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -24,7 +24,7 @@ async function withTempHome(
   fn: (homeDir: string, configDir: string) => Promise<void>,
 ): Promise<void> {
   const homeDir = await Deno.makeTempDir();
-  const configDir = `${homeDir}/.coco`;
+  const configDir = `${homeDir}/.lomux`;
   await Deno.mkdir(configDir, { recursive: true });
   try {
     await fn(homeDir, configDir);
@@ -33,8 +33,8 @@ async function withTempHome(
   }
 }
 
-/** Create a CocoConfig backed by a temp dir (avoids touching ~/.coco). */
-function makeTempConfig(_configDir: string): CocoConfig {
+/** Create a LomuxConfig backed by a temp dir (avoids touching ~/.lomux). */
+function makeTempConfig(_configDir: string): LomuxConfig {
   // We patch saveConfig via the homeDir option — config writes go to configDir
   return { ...DEFAULT_CONFIG };
 }
@@ -59,7 +59,7 @@ Deno.test("configureAgent(codex) — creates config file when none exists", asyn
     assertStringIncludes(content, "model_provider");
     assertStringIncludes(content, "base_url");
     assertStringIncludes(content, "http://127.0.0.1:11434");
-    assertStringIncludes(content, "ardo");
+    assertStringIncludes(content, "lomux");
     assertStringIncludes(content, 'wire_api = "responses"');
     assertStringIncludes(content, 'model = "gpt-5.4"');
     assertEquals(content.includes("auth_method"), false);
@@ -79,7 +79,7 @@ Deno.test("configureAgent(codex) — backs up existing file before overwriting",
       skipValidation: true,
     });
 
-    assertEquals(entry.backupPath, `${entry.configPath}.ardo-backup`);
+    assertEquals(entry.backupPath, `${entry.configPath}.lomux-backup`);
     const backup = await Deno.readTextFile(entry.backupPath!);
     assertStringIncludes(backup, "gpt-4o");
 
@@ -115,7 +115,7 @@ Deno.test("unconfigureAgent(codex) — removes file when backupPath is null", as
     });
     assertEquals(entry.backupPath, null);
 
-    const updatedConfig: CocoConfig = { ...config, agents: [entry] };
+    const updatedConfig: LomuxConfig = { ...config, agents: [entry] };
     await unconfigureAgent("codex", updatedConfig);
 
     let fileGone = false;
@@ -140,7 +140,7 @@ Deno.test("unconfigureAgent(codex) — restores backup when one exists", async (
       homeDir,
       skipValidation: true,
     });
-    const updatedConfig: CocoConfig = { ...config, agents: [entry] };
+    const updatedConfig: LomuxConfig = { ...config, agents: [entry] };
 
     await unconfigureAgent("codex", updatedConfig);
 
@@ -181,7 +181,7 @@ Deno.test("configureAgent(claude-code) — merges only ANTHROPIC keys, preserves
     assertEquals(content.theme, "dark");
     assertEquals(content.env.OTHER_KEY, "preserve-me");
     assertEquals(content.env.ANTHROPIC_BASE_URL, "http://127.0.0.1:11434");
-    assertEquals(content.env.ANTHROPIC_AUTH_TOKEN, "ardo");
+    assertEquals(content.env.ANTHROPIC_AUTH_TOKEN, "lomux");
   });
 });
 
@@ -206,7 +206,7 @@ Deno.test("configureAgent(cline) — writes globalState with openai provider fie
 
     const secretsPath = `${homeDir}/.cline/data/secrets.json`;
     const secrets = JSON.parse(await Deno.readTextFile(secretsPath));
-    assertEquals(secrets.openAiApiKey, "ardo");
+    assertEquals(secrets.openAiApiKey, "lomux");
   });
 });
 
@@ -226,7 +226,7 @@ Deno.test("isAgentConfigured returns true after configureAgent is called", async
       homeDir,
       skipValidation: true,
     });
-    const updatedConfig: CocoConfig = { ...config, agents: [entry] };
+    const updatedConfig: LomuxConfig = { ...config, agents: [entry] };
     assertEquals(isAgentConfigured("codex", updatedConfig), true);
   });
 });
@@ -262,7 +262,7 @@ Deno.test("verifyAgentConfig returns false when config file no longer contains e
       homeDir,
       skipValidation: true,
     });
-    // Overwrite with content that doesn't include the ardo endpoint
+    // Overwrite with content that doesn't include the lomux endpoint
     await Deno.writeTextFile(entry.configPath, 'model = "gpt-4o"\n');
     assertEquals(await verifyAgentConfig(entry), false);
   });

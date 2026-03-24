@@ -2,14 +2,14 @@
  * Per-agent configuration writers.
  *
  * Writes the endpoint configuration for each supported agent so it routes
- * API traffic through Ardo's local proxy. Backs up original files and
+ * API traffic through Lomux's local proxy. Backs up original files and
  * supports reversible unconfigure.
  */
 
 import { parse as parseToml, stringify as stringifyToml } from "@std/toml";
 import { dirname, join } from "@std/path";
 import {
-  type CocoConfig,
+  type LomuxConfig,
   type ConfigEntry,
   saveConfig,
 } from "../config/store.ts";
@@ -50,9 +50,9 @@ async function fileExists(path: string): Promise<boolean> {
   }
 }
 
-/** Backup a file to `<path>.ardo-backup`. Returns the backup path. */
+/** Backup a file to `<path>.lomux-backup`. Returns the backup path. */
 async function backupFile(path: string): Promise<string> {
-  const backupPath = `${path}.ardo-backup`;
+  const backupPath = `${path}.lomux-backup`;
   await Deno.copyFile(path, backupPath);
   return backupPath;
 }
@@ -111,7 +111,7 @@ async function writeClaudeCode(
     env: {
       ...existingEnv,
       ANTHROPIC_BASE_URL: `http://127.0.0.1:${port}`,
-      ANTHROPIC_AUTH_TOKEN: "ardo",
+      ANTHROPIC_AUTH_TOKEN: "lomux",
     },
   };
 
@@ -136,7 +136,7 @@ async function writeCline(
     existing = JSON.parse(raw) as Record<string, unknown>;
   }
 
-  // Merge ardo proxy settings into the flat globalState format used by the
+  // Merge lomux proxy settings into the flat globalState format used by the
   // official Cline CLI. Setting welcomeViewCompleted prevents the setup wizard.
   const updated = {
     ...existing,
@@ -162,7 +162,7 @@ async function writeCline(
     : {};
   await Deno.writeTextFile(
     secretsPath,
-    JSON.stringify({ ...existingSecrets, openAiApiKey: "ardo" }, null, 2) +
+    JSON.stringify({ ...existingSecrets, openAiApiKey: "lomux" }, null, 2) +
       "\n",
   );
 
@@ -189,11 +189,11 @@ async function writeCodex(
     ...existing,
     // Use a Codex-native model to avoid local metadata fallback warnings.
     model: "gpt-5.4",
-    model_provider: "ardo",
+    model_provider: "lomux",
     model_providers: {
       ...existingProviders,
-      ardo: {
-        name: "Ardo",
+      lomux: {
+        name: "Lomux",
         base_url: `http://127.0.0.1:${port}/v1/`,
         // Codex now requires Responses API wiring.
         wire_api: "responses",
@@ -204,7 +204,7 @@ async function writeCodex(
   await ensureDir(configPath);
   await Deno.writeTextFile(
     configPath,
-    "# Written by ardo configure codex\n" + stringifyToml(updated),
+    "# Written by lomux configure codex\n" + stringifyToml(updated),
   );
   return { configPath, backupPath };
 }
@@ -229,7 +229,7 @@ const AGENT_WRITERS: Record<string, AgentWriter> = {
 // ---------------------------------------------------------------------------
 
 /**
- * Perform a 1-token probe against the running Ardo proxy to verify
+ * Perform a 1-token probe against the running Lomux proxy to verify
  * that an agent's config would work. Returns true if the probe succeeds.
  */
 export async function validateConfig(port: number): Promise<boolean> {
@@ -238,7 +238,7 @@ export async function validateConfig(port: number): Promise<boolean> {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer ardo",
+        Authorization: "Bearer lomux",
       },
       body: JSON.stringify({
         model: "gpt-4o",
@@ -258,9 +258,9 @@ export async function validateConfig(port: number): Promise<boolean> {
 // ---------------------------------------------------------------------------
 
 /**
- * Verify that an agent's config file still exists and contains the Ardo
+ * Verify that an agent's config file still exists and contains the Lomux
  * endpoint. Returns false if the file is missing or was overwritten by
- * the agent (i.e., ardo settings are no longer present).
+ * the agent (i.e., lomux settings are no longer present).
  */
 export async function verifyAgentConfig(entry: ConfigEntry): Promise<boolean> {
   try {
@@ -270,14 +270,12 @@ export async function verifyAgentConfig(entry: ConfigEntry): Promise<boolean> {
     // point to /v1/responses and should be treated as stale.
     if (entry.agentName === "codex") {
       const parsed = parseToml(content) as Record<string, unknown>;
-      if (
-        parsed.model_provider !== "ardo" && parsed.model_provider !== "coco"
-      ) return false;
+      if (parsed.model_provider !== "lomux") return false;
 
       const providers = parsed.model_providers as Record<string, unknown>;
       if (!providers || typeof providers !== "object") return false;
 
-      const providerConfig = (providers.ardo ?? providers.coco) as Record<
+      const providerConfig = providers.lomux as Record<
         string,
         unknown
       >;
@@ -302,14 +300,14 @@ export async function verifyAgentConfig(entry: ConfigEntry): Promise<boolean> {
 // ---------------------------------------------------------------------------
 
 /**
- * Configure an agent to route through Ardo's proxy.
+ * Configure an agent to route through Lomux's proxy.
  * Backs up any existing config, writes the agent-specific format, runs a
- * validation probe, and persists the ConfigEntry to CocoConfig.
+ * validation probe, and persists the ConfigEntry to LomuxConfig.
  */
 export async function configureAgent(
   agentName: string,
   port: number,
-  ardoConfig: CocoConfig,
+  lomuxConfig: LomuxConfig,
   options?: ConfigureOptions,
 ): Promise<ConfigEntry> {
   const agent = getAgent(agentName);
@@ -341,23 +339,23 @@ export async function configureAgent(
   };
 
   // Replace any existing entry for this agent
-  const agents = ardoConfig.agents.filter((a) => a.agentName !== agentName);
+  const agents = lomuxConfig.agents.filter((a) => a.agentName !== agentName);
   agents.push(entry);
-  await saveConfig({ ...ardoConfig, agents });
+  await saveConfig({ ...lomuxConfig, agents });
 
   return entry;
 }
 
 /**
- * Revert an agent's configuration to its pre-Ardo state.
+ * Revert an agent's configuration to its pre-Lomux state.
  * Restores backup if one exists, or deletes the written file.
- * Removes the ConfigEntry from CocoConfig.
+ * Removes the ConfigEntry from LomuxConfig.
  */
 export async function unconfigureAgent(
   agentName: string,
-  ardoConfig: CocoConfig,
+  lomuxConfig: LomuxConfig,
 ): Promise<void> {
-  const entry = ardoConfig.agents.find((a) => a.agentName === agentName);
+  const entry = lomuxConfig.agents.find((a) => a.agentName === agentName);
   if (!entry) {
     return; // not configured — nothing to undo
   }
@@ -366,7 +364,7 @@ export async function unconfigureAgent(
     // Restore backup
     await Deno.rename(entry.backupPath, entry.configPath);
   } else {
-    // No prior file -- delete the one Ardo created
+    // No prior file -- delete the one Lomux created
     try {
       await Deno.remove(entry.configPath);
     } catch {
@@ -374,16 +372,16 @@ export async function unconfigureAgent(
     }
   }
 
-  const agents = ardoConfig.agents.filter((a) => a.agentName !== agentName);
-  await saveConfig({ ...ardoConfig, agents });
+  const agents = lomuxConfig.agents.filter((a) => a.agentName !== agentName);
+  await saveConfig({ ...lomuxConfig, agents });
 }
 
 /**
- * Check whether an agent is currently configured in CocoConfig.
+ * Check whether an agent is currently configured in LomuxConfig.
  */
 export function isAgentConfigured(
   agentName: string,
-  ardoConfig: CocoConfig,
+  lomuxConfig: LomuxConfig,
 ): boolean {
-  return ardoConfig.agents.some((a) => a.agentName === agentName);
+  return lomuxConfig.agents.some((a) => a.agentName === agentName);
 }

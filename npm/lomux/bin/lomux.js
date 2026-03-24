@@ -4,20 +4,20 @@
 
 const { spawnSync } = require("child_process");
 
-// Map Node.js platform+arch to @ardo/* package name
+// Map Node.js platform+arch to @lomux/* package name
 const PLATFORM_MAP = {
-  "darwin arm64": "@ardo/darwin-arm64",
-  "darwin x64": "@ardo/darwin-x64",
-  "linux x64": "@ardo/linux-x64",
-  "linux arm64": "@ardo/linux-arm64",
-  "win32 x64": "@ardo/win32-x64",
+  "darwin arm64": "@lomux/darwin-arm64",
+  "darwin x64": "@lomux/darwin-x64",
+  "linux x64": "@lomux/linux-x64",
+  "linux arm64": "@lomux/linux-arm64",
+  "win32 x64": "@lomux/win32-x64",
 };
 
 const platformKey = `${process.platform} ${process.arch}`;
 const pkgName = PLATFORM_MAP[platformKey];
 
 if (pkgName) {
-  const binaryName = process.platform === "win32" ? "ardo.exe" : "ardo";
+  const binaryName = process.platform === "win32" ? "lomux.exe" : "lomux";
   let binaryPath;
   try {
     binaryPath = require.resolve(`${pkgName}/bin/${binaryName}`);
@@ -43,7 +43,7 @@ const denoCheck = spawnSync("deno", ["--version"], {
 if (denoCheck.status === 0) {
   const result = spawnSync(
     "deno",
-    ["run", "-A", "jsr:@ardo-org/ardo", ...process.argv.slice(2)],
+    ["run", "-A", "jsr:@lomux/lomux", ...process.argv.slice(2)],
     { stdio: "inherit", shell: false },
   );
   process.exit(result.status ?? 1);
@@ -51,7 +51,7 @@ if (denoCheck.status === 0) {
 
 // Neither platform binary nor deno available
 console.error(
-  `Ardo is not supported on this platform (${process.platform}/${process.arch}).\n` +
-    `Please download a binary from https://github.com/ardo-org/ardo/releases or install Deno.`,
+  `lomux is not supported on this platform (${process.platform}/${process.arch}).\n` +
+    `Please download a binary from https://github.com/lomux-org/lomux/releases or install Deno.`,
 );
 process.exit(1);

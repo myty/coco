@@ -3,10 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Ardo | Use GitHub Copilot with Cline, Codex, and Claude Code</title>
+    <title>lomux | Use GitHub Copilot with Cline, Codex, and Claude Code</title>
     <meta
       name="description"
-      content="Ardo is an open-source local proxy that lets Cline, Codex, and Claude Code run on your GitHub Copilot subscription. One login, no extra API keys."
+      content="lomux is an open-source local proxy that lets Cline, Codex, and Claude Code run on your GitHub Copilot subscription. One login, no extra API keys."
     />
     <link rel="icon" href="./logo.png" type="image/png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -22,16 +22,16 @@
     <div id="header-sentinel" aria-hidden="true"></div>
     <header class="site-header">
       <div class="site-header-inner">
-        <a class="brand" href="#top" aria-label="Ardo home">
+        <a class="brand" href="#top" aria-label="lomux home">
           <img src="./logo.png" class="brand-logo" alt="" />
-          <span class="brand-text">Ardo</span>
+          <span class="brand-text">lomux</span>
         </a>
         <nav class="site-nav" aria-label="Primary">
           <a href="#why">Why</a>
           <a href="#install">Install</a>
           <a href="#how-it-works">How it works</a>
           <a href="#faq">FAQ</a>
-          <a href="https://github.com/ardo-org/ardo">GitHub</a>
+          <a href="https://github.com/lomux-org/lomux">GitHub</a>
         </nav>
       </div>
     </header>
@@ -45,13 +45,13 @@
               support it yet.
             </h1>
             <p class="hero-body">
-              Ardo runs locally and proxies Cline, Codex, and Claude Code
+              lomux runs locally and proxies Cline, Codex, and Claude Code
               through your existing GitHub Copilot subscription. No extra API
               keys. No separate billing. Just authenticate once and point your
               agents at 127.0.0.1.
             </p>
             <div class="hero-actions">
-              <a class="button button-primary" href="#install">Install Ardo</a>
+              <a class="button button-primary" href="#install">Install lomux</a>
               <a class="button button-secondary" href="#how-it-works"
               >See the flow</a>
             </div>
@@ -64,7 +64,7 @@
 
           <div
             class="hero-panel reveal reveal-delay-1"
-            aria-label="Ardo overview"
+            aria-label="lomux overview"
           >
             <div class="terminal-card">
               <div class="terminal-topline">
@@ -73,7 +73,7 @@
                 <span></span>
               </div>
               <div class="terminal-body">
-                <p><span class="prompt">$</span> ardo status</p>
+                <p><span class="prompt">$</span> lomux status</p>
                 <p>Service:&nbsp;&nbsp;Not installed</p>
                 <p>
                   State:&nbsp;&nbsp;&nbsp;&nbsp;Running at
@@ -82,7 +82,7 @@
                 <p>Agents:&nbsp;&nbsp;&nbsp;claude-code, cline</p>
                 <p>Copilot:&nbsp;&nbsp;Authenticated ✓</p>
                 <p class="terminal-gap"></p>
-                <p><span class="prompt">$</span> ardo configure claude-code</p>
+                <p><span class="prompt">$</span> lomux configure claude-code</p>
                 <p>claude-code configured.</p>
               </div>
             </div>
@@ -97,11 +97,17 @@
 
         <section id="why" class="section section-grid reveal">
           <div class="section-heading">
-            <p class="eyebrow">Why Ardo</p>
+            <p class="eyebrow">Why lomux</p>
             <h2>
               You already have GitHub Copilot. You shouldn't need another
               subscription to use your favorite agents.
             </h2>
+            <p>
+              <strong>lomux</strong> combines two ideas: <strong>mux</strong>
+              for multiplexing many agents through one gateway, and
+              <strong>lo</strong> for local-first operation on localhost. The
+              name is short, memorable, and describes the product behavior.
+            </p>
           </div>
           <div class="card-grid three-up">
             <article class="info-card accent-sand">
@@ -115,7 +121,7 @@
             <article class="info-card accent-mint">
               <h3>Stays on your machine</h3>
               <p>
-                Ardo binds to localhost only. It proxies requests to GitHub
+                lomux binds to localhost only. It proxies requests to GitHub
                 Copilot and never becomes a hosted service or remote control
                 plane.
               </p>
@@ -124,7 +130,7 @@
               <h3>Easy to undo</h3>
               <p>
                 Agent config is reversible by design. Run
-                <code>ardo unconfigure</code> and your agents go back to exactly
+                <code>lomux unconfigure</code> and your agents go back to exactly
                 where they were.
               </p>
             </article>
@@ -144,7 +150,7 @@
               <article class="feature-row">
                 <h3>Familiar protocol surface</h3>
                 <p>
-                  Ardo exposes Anthropic compatible and OpenAI compatible local
+                  lomux exposes Anthropic compatible and OpenAI compatible local
                   endpoints so supported tools can point at one place.
                 </p>
               </article>
@@ -152,7 +158,7 @@
                 <h3>Background service controls</h3>
                 <p>
                   Start, stop, restart, inspect status, and optionally install
-                  Ardo as an OS login service.
+                  lomux as an OS login service.
                 </p>
               </article>
               <article class="feature-row">
@@ -171,7 +177,7 @@
                 <li>Codex</li>
               </ul>
               <p>
-                Ardo is intentionally narrow: it stays focused on being a calm,
+                lomux is intentionally narrow: it stays focused on being a calm,
                 local gateway rather than becoming a chat client or an agent
                 runtime of its own.
               </p>
@@ -199,19 +205,19 @@
                 18+.
               </p>
               <div class="code-block">
-                <code>npm install -g ardo</code>
-                <button class="copy-button" data-copy="npm install -g ardo">
+                <code>npm install -g lomux</code>
+                <button class="copy-button" data-copy="npm install -g lomux">
                   Copy
                 </button>
               </div>
               <ol class="step-list">
-                <li>Install Ardo globally.</li>
+                <li>Install lomux globally.</li>
                 <li>
-                  Run <code>ardo start</code> and complete GitHub
+                  Run <code>lomux start</code> and complete GitHub
                   authentication.
                 </li>
                 <li>
-                  Run <code>ardo configure claude-code</code> or another
+                  Run <code>lomux configure claude-code</code> or another
                   supported agent.
                 </li>
               </ol>
@@ -221,10 +227,10 @@
               <h3>Deno / JSR</h3>
               <p>Useful when Deno is already part of your toolchain.</p>
               <div class="code-block compact">
-                <code>deno install -A -g jsr:@ardo-org/ardo</code>
+                <code>deno install -A -g jsr:@lomux/lomux</code>
                 <button
                   class="copy-button"
-                  data-copy="deno install -A -g jsr:@ardo-org/ardo"
+                  data-copy="deno install -A -g jsr:@lomux/lomux"
                 >
                   Copy
                 </button>
@@ -238,7 +244,7 @@
                 want a runtime dependency.
               </p>
               <div class="link-row">
-                <a href="https://github.com/ardo-org/ardo/releases"
+                <a href="https://github.com/lomux-org/lomux/releases"
                 >Open releases</a>
               </div>
             </article>
@@ -250,8 +256,8 @@
                 installing.
               </p>
               <div class="code-block stacked">
-                <code>git clone https://github.com/ardo-org/ardo.git</code>
-                <code>cd ardo</code>
+                <code>git clone https://github.com/lomux-org/lomux.git</code>
+                <code>cd lomux</code>
                 <code>deno task install</code>
               </div>
             </article>
@@ -273,9 +279,9 @@
             </div>
             <div class="flow-arrow">→</div>
             <div class="flow-node flow-node-primary">
-              <h3>Ardo</h3>
+              <h3>lomux</h3>
               <p>
-                Ardo runs on 127.0.0.1, exposes compatible endpoints, and
+                lomux runs on 127.0.0.1, exposes compatible endpoints, and
                 translates request and response shapes.
               </p>
               <ul>
@@ -289,13 +295,13 @@
             <div class="flow-node">
               <h3>GitHub Copilot</h3>
               <p>
-                Ardo authenticates with GitHub and forwards the translated
+                lomux authenticates with GitHub and forwards the translated
                 request to Copilot-backed models.
               </p>
             </div>
           </div>
           <div class="trust-note">
-            <strong>Trust boundary:</strong> Ardo is a local gateway, not a
+            <strong>Trust boundary:</strong> lomux is a local gateway, not a
             hosted relay. It binds to localhost and keeps configuration changes
             reversible.
           </div>
@@ -336,9 +342,9 @@
               <pre
                 class="demo-code"
               >
-$ ardo
+$ lomux
 
-Ardo - Local AI Gateway
+lomux - Local AI Gateway
 Status: Running on http://localhost:11434
 Copilot: Authenticated ✓
 
@@ -360,7 +366,7 @@ Copilot: Authenticated ✓
         <section id="comparison" class="section reveal reveal-delay-2">
           <div class="section-heading">
             <p class="eyebrow">Positioning</p>
-            <h2>Manual setup works. Ardo makes the local path coherent.</h2>
+            <h2>Manual setup works. lomux makes the local path coherent.</h2>
           </div>
           <div
             class="comparison-table"
@@ -370,7 +376,7 @@ Copilot: Authenticated ✓
             <div class="comparison-row comparison-head" role="row">
               <span role="columnheader">Approach</span>
               <span role="columnheader">What you manage</span>
-              <span role="columnheader">What Ardo changes</span>
+              <span role="columnheader">What lomux changes</span>
             </div>
             <div class="comparison-row" role="row">
               <span role="cell">Per-agent manual setup</span>
@@ -380,7 +386,7 @@ Copilot: Authenticated ✓
               <span role="cell">You keep every setup detail in your head</span>
             </div>
             <div class="comparison-row" role="row">
-              <span role="cell">Ardo</span>
+              <span role="cell">lomux</span>
               <span role="cell"
               >One local gateway, one install flow, reversible agent
                 configuration</span>
@@ -399,12 +405,12 @@ Copilot: Authenticated ✓
             <details>
               <summary>Do I need a GitHub Copilot subscription?</summary>
               <p>
-                Yes. Ardo routes requests through GitHub Copilot, so you need an
+                Yes. lomux routes requests through GitHub Copilot, so you need an
                 active Copilot-backed account.
               </p>
             </details>
             <details>
-              <summary>Does Ardo expose an API on my network?</summary>
+              <summary>Does lomux expose an API on my network?</summary>
               <p>
                 No. The server configuration binds to 127.0.0.1, which keeps the
                 service local to your machine.
@@ -413,7 +419,7 @@ Copilot: Authenticated ✓
             <details>
               <summary>Can I undo a configuration change?</summary>
               <p>
-                Yes. Ardo supports unconfiguring supported agents and is
+                Yes. lomux supports unconfiguring supported agents and is
                 designed around reversible configuration management.
               </p>
             </details>
@@ -425,7 +431,7 @@ Copilot: Authenticated ✓
               </p>
             </details>
             <details>
-              <summary>Do I need Deno to use Ardo?</summary>
+              <summary>Do I need Deno to use lomux?</summary>
               <p>
                 No. npm and direct binary installs do not require Deno. Deno is
                 only needed for the JSR and source-based paths.
@@ -443,7 +449,7 @@ Copilot: Authenticated ✓
             <article class="status-card">
               <h3>Current release posture</h3>
               <p>
-                Ardo is at v0.2.0 and focused on a local proxy loop:
+                lomux is at v0.3.0 and focused on a local proxy loop:
                 authenticate, start the service, configure a supported agent,
                 and route requests.
               </p>
@@ -456,24 +462,32 @@ Copilot: Authenticated ✓
                 ahead of implementation.
               </p>
               <div class="status-links">
-                <a href="https://github.com/ardo-org/ardo/tree/main/specs"
+                <a href="https://github.com/lomux-org/lomux/tree/main/specs"
                 >Browse specs</a>
-                <a href="https://github.com/ardo-org/ardo/releases"
+                <a href="https://github.com/lomux-org/lomux/releases"
                 >Read releases</a>
               </div>
+            </article>
+            <article class="status-card">
+              <h3>Branding in progress</h3>
+              <p>
+                A dedicated lomux logo is planned as part of the rename. The
+                current site mark is a temporary placeholder until finalized
+                brand assets are published.
+              </p>
             </article>
           </div>
         </section>
       </main>
 
       <footer class="site-footer">
-        <p>Ardo is a universal local AI gateway for GitHub Copilot.</p>
+        <p>lomux is a universal local AI gateway for GitHub Copilot.</p>
         <div class="footer-links">
-          <a href="https://github.com/ardo-org/ardo">Repository</a>
-          <a href="https://github.com/ardo-org/ardo/blob/main/README.md"
+          <a href="https://github.com/lomux-org/lomux">Repository</a>
+          <a href="https://github.com/lomux-org/lomux/blob/main/README.md"
           >README</a>
           <a
-            href="https://github.com/ardo-org/ardo/tree/main/specs/013-github-pages-website"
+            href="https://github.com/lomux-org/lomux/tree/main/specs/013-github-pages-website"
           >Spec 13</a>
         </div>
       </footer>

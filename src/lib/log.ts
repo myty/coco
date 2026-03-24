@@ -14,11 +14,11 @@ let currentLevel: LogLevel = "info";
 
 function legacyLogPath(): string {
   const home = Deno.env.get("HOME") ?? Deno.env.get("USERPROFILE") ?? ".";
-  return join(home, ".coco", "coco.log");
+  return join(home, ".lomux", "lomux.log");
 }
 
 export function getLogPath(): string {
-  return join(configDir(), "ardo.log");
+  return join(configDir(), "lomux.log");
 }
 
 async function resolveReadableLogPath(): Promise<string> {

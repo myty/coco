@@ -24,9 +24,9 @@ import { fetchModelList } from "../copilot/models.ts";
 import { basename } from "@std/path";
 import { getLogPath } from "../lib/log.ts";
 
-const APP_NAME = "Ardo";
-const CANONICAL_CLI_NAME = "ardo";
-const LEGACY_CLI_NAME = "coco";
+const APP_NAME = "Lomux";
+const CANONICAL_CLI_NAME = "lomux";
+const LEGACY_CLI_NAME: string | null = null;
 
 function inferInvocationName(): string | null {
   const fromEnv = Deno.env.get("_");
@@ -35,6 +35,7 @@ function inferInvocationName(): string | null {
 }
 
 function maybeWarnLegacyInvocation(): void {
+  if (!LEGACY_CLI_NAME) return;
   const invokedAsLegacy = inferInvocationName()?.startsWith(LEGACY_CLI_NAME);
   if (invokedAsLegacy) {
     console.error(
@@ -48,7 +49,6 @@ function showHelp() {
 ${APP_NAME} - Local AI Gateway
 
 Usage: ${CANONICAL_CLI_NAME} [COMMAND] [OPTIONS]
-Legacy alias: ${LEGACY_CLI_NAME} [COMMAND] [OPTIONS]
 
 Commands:
   (none)              Open the interactive TUI

@@ -15,7 +15,7 @@ import type { ServiceManager } from "./interfaces.ts";
 // Constants
 // ---------------------------------------------------------------------------
 
-const SERVICE_NAME = "ardo";
+const SERVICE_NAME = "lomux";
 
 // ---------------------------------------------------------------------------
 // Private helpers
@@ -60,10 +60,10 @@ export class WindowsServiceManager implements ServiceManager {
   async install(
     opts: ServiceInstallOptions = {},
   ): Promise<ServiceInstallResult> {
-    const ardoPath = await findFirstBinary(["ardo", "coco"]);
-    if (!ardoPath) {
+    const lomuxPath = await findFirstBinary(["lomux"]);
+    if (!lomuxPath) {
       if (opts.dryRun) {
-        const cmd = "ardo";
+        const cmd = "lomux";
         let configContent: string;
         try {
           configContent = await crossGenerateConfig({
@@ -72,7 +72,7 @@ export class WindowsServiceManager implements ServiceManager {
             cmd: `${cmd} --daemon`,
           });
         } catch {
-          configContent = `sc create ${SERVICE_NAME} binPath="ardo --daemon"`;
+          configContent = `sc create ${SERVICE_NAME} binPath="lomux --daemon"`;
         }
         return {
           installed: true,
@@ -82,11 +82,11 @@ export class WindowsServiceManager implements ServiceManager {
         };
       }
       throw new Error(
-        "Neither 'ardo' nor legacy 'coco' is installed globally. Run: deno task install",
+        "Neither 'lomux' nor legacy 'lomux' is installed globally. Run: deno task install",
       );
     }
 
-    const cmd = `${ardoPath} --daemon`;
+    const cmd = `${lomuxPath} --daemon`;
     let configContent: string;
     try {
       configContent = await crossGenerateConfig({
@@ -96,14 +96,14 @@ export class WindowsServiceManager implements ServiceManager {
       });
     } catch {
       configContent =
-        `sc create ${SERVICE_NAME} binPath="${ardoPath} --daemon"`;
+        `sc create ${SERVICE_NAME} binPath="${lomuxPath} --daemon"`;
     }
     const configPath = "Windows SCM registry";
 
     if (opts.dryRun) {
       return {
         installed: true,
-        binaryPath: ardoPath,
+        binaryPath: lomuxPath,
         configPath,
         configContent,
       };
@@ -113,7 +113,12 @@ export class WindowsServiceManager implements ServiceManager {
       { system: false, name: SERVICE_NAME, cmd },
       false,
     );
-    return { installed: true, binaryPath: ardoPath, configPath, configContent };
+    return {
+      installed: true,
+      binaryPath: lomuxPath,
+      configPath,
+      configContent,
+    };
   }
 
   async uninstall(

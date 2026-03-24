@@ -45,15 +45,15 @@ function homeDir(): string {
 }
 
 function getDataDir(): string {
-  return `${homeDir()}/.ardo`;
+  return `${homeDir()}/.lomux`;
 }
 
 function getLegacyDataDir(): string {
-  return `${homeDir()}/.claudio`;
+  return `${homeDir()}/.lomux`;
 }
 
-const KEYCHAIN_SERVICE = "ardo";
-const LEGACY_KEYCHAIN_SERVICE = "claudio";
+const KEYCHAIN_SERVICE = "lomux";
+const LEGACY_KEYCHAIN_SERVICE = "lomux";
 const KEYCHAIN_ACCOUNT = "copilot";
 
 function parseToken(raw: string): AuthToken | null {
@@ -235,7 +235,7 @@ class SecretServiceStore implements TokenStore {
     const child = new Deno.Command("secret-tool", {
       args: [
         "store",
-        "--label=Ardo Copilot Token",
+        "--label=Lomux Copilot Token",
         "service",
         KEYCHAIN_SERVICE,
         "account",

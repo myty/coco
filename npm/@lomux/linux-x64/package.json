@@ -1,5 +1,5 @@
 {
-  "name": "@ardo/linux-x64",
+  "name": "@lomux/linux-x64",
   "version": "0.3.0",
   "os": [
     "linux"
@@ -7,6 +7,5 @@
   "cpu": [
     "x64"
   ],
-  "preferUnplugged": true,
-  "bin": {}
+  "preferUnplugged": true
 }

@@ -30,14 +30,14 @@ export interface UsageMetricsConfig {
   persist: boolean;
   /** Snapshot interval in milliseconds when persistence is enabled. Default: 60000ms. */
   snapshotIntervalMs: number;
-  /** Optional absolute path for persisted metrics file. Default: ~/.ardo/usage.json */
+  /** Optional absolute path for persisted metrics file. Default: ~/.lomux/usage.json */
   filePath: string | null;
 }
 
-export interface CocoConfig {
+export interface LomuxConfig {
   /** TCP port the proxy listens on. Default: 11434. */
   port: number;
-  /** Log level for ~/.ardo/ardo.log. Default: "info". */
+  /** Log level for ~/.lomux/lomux.log. Default: "info". */
   logLevel: LogLevel;
   /**
    * User-defined model alias overrides.
@@ -56,7 +56,7 @@ export interface CocoConfig {
   usageMetrics: UsageMetricsConfig;
 }
 
-export const DEFAULT_CONFIG: CocoConfig = {
+export const DEFAULT_CONFIG: LomuxConfig = {
   port: 11434,
   logLevel: "info",
   modelMap: {},
@@ -81,41 +81,24 @@ function homeDir(): string {
   return Deno.env.get("HOME") ?? Deno.env.get("USERPROFILE") ?? ".";
 }
 
-function envWithLegacy(canonical: string, legacy: string): string | undefined {
-  const canonicalValue = Deno.env.get(canonical);
-  if (canonicalValue !== undefined) return canonicalValue;
-
-  const legacyValue = Deno.env.get(legacy);
-  if (legacyValue !== undefined) {
-    console.error(
-      `Warning: '${legacy}' is deprecated; use '${canonical}' instead.`,
-    );
-  }
-  return legacyValue;
+function envValue(name: string): string | undefined {
+  return Deno.env.get(name);
 }
 
 export function configDir(): string {
-  const fromEnv = envWithLegacy("ARDO_CONFIG_DIR", "COCO_CONFIG_DIR");
+  const fromEnv = envValue("LOMUX_CONFIG_DIR");
   if (fromEnv && fromEnv.trim()) return fromEnv;
 
   const home = Deno.env.get("HOME") ?? Deno.env.get("USERPROFILE") ?? ".";
-  return join(home, ".ardo");
+  return join(home, ".lomux");
 }
 
-function legacyConfigDir(): string {
-  return join(homeDir(), ".coco");
-}
-
-function ardoConfigPath(): string {
+function lomuxConfigPath(): string {
   return join(configDir(), "config.json");
 }
 
-function legacyConfigPath(): string {
-  return join(legacyConfigDir(), "config.json");
-}
-
 function configPath(): string {
-  return ardoConfigPath();
+  return lomuxConfigPath();
 }
 
 async function fileExists(path: string): Promise<boolean> {
@@ -128,42 +111,22 @@ async function fileExists(path: string): Promise<boolean> {
 }
 
 async function resolveConfigPathForLoad(): Promise<string> {
-  const canonical = ardoConfigPath();
+  const canonical = lomuxConfigPath();
   if (await fileExists(canonical)) return canonical;
-
-  const legacy = legacyConfigPath();
-  if (!await fileExists(legacy)) return canonical;
-
-  // Non-destructive migration: copy legacy config forward if canonical is absent.
-  await Deno.mkdir(configDir(), { recursive: true });
-  try {
-    await Deno.copyFile(legacy, canonical);
-    console.error(
-      "Warning: Migrated config from ~/.coco/config.json to ~/.ardo/config.json.",
-    );
-    return canonical;
-  } catch {
-    console.error(
-      "Warning: Using legacy config at ~/.coco/config.json; migration to ~/.ardo/config.json failed.",
-    );
-    return legacy;
-  }
+  return canonical;
 }
 
-function applyEnvOverrides(config: CocoConfig): CocoConfig {
-  const portRaw = envWithLegacy("ARDO_PORT", "COCO_PORT");
-  const logLevelRaw = envWithLegacy("ARDO_LOG_LEVEL", "COCO_LOG_LEVEL");
-  const policyRaw = envWithLegacy(
-    "ARDO_MODEL_MAPPING_POLICY",
-    "COCO_MODEL_MAPPING_POLICY",
-  );
+function applyEnvOverrides(config: LomuxConfig): LomuxConfig {
+  const portRaw = envValue("LOMUX_PORT");
+  const logLevelRaw = envValue("LOMUX_LOG_LEVEL");
+  const policyRaw = envValue("LOMUX_MODEL_MAPPING_POLICY");
 
-  const next: CocoConfig = { ...config };
+  const next: LomuxConfig = { ...config };
 
   if (portRaw !== undefined) {
     const parsed = parseInt(portRaw, 10);
     if (Number.isNaN(parsed)) {
-      throw new Error(`Invalid ARDO_PORT/COCO_PORT value: ${portRaw}`);
+      throw new Error(`Invalid LOMUX_PORT value: ${portRaw}`);
     }
     next.port = parsed;
   }
@@ -179,7 +142,7 @@ function applyEnvOverrides(config: CocoConfig): CocoConfig {
   return next;
 }
 
-function validate(config: CocoConfig): void {
+function validate(config: LomuxConfig): void {
   if (config.port < 1024 || config.port > 65535) {
     throw new Error(`Invalid port: ${config.port}. Must be 1024–65535.`);
   }
@@ -253,12 +216,12 @@ function validate(config: CocoConfig): void {
   }
 }
 
-export async function loadConfig(): Promise<CocoConfig> {
+export async function loadConfig(): Promise<LomuxConfig> {
   const path = await resolveConfigPathForLoad();
   try {
     const raw = await Deno.readTextFile(path);
-    const parsed = JSON.parse(raw) as Partial<CocoConfig>;
-    const config: CocoConfig = applyEnvOverrides({
+    const parsed = JSON.parse(raw) as Partial<LomuxConfig>;
+    const config: LomuxConfig = applyEnvOverrides({
       ...DEFAULT_CONFIG,
       ...parsed,
       // Ensure streaming config has defaults if partially specified
@@ -289,7 +252,7 @@ export async function loadConfig(): Promise<CocoConfig> {
   }
 }
 
-export async function saveConfig(config: CocoConfig): Promise<void> {
+export async function saveConfig(config: LomuxConfig): Promise<void> {
   validate(config);
   await Deno.mkdir(configDir(), { recursive: true });
   await Deno.writeTextFile(
