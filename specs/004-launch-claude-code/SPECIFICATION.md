@@ -30,7 +30,7 @@ Claude Code launches as a subprocess with the correct environment variables set.
 #### User Story 2 — Claude Code Not Installed (Priority: P2)
 
 A developer runs `claudio` but does not have Claude Code installed. Claudio
-detects this, prints calm installation instructions, and exits cleanly.
+detects this, prints predictable installation instructions, and exits cleanly.
 
 **Why this priority**: Silent failure or a cryptic OS error is a poor first-run
 experience. Clear guidance is essential.
@@ -42,7 +42,7 @@ non-zero.
 **Acceptance Scenarios**:
 
 1. **Given** `claude` is not found on `PATH`, **When** Claudio attempts to
-   launch it, **Then** Claudio prints calm installation instructions and
+   launch it, **Then** Claudio prints predictable installation instructions and
    exits 1.
 2. **Given** the installation message is displayed, **When** the user reads it,
    **Then** the message includes the install URL (`https://claude.ai/download`)

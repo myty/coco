@@ -39,9 +39,10 @@ Sync Impact Report:
 Lomux is a universal local AI gateway that exposes unified Anthropic-compatible
 and OpenAI-compatible endpoints backed by GitHub Copilot models. Lomux runs as a
 persistent background service, automatically configures multiple coding agents
-to use its proxy, and provides a minimal TUI control surface. Its presence is
-calm and unobtrusive: it bridges the diverse agent ecosystem to GitHub Copilot's
-API without imposing itself on the developer's workflow.
+to use its proxy, and provides a minimal TUI control surface. Its behavior is
+stable, reliable, predictable, and unobtrusive: it bridges the diverse agent
+ecosystem to GitHub Copilot's API without imposing itself on the developer's
+workflow.
 
 ## Core Principles
 
@@ -53,13 +54,13 @@ Within this mission, minimalism still applies — each module MUST do only what
 its responsibility requires. No unnecessary features, no speculative
 configuration surfaces, no workflow layers beyond the gateway mission.
 
-### II. Calm UX
+### II. Low-Noise UX
 
-Quiet, steady, reassuring output. Slow, subtle animations (approximately
-350–400ms). Short, emotionally neutral lines. No humor, metaphors, or
+Stable, predictable, low-noise output. Slow, subtle animations (approximately
+350-400ms). Short, emotionally neutral lines. No humor, metaphors, or
 personality spikes. CLI output uses soft blue/green ANSI-safe colors. The TUI is
-calm, minimal, and control-surface only. Lomux's presence MUST feel understated
-regardless of how many agents it manages.
+predictable, minimal, and control-surface only. Lomux's presence MUST feel
+understated regardless of how many agents it manages.
 
 ### III. Predictability
 
@@ -109,8 +110,8 @@ optional supporting context rather than separate authorities.
 ### VII. Self-Containment
 
 Lomux MUST NOT depend on the Copilot CLI or any Copilot SDK. All communication
-with GitHub Copilot MUST occur through a stable, documented HTTP interface. Lomux
-owns its entire authentication flow. No third-party Copilot tooling may be
+with GitHub Copilot MUST occur through a stable, documented HTTP interface.
+Lomux owns its entire authentication flow. No third-party Copilot tooling may be
 introduced as a runtime dependency.
 
 ### VIII. Contract Testing (NON-NEGOTIABLE)
@@ -168,7 +169,7 @@ Lomux is responsible for:
   OpenCode, Goose, Aider, GPT-Engineer) in a reversible, validated manner
 - Presenting a minimal TUI for batch agent configuration (Space toggle, Enter
   apply, q exit without applying)
-- Providing calm, minimal CLI output across all sub-commands
+- Providing stable, low-noise CLI output across all sub-commands
 - Mapping model aliases to Copilot model IDs via a bundled default map that is
   user-overridable in `~/.lomux/config.json`
 
@@ -193,8 +194,8 @@ Lomux must:
 
 - Bind exclusively to `127.0.0.1` — never to `0.0.0.0` or any external address
 - Respond to SIGTERM and SIGHUP with graceful shutdown, removing the PID file
-- Write structured JSON log lines to `~/.lomux/lomux.log` (never to stdout/stderr
-  in daemon mode)
+- Write structured JSON log lines to `~/.lomux/lomux.log` (never to
+  stdout/stderr in daemon mode)
 - Back up agent config files before any write and restore them on unconfigure
 - Perform a validation test call after each agent configuration write
 - Retry Copilot API `429` responses with exponential backoff (100ms, 200ms,
@@ -248,14 +249,14 @@ Lomux is successful when:
 - The TUI renders in under 200ms on first open
 - OpenAI-compatible proxy round-trip overhead is under 150ms (excluding Copilot
   API latency)
-- `lomux configure <agent>` and `lomux unconfigure <agent>` are deterministically
-  reversible — the config file is byte-identical to its pre-Lomux state after
-  unconfigure
+- `lomux configure <agent>` and `lomux unconfigure <agent>` are
+  deterministically reversible — the config file is byte-identical to its
+  pre-Lomux state after unconfigure
 - All pre-existing Anthropic proxy and authentication tests continue to pass
   after migration (no regression)
 - `lomux doctor` correctly classifies agents on macOS, Linux, and Windows
-- Calm, minimal output is preserved across all CLI commands — no stack traces,
-  no verbose internal logging exposed to users
+- Stable, low-noise output is preserved across all CLI commands — no stack
+  traces, no verbose internal logging exposed to users
 - No Copilot CLI or SDK is required at any point
 
 ## Governance
@@ -267,7 +268,8 @@ principles:
 
 1. **Focus Check**: Does this add essential gateway functionality, or
    unnecessary complexity outside the universal AI gateway mission?
-2. **UX Impact**: Will this maintain calm, predictable, minimal user experience?
+2. **UX Impact**: Will this maintain a stable, predictable, minimal user
+   experience?
 3. **Scope Alignment**: Is this within stated responsibilities, or outside
    scope?
 4. **Technical Standards**: Does this meet quality gates and architectural
@@ -295,9 +297,10 @@ principles:
 
 All changes to this constitution MUST be spec-driven and traceable to a user
 story or requirement. Breaking changes (MAJOR version bumps) require explicit
-justification in the Sync Impact Report. UX changes MUST preserve Lomux's calm,
-minimal emotional tone. Proxy behavior MUST remain API-compatible with both
-Anthropic and OpenAI wire formats unless the spec explicitly evolves them.
+justification in the Sync Impact Report. UX changes MUST preserve Lomux's
+stable, predictable, low-noise tone. Proxy behavior MUST remain API-compatible
+with both Anthropic and OpenAI wire formats unless the spec explicitly evolves
+them.
 
 ### Review Standards
 

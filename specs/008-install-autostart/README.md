@@ -137,9 +137,9 @@ commands list. No service registration is required to deliver this value.
 - **FR-010**: `coco uninstall-service` MUST be idempotent — running it when no
   service is registered MUST succeed without error
 - **FR-011**: On unsupported platforms for service management (Windows, and
-  Linux without systemd), `coco install-service` MUST display a calm message
-  indicating that autostart support for that platform is coming soon; global
-  install via `deno install` IS supported on all platforms
+  Linux without systemd), `coco install-service` MUST display a predictable
+  message indicating that autostart support for that platform is coming soon;
+  global install via `deno install` IS supported on all platforms
 - **FR-012**: The README MUST include a quickstart section covering both install
   methods (deno and mise) and the optional service registration step
 - **FR-013**: The service unit MUST reference the absolute path to the globally

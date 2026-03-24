@@ -11,7 +11,8 @@
 - **Professional and approachable** - Technical but accessible
 - **Helpful and encouraging** - Assume good intent, provide clear guidance
 - **Concise and actionable** - Get to the point, provide specific steps
-- **Consistent with lomux's calm UX principles** - No excitement or hyperbole
+- **Consistent with lomux's stable, reliable, predictable UX principles** - No
+  hype, low noise, high clarity
 
 ### Writing Style
 

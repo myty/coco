@@ -1,43 +1,29 @@
 # lomux
 
-**Use your GitHub Copilot subscription with the agents that don't support it
-yet.**
+**Some of the most popular coding agents still miss GitHub Copilot.**
 
 Cline, Codex, and Claude Code are great. But none of them let you use GitHub
-Copilot as a model provider. lomux fixes that — it runs a local proxy that speaks
-Anthropic and OpenAI protocols, backed entirely by your existing Copilot
-subscription. One login. No extra API keys.
+Copilot as a model provider directly. A lot of agentic coding tools already
+integrate with GitHub Copilot. Claude Code, Cline, and Codex still do not. lomux
+closes that gap with one reliable localhost path that speaks
+Anthropic-compatible and OpenAI-compatible protocols, backed entirely by your
+existing Copilot subscription.
+
+- Local-only on `127.0.0.1`
+- Explicit service controls, health checks, and status
+- Reversible agent configuration for supported tools
 
 Website: https://lomux-org.github.io/lomux/
 
 Migration guide: [MIGRATION.md](MIGRATION.md) Release notes:
 [CHANGELOG.md](CHANGELOG.md)
 
-## Why The Name lomux
-
-lomux is built from two ideas that define the product:
-
-- **lo**: everything runs on localhost and stays local-first by design.
-- **mux**: this tool multiplexes multiple coding agents through one local gateway.
-
-The result is a short, memorable command that reflects what the software actually does.
-It is quick to type, distinct across package ecosystems, and consistent across CLI,
-repository, website, and release artifacts.
-
-## Logo Refresh
-
-The current logo asset is temporary during the rename rollout. The project is
-moving to a dedicated lomux logo with these constraints:
-
-- Works at favicon size and terminal-adjacent UI contexts.
-- Communicates routing/gateway behavior without becoming visually noisy.
-- Includes monochrome and full-color variants for docs and site usage.
-- Ships with source files and export sizes for web and package assets.
-
 ## Features
 
 - 🔗 **Anthropic + OpenAI compatible** — `/v1/messages` and
-  `/v1/chat/completions` endpoints
+  `/v1/chat/completions` endpoints, plus `/v1/responses`
+- 🧮 **Token counting endpoint** — `POST /v1/messages/count_tokens` for
+  supported Anthropic-compatible flows
 - 📊 **Usage telemetry endpoint** — `GET /v1/usage` for aggregated request,
   status, and latency metrics
 - 🚀 **Background service** — `lomux start` / `lomux stop` / `lomux restart`
@@ -57,18 +43,42 @@ moving to a dedicated lomux logo with these constraints:
 Coding agent → lomux proxy (127.0.0.1:11434) → GitHub Copilot API
                 │
                 ├── POST /v1/messages           (Anthropic)
+                ├── POST /v1/messages/count_tokens
                 ├── POST /v1/chat/completions   (OpenAI)
+                ├── POST /v1/responses          (OpenAI)
                 ├── GET  /v1/usage
                 ├── GET  /v1/models
                 └── GET  /health
 ```
 
 1. **`lomux start`** — authenticates with GitHub and starts the background proxy
-2. **`lomux configure <agent>`** — writes the agent's config file to point at
-   `http://127.0.0.1:11434`
+2. **`lomux configure <agent>`** — writes the agent's config file to point at a
+   local lomux endpoint
 3. The agent's API calls are translated and forwarded to GitHub Copilot
+4. You can inspect state with `lomux status`, `GET /health`, and `GET /v1/usage`
 
 ## Installation
+
+<details>
+<summary>📖 npm (Recommended, No Deno Required)</summary>
+
+**Node.js ≥18 required**
+
+```bash
+npm install -g lomux
+```
+
+The npm package automatically downloads the native binary for your platform:
+
+| OS      | Architecture | Status |
+| ------- | ------------ | ------ |
+| macOS   | arm64        | ✅     |
+| macOS   | x64          | ✅     |
+| Linux   | x64          | ✅     |
+| Linux   | arm64        | ✅     |
+| Windows | x64          | ✅     |
+
+</details>
 
 <details>
 <summary>📖 From Source (Development / Try It Out)</summary>
@@ -102,27 +112,6 @@ lomux --version
 
 > **Note**: Ensure `~/.deno/bin` is in your `PATH`. The Deno installer adds this
 > automatically.
-
-<details>
-<summary>📖 npm (No Deno Required)</summary>
-
-**Node.js ≥18 required**
-
-```bash
-npm install -g lomux
-```
-
-The npm package automatically downloads the native binary for your platform:
-
-| OS      | Architecture | Status |
-| ------- | ------------ | ------ |
-| macOS   | arm64        | ✅     |
-| macOS   | x64          | ✅     |
-| Linux   | x64          | ✅     |
-| Linux   | arm64        | ✅     |
-| Windows | x64          | ✅     |
-
-</details>
 
 <details>
 <summary>📖 JSR (Deno Runtime)</summary>
@@ -174,8 +163,8 @@ Keys: **Space** toggles selection, **Enter** applies, **↑/↓** moves cursor,
 <details>
 <summary>📖 CLI Commands</summary>
 
-| Command                                  | Description                                                 |
-| ---------------------------------------- | ----------------------------------------------------------- |
+| Command                                   | Description                                                 |
+| ----------------------------------------- | ----------------------------------------------------------- |
 | `lomux`                                   | Open the interactive TUI (on TTY) or print status (non-TTY) |
 | `lomux start`                             | Start the background proxy service                          |
 | `lomux stop`                              | Stop the background proxy service                           |
@@ -198,7 +187,7 @@ Keys: **Space** toggles selection, **Enter** applies, **↑/↓** moves cursor,
 
 ```bash
 # 1. Install lomux
-deno task install
+npm install -g lomux
 
 # 2. Start the proxy (authenticates with GitHub Copilot on first run)
 lomux start
@@ -217,6 +206,17 @@ lomux install-service
 ```
 
 </details>
+
+## Why The Name lomux
+
+lomux is built from two ideas that define the product:
+
+- **lo**: everything runs on localhost and stays local-first by design.
+- **mux**: this tool multiplexes multiple coding agents through one local
+  gateway.
+
+The result is a short, memorable command that reflects what the software does:
+stable routing through one visible control point.
 
 <details>
 <summary>📖 Usage Metrics API</summary>

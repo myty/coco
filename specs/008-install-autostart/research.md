@@ -207,8 +207,8 @@ if (!cocoPath) {
 
 ### 6. Unsupported Platform Message
 
-**Decision**: Detect platform with `Deno.build.os`. Show calm "coming soon"
-message for Windows and non-systemd Linux.
+**Decision**: Detect platform with `Deno.build.os`. Show predictable "coming
+soon" message for Windows and non-systemd Linux.
 
 ```typescript
 if (Deno.build.os === "windows") {

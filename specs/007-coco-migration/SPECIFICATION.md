@@ -112,8 +112,8 @@ agents. They press Space to toggle which agents Coco should configure, then
 press Enter to apply changes in batch.
 
 **Why this priority**: The TUI is the primary user interface for Coco. It
-replaces the single-tool "launch Claude Code" UX with a calm multi-agent control
-surface.
+replaces the single-tool "launch Claude Code" UX with a predictable multi-agent
+control surface.
 
 **Independent Test**: Run `coco` with Claude Code and Cline installed; toggle
 Claude Code on and Cline on; press Enter; verify both agents have their config
@@ -219,7 +219,7 @@ reported as `not-installed`.
 #### User Story 6 — Coco Models List (Priority: P3)
 
 A developer runs `coco models`. Coco queries the Copilot API and prints the
-available model IDs in a calm, minimal table.
+available model IDs in a predictable, minimal table.
 
 **Why this priority**: Visibility into available models helps users understand
 what Coco can route to; useful for debugging and scripting.

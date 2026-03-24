@@ -39,7 +39,7 @@ interface.
       (`~/.npm-global/bin/claude`, `~/.local/share/npm/bin/claude`); return
       absolute path or `null`
 - [x] T004 Implement `printInstallInstructions(): void` in `src/cli/launch.ts` —
-      prints calm, minimal message with
+      prints predictable, minimal message with
       `npm install -g @anthropic-ai/claude-code` and
       `https://claude.ai/download`
 - [x] T005 Extract `CLAUDIO_FLAGS` constant in `src/cli/main.ts` — set of flags
@@ -78,8 +78,8 @@ verify env vars are set, stdio is inherited, proxy stops, and Claudio exits 0.
 
 ### Phase 4: User Story 2 — Claude Code Not Installed (P2)
 
-**Story Goal**: When `claude` is absent from PATH, Claudio prints calm install
-instructions and exits 1.
+**Story Goal**: When `claude` is absent from PATH, Claudio prints predictable
+install instructions and exits 1.
 
 **Independent Test**: Call `findClaudeBinary()` with a stubbed PATH that has no
 `claude`; verify it returns `null`. Call `printInstallInstructions()` and verify

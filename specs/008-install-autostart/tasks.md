@@ -101,7 +101,8 @@ running
       throw `UnsupportedPlatformError`
 - [x] T007 [US2] Implement Windows and unsupported-platform path in
       `src/service/autostart.ts`: detect via `Deno.build.os === "windows"` or
-      missing `systemctl`; throw `UnsupportedPlatformError` with calm message
+      missing `systemctl`; throw `UnsupportedPlatformError` with predictable
+      message
       `"Autostart service support for this platform is coming soon. Run 'coco start' manually after each login."`
 - [x] T008 [US2] Implement `uninstallService()` in `src/service/autostart.ts`:
       macOS — `launchctl bootout gui/$(id -u)` then remove plist file; Linux —
@@ -112,8 +113,8 @@ running
       other — return false
 - [x] T010 [P] [US2] Add `cmdInstallService()` function and `"install-service"`
       route in `src/cli/main.ts`: calls `installService()`; catches
-      `UnsupportedPlatformError` (print calm message, exit 0); catches other
-      errors (print error, exit 1); prints success output per
+      `UnsupportedPlatformError` (print predictable message, exit 0); catches
+      other errors (print error, exit 1); prints success output per
       CONTRACTS.mdcli-commands.md
 - [x] T011 [P] [US2] Add `cmdUninstallService()` function and
       `"uninstall-service"` route in `src/cli/main.ts`: calls
@@ -134,7 +135,7 @@ running
       `tests/contract/cli-install-service_test.ts`: verify
       `coco install-service` appears in `--help` output, verify
       `coco uninstall-service` appears in `--help` output, verify unsupported
-      platform exits 0 with calm message
+      platform exits 0 with predictable message
 
 **Checkpoint**: `coco install-service` and `coco uninstall-service` work
 correctly on macOS and Linux; unsupported platforms exit cleanly

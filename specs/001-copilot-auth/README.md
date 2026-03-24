@@ -42,8 +42,8 @@ device flow, and confirm successful token acquisition.
    on the GitHub website, **Then** Claudio receives a valid token and confirms
    successful authentication
 3. **Given** device flow in progress, **When** the user abandons the
-   authorization, **Then** Claudio exits with a clear, calm message explaining
-   the cancellation
+   authorization, **Then** Claudio exits with a clear, predictable message
+   explaining the cancellation
 
 ---
 
@@ -75,7 +75,7 @@ interaction.
 
 When authentication fails due to invalid credentials, expired tokens, or network
 issues, the system must handle the failure gracefully. The user should receive
-clear, calm guidance on how to proceed without technical jargon.
+clear, predictable guidance on how to proceed without technical jargon.
 
 **Why this priority**: Users need to understand what went wrong and how to fix
 it. Poor error handling erodes trust and creates support burden.

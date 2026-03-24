@@ -416,7 +416,7 @@ Authenticated ✓
 
 ### Error Format
 
-All fatal errors print to **stderr** with a calm, single-line message:
+All fatal errors print to **stderr** with a predictable, single-line message:
 
 ```
 Error: <message>

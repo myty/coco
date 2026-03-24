@@ -322,8 +322,8 @@ agent configuration
 
 ### Phase 8: User Story 6 — Coco Models List (Priority: P3)
 
-**Goal**: `coco models` prints available Copilot model IDs in calm, minimal
-output.
+**Goal**: `coco models` prints available Copilot model IDs in predictable,
+minimal output.
 
 **Independent Test**: Run `coco models` (authenticated) — output lists at least
 one model ID, one per line or in a minimal table.

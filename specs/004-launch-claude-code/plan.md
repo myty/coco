@@ -5,7 +5,7 @@
 After the local Anthropic-compatible proxy starts, Claudio must:
 
 1. Check whether `claude` (Claude Code CLI) is installed
-2. If not, print calm installation instructions and exit
+2. If not, print predictable installation instructions and exit
 3. If yes, spawn it as a subprocess with inherited stdio and the proxy's env
    vars
 4. Wait for it to exit, then stop the proxy and propagate the exit code
@@ -78,7 +78,7 @@ main()
 All `Deno.args` entries that are not Claudio flags (`--help`, `--version`,
 `--server`) are forwarded to `claude` verbatim.
 
-#### Installation Instructions (calm, minimal)
+#### Installation Instructions (predictable, minimal)
 
 ```
 Claude Code is not installed.
