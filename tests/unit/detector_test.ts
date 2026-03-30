@@ -6,8 +6,8 @@
  */
 
 import { assertEquals } from "@std/assert";
-import { detectAll, detectOne } from "../../src/agents/detector.ts";
-import type { AgentRecord } from "../../src/agents/registry.ts";
+import { AGENT_REGISTRY, detectAll, detectOne } from "@modmux/gateway";
+import type { AgentRecord } from "@modmux/gateway";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -211,8 +211,6 @@ Deno.test("detectOne returns 'not-installed' when agent has no binaryNames and n
 // ---------------------------------------------------------------------------
 
 Deno.test("detectAll returns a result for every agent in AGENT_REGISTRY", async () => {
-  const { AGENT_REGISTRY } = await import("../../src/agents/registry.ts");
-
   // Use empty dirs so no agents are found — just testing result structure
   const results = await detectAll({
     pathDirs: [],

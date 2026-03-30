@@ -1,5 +1,5 @@
 import { assert, assertEquals } from "@std/assert";
-import { handleRequest } from "../../src/server/router.ts";
+import { getConfig, handleRequest } from "@modmux/gateway";
 
 // Tests that start a real Deno HTTP server to verify the server lifecycle.
 
@@ -54,7 +54,6 @@ Deno.test("Server - /health endpoint returns 200 with status ok", async () => {
 
 Deno.test("Server - hostname is always 127.0.0.1 (never 0.0.0.0)", async () => {
   // Verify that the server module always binds to loopback
-  const { getConfig } = await import("../../src/server/server.ts");
   const config = await getConfig();
   assertEquals(config.hostname, "127.0.0.1");
 });

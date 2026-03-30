@@ -1,10 +1,6 @@
 import { assert, assertEquals } from "@std/assert";
-import { handleRequest } from "../../src/server/router.ts";
-import { stopClient } from "../../src/server/copilot.ts";
-import {
-  getGlobalDiagnostics,
-  resetGlobalDiagnostics,
-} from "../../src/lib/streaming-diagnostics.ts";
+import { DEFAULT_CONFIG, handleRequest, stopClient } from "@modmux/gateway";
+import { getGlobalDiagnostics, resetGlobalDiagnostics } from "@modmux/gateway";
 
 const BASE = "http://localhost";
 
@@ -211,11 +207,10 @@ Deno.test(
 );
 
 // Test configuration impact
-Deno.test("Streaming configuration validation", async () => {
+Deno.test("Streaming configuration validation", () => {
   // This test validates that streaming configuration is properly loaded
   // and has reasonable defaults
 
-  const { DEFAULT_CONFIG } = await import("../../src/config/store.ts");
   const streaming = DEFAULT_CONFIG.streaming;
 
   // Validate default configuration

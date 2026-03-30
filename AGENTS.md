@@ -1,6 +1,6 @@
-# Coco Development Guidelines
+# Modmux Development Guidelines
 
-Auto-generated from all feature plans. Last updated: 2026-03-10
+Auto-generated from all feature plans. Last updated: 2026-03-28
 
 ## Active Technologies
 
@@ -15,84 +15,74 @@ Auto-generated from all feature plans. Last updated: 2026-03-10
 - **GitHub Copilot API** - AI code completion service (models, chat)
 - **OAuth 2.0 Device Flow** - Authentication with GitHub
 - **@std/yaml / @std/toml** - Agent config file parsing and writing
-- **ANSI/VT100 sequences** - TUI renderer (no external dependencies)
+- **@cliffy/ansi** - TUI renderer (colors, TTY handling)
 
 ### Platform Integration
 
 - **Cross-platform binaries** - macOS (arm64/x64), Linux (x64/arm64), Windows
   (x64)
-- **NPM distribution** - `@myty/coco` package (`npm install -g @myty/coco`) --
-  **JSR registry** - `jsr:@myty/coco`
+- **NPM distribution** - `@modmux/core` package
+- **JSR registry** - `jsr:@modmux/core`
 - **GitHub Actions** - CI/CD and automation
 
 ### Architecture Patterns
 
+- **Deno Workspace** - Multi-package monorepo with internal package resolution
 - **Proxy server pattern** - Request/response translation (Anthropic + OpenAI)
 - **Background daemon** - Self-spawn with `Deno.Command` + PID file
-- **Command pattern** - CLI interface design (9 sub-commands)
+- **Command pattern** - CLI interface design
 - **OAuth device flow** - Secure authentication
-- **Reversible configuration** - Backup/restore per-agent config files
 
-## Project Structure
+## Project Structure (Deno Workspace)
 
 ```text
-src/
-├── cli/              # Command-line interface
-│   ├── main.ts      # Main entry point + all sub-command handlers
-│   └── auth.ts      # Authentication handling
-├── server/          # Proxy server implementation
-│   ├── router.ts    # Request routing — /v1/messages, /v1/chat/completions, /v1/models, /health
-│   ├── server.ts    # HTTP server setup + graceful shutdown
-│   ├── transform.ts # Anthropic request/response transformation
-│   ├── openai-translate.ts  # OpenAI↔Anthropic bidirectional translation
-│   ├── copilot.ts   # GitHub Copilot forwarding
-│   ├── types.ts     # Anthropic + OpenAI type definitions
-│   └── mod.ts       # Module exports
-├── service/         # Daemon lifecycle
-│   ├── daemon.ts    # startDaemon/stopDaemon/getDaemonPid, port-conflict scan
-│   └── status.ts    # getServiceState/formatStatus
-├── agents/          # Agent support
-│   ├── registry.ts  # AGENT_REGISTRY (7 agents) + AgentRecord interface
-│   ├── detector.ts  # detectOne/detectAll — PATH, VS Code extension, JetBrains scan
-│   ├── models.ts    # DEFAULT_MODEL_MAP + resolveModel() alias mapping
-│   └── config.ts    # configureAgent/unconfigureAgent + per-agent writers
-├── tui/             # Terminal UI
-│   ├── input.ts     # Raw-mode input + Key enum
-│   └── render.ts    # ANSI renderer — renderFull/renderDirty/buildTUIState
-├── auth/            # Authentication modules
-│   ├── copilot.ts   # GitHub Copilot OAuth flow
-│   └── mod.ts       # Authentication exports
-├── copilot/         # GitHub Copilot API integration
-│   ├── client.ts    # API client + fetchWithRetry (429 exponential backoff)
-│   ├── models.ts    # Model ID resolution + fetchModelList()
-│   ├── token.ts     # Token management
-│   ├── types.ts     # Type definitions
-│   └── mod.ts       # Module exports
-├── config/          # Configuration persistence
-│   └── store.ts     # loadConfig/saveConfig, DEFAULT_CONFIG, ~/.coco/config.json
-├── lib/             # Shared utilities
-│   ├── errors.ts    # Error handling utilities
-│   ├── log.ts       # Structured JSON logger → ~/.coco/coco.log
-│   ├── process.ts   # findBinary(name), isProcessAlive(pid)
-│   └── token.ts     # Token utilities
-└── version.ts       # VERSION = "0.2.0"
+modmux/
+├── deno.json              # Workspace root
+├── cli/                   # @modmux/cli - Command-line interface
+│   ├── deno.json
+│   └── src/
+│       ├── main.ts        # Main entry point + all sub-command handlers
+│       ├── auth.ts        # Authentication handling
+│       └── version.ts     # VERSION = "0.3.0"
+├── gateway/               # @modmux/gateway - HTTP proxy server
+│   ├── deno.json
+│   └── src/
+│       ├── mod.ts         # Module exports
+│       ├── router.ts      # Request routing — /v1/messages, /v1/chat/completions, /v1/models, /health
+│       ├── server.ts      # HTTP server setup + graceful shutdown
+│       ├── chat-handler.ts
+│       ├── messages-handler.ts
+│       ├── responses-handler.ts
+│       ├── openai-translate.ts  # OpenAI↔Anthropic bidirectional translation
+│       ├── copilot.ts     # GitHub OAuth device flow
+│       ├── token.ts       # Token management
+│       ├── types.ts       # Anthropic + OpenAI type definitions
+│       ├── store.ts       # loadConfig/saveConfig, DEFAULT_CONFIG, ~/.modmux/config.json
+│       ├── log.ts         # Structured JSON logger → ~/.modmux/modmux.log
+│       ├── detector.ts    # detectOne/detectAll — PATH, VS Code extension, JetBrains scan
+│       ├── status.ts      # getServiceState/formatStatus
+│       ├── daemon.ts      # startDaemon/stopDaemon/getDaemonPid
+│       ├── render.ts      # TUI renderer
+│       └── managers/      # Platform-specific daemon managers
+├── providers/             # @modmux/providers - GitHub Copilot API client
+│   ├── deno.json
+│   └── src/
+│       ├── mod.ts         # Module exports
+│       ├── client.ts      # API client + fetchWithRetry (429 exponential backoff)
+│       ├── models.ts      # Model ID resolution + fetchModelList()
+│       ├── token.ts       # Token management
+│       └── types.ts       # Type definitions
+├── npm/                   # NPM package distribution
+│   └── modmux/
+│       └── package.json   # @modmux/core
+├── branding/              # Brand assets
+├── site/                  # Documentation website
+└── tests/                 # Test files
 
 tests/
 ├── contract/        # Contract tests for external interfaces
-│   ├── cli_test.ts            # coco start/stop output strings
-│   ├── cli_interface_test.ts  # full CLI contract
-│   ├── openai-proxy_test.ts   # /v1/chat/completions, /v1/models
-│   ├── model-translation_test.ts  # alias resolution
-│   ├── proxy_test.ts          # /v1/messages (Anthropic)
-│   └── server_test.ts         # /health endpoint
 ├── integration/     # Integration tests
-│   ├── daemon_test.ts         # lifecycle (ignored pending binary)
-│   └── agent-config_test.ts   # configure/unconfigure round-trip
 └── unit/            # Unit tests
-    ├── config-store_test.ts
-    ├── detector_test.ts
-    ├── model-map_test.ts
-    └── openai-translate_test.ts
 ```
 
 ## Contribution Workflow
@@ -118,7 +108,8 @@ tests/
 - ✅ **All tests pass** - `deno test --allow-all`
 - ✅ **Linting passes** - `deno lint`
 - ✅ **Formatting correct** - `deno fmt --check`
-- ✅ **Type checking passes** - `deno check src/**/*.ts tests/**/*.ts`
+- ✅ **Type checking passes** -
+  `deno check cli/src/**/*.ts gateway/src/**/*.ts providers/src/**/*.ts tests/**/*.ts`
 - ✅ **Documentation updated** if needed
 
 ### Testing Strategy
@@ -184,7 +175,7 @@ tests/
 
 ```bash
 deno task dev                   # Start development server with file watching
-deno run -A src/cli/main.ts start   # Start daemon in dev mode
+deno run -A cli/src/main.ts start   # Start daemon in dev mode
 ```
 
 ### Spec Workflow
@@ -203,7 +194,7 @@ lean-spec board                 # View spec board/status
 deno task quality               # Full quality gate (lint + fmt + check + test)
 deno lint                       # Lint all TypeScript files
 deno fmt --check                # Check formatting
-deno check src/**/*.ts tests/**/*.ts  # Type check
+deno check cli/src/**/*.ts gateway/src/**/*.ts providers/src/**/*.ts tests/**/*.ts  # Type check
 ```
 
 ### Testing
@@ -218,11 +209,17 @@ deno test tests/integration/    # Integration tests only
 ### Building
 
 ```bash
-deno task compile               # Compile native binary → bin/coco
+deno task compile               # Compile native binary → bin/modmux
 deno task sync-version          # Sync version across all artifacts
 ```
 
 ## Recent Changes
+
+- **2026-03-28**: Modmux rebrand complete
+  - Full rebrand from coco to modmux
+  - Deno workspace with 3 packages: cli, gateway, providers
+  - Config directory: ~/.coco → ~/.modmux
+  - NPM package: @myty/coco → @modmux/core
 
 - **2026-03-15**: LeanSpec migration completed
   - Migrated Speckit specs to a LeanSpec `README.md`-first format in `specs/`,

@@ -5,7 +5,7 @@
  * GET  /health (already covered in server_test.ts, included here for completeness)
  */
 import { assertEquals, assertStringIncludes } from "@std/assert";
-import { handleRequest } from "../../src/server/router.ts";
+import { handleRequest } from "@modmux/gateway";
 
 // ---------------------------------------------------------------------------
 // Helpers

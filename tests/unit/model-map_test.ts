@@ -1,5 +1,5 @@
 import { assertEquals } from "@std/assert";
-import { DEFAULT_MODEL_MAP, resolveModel } from "../../src/agents/models.ts";
+import { DEFAULT_MODEL_MAP, resolveModel } from "@modmux/gateway";
 
 Deno.test("resolveModel — known alias maps correctly", () => {
   assertEquals(resolveModel("gpt-4o"), "gpt-4o");

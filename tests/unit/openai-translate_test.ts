@@ -1,11 +1,11 @@
 import { assertEquals } from "@std/assert";
+import { StreamEvent } from "@modmux/providers";
 import {
   anthropicStreamEventToOpenAI,
   anthropicToOpenAI,
   makeStreamState,
   openAIToAnthropic,
-} from "../../src/server/openai-translate.ts";
-import type { StreamEvent } from "../../src/server/types.ts";
+} from "@modmux/gateway";
 
 // ---------------------------------------------------------------------------
 // openAIToAnthropic

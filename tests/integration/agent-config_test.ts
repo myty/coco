@@ -10,14 +10,12 @@ import { assertEquals, assertStringIncludes } from "@std/assert";
 import {
   configureAgent,
   isAgentConfigured,
+  ModmuxConfig,
   unconfigureAgent,
   validateConfig,
   verifyAgentConfig,
-} from "../../src/agents/config.ts";
-import {
-  type CocoConfig as LomuxConfig,
-  DEFAULT_CONFIG,
-} from "../../src/config/store.ts";
+} from "@modmux/gateway";
+import { DEFAULT_CONFIG } from "@modmux/gateway";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -37,7 +35,7 @@ async function withTempHome(
 }
 
 /** Create a CocoConfig backed by a temp dir (avoids touching ~/.coco). */
-function makeTempConfig(_configDir: string): LomuxConfig {
+function makeTempConfig(_configDir: string): ModmuxConfig {
   // We patch saveConfig via the homeDir option — config writes go to configDir
   return { ...DEFAULT_CONFIG };
 }
@@ -118,7 +116,7 @@ Deno.test("unconfigureAgent(codex) — removes file when backupPath is null", as
     });
     assertEquals(entry.backupPath, null);
 
-    const updatedConfig: LomuxConfig = { ...config, agents: [entry] };
+    const updatedConfig: ModmuxConfig = { ...config, agents: [entry] };
     await unconfigureAgent("codex", updatedConfig);
 
     let fileGone = false;
@@ -143,7 +141,7 @@ Deno.test("unconfigureAgent(codex) — restores backup when one exists", async (
       homeDir,
       skipValidation: true,
     });
-    const updatedConfig: LomuxConfig = { ...config, agents: [entry] };
+    const updatedConfig: ModmuxConfig = { ...config, agents: [entry] };
 
     await unconfigureAgent("codex", updatedConfig);
 
@@ -229,7 +227,7 @@ Deno.test("isAgentConfigured returns true after configureAgent is called", async
       homeDir,
       skipValidation: true,
     });
-    const updatedConfig: LomuxConfig = { ...config, agents: [entry] };
+    const updatedConfig: ModmuxConfig = { ...config, agents: [entry] };
     assertEquals(isAgentConfigured("codex", updatedConfig), true);
   });
 });

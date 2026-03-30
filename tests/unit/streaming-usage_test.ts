@@ -3,12 +3,9 @@ import {
   countTokens,
   estimateTokens,
   messagesToText,
-} from "../../src/server/copilot.ts";
-import {
-  anthropicStreamEventToOpenAI,
-  makeStreamState,
-} from "../../src/server/openai-translate.ts";
-import type { StreamEvent } from "../../src/server/types.ts";
+  StreamEvent,
+} from "@modmux/providers";
+import { anthropicStreamEventToOpenAI, makeStreamState } from "@modmux/gateway";
 
 // ---------------------------------------------------------------------------
 // countTokens — system field support (Phase 2)

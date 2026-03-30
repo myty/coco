@@ -18,13 +18,6 @@ import type { CopilotToken } from "./types.ts";
 
 let cachedToken: CopilotToken | null = null;
 
-/**
- * Test-only override for the GitHub OAuth token.
- * When non-null, bypasses the disk-based TokenStore entirely.
- * @internal
- */
-let _testGitHubToken: string | null = null;
-
 /** Returns true if the token is still fresh (more than 60s until expiry). */
 function isTokenFresh(t: CopilotToken): boolean {
   return t.expiresAt - Date.now() > 60_000;
@@ -132,18 +125,23 @@ export async function exchangeToken(
 
 /**
  * Returns a fresh Copilot API token, using the in-memory cache when possible.
- * Loads the GitHub OAuth token from the disk-based TokenStore (or test override).
+ * Loads the GitHub OAuth token from the disk-based TokenStore by default.
+ *
+ * @param opts.getGitHubToken - Optional function that returns a GitHub OAuth token.
+ *                             When provided, bypasses the disk-based TokenStore.
+ *                             This allows tests to inject mock tokens without globals.
  */
-export async function getToken(): Promise<CopilotToken> {
+export async function getToken(opts?: {
+  getGitHubToken?: () => Promise<string>;
+}): Promise<CopilotToken> {
   if (cachedToken && isTokenFresh(cachedToken)) {
     return cachedToken;
   }
 
   let githubToken: string | undefined;
 
-  if (_testGitHubToken !== null) {
-    // Test override: skip disk/env I/O entirely
-    githubToken = _testGitHubToken;
+  if (opts?.getGitHubToken) {
+    githubToken = await opts.getGitHubToken();
   } else {
     const tokenStore = createTokenStore();
     const authToken = await tokenStore.load();
@@ -158,24 +156,7 @@ export async function getToken(): Promise<CopilotToken> {
   return cachedToken;
 }
 
-/** Resets the in-memory cache. Exported for use in tests. */
+/** Resets the in-memory cache. */
 export function clearTokenCache(): void {
   cachedToken = null;
-}
-
-/**
- * Directly sets the cached Copilot token. Exported for use in tests only.
- * @internal
- */
-export function _setTokenForTest(token: CopilotToken): void {
-  cachedToken = token;
-}
-
-/**
- * Sets a test-only GitHub OAuth token override, bypassing the disk-based TokenStore.
- * Pass `null` to restore the default TokenStore behaviour.
- * @internal
- */
-export function _setGitHubTokenForTest(token: string | null): void {
-  _testGitHubToken = token;
 }

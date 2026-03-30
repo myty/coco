@@ -1,6 +1,5 @@
 import { assertEquals, assertStringIncludes } from "@std/assert";
-import { formatStatus } from "../../src/service/status.ts";
-import type { ServiceState } from "../../src/service/status.ts";
+import { formatStatus, ServiceState } from "@modmux/gateway";
 
 function baseState(overrides: Partial<ServiceState>): ServiceState {
   return {

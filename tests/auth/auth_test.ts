@@ -1,6 +1,5 @@
 import { assertEquals } from "@std/assert";
-import { isTokenValid } from "../../src/cli/auth.ts";
-import type { AuthToken } from "../../src/lib/token.ts";
+import { type AuthToken, isTokenValid } from "@modmux/cli";
 
 function makeToken(expiresAt: number): AuthToken {
   return { accessToken: "test-token", expiresAt, createdAt: Date.now() };

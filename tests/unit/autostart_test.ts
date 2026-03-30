@@ -6,10 +6,7 @@
  */
 
 import { assertEquals, assertStringIncludes } from "@std/assert";
-import {
-  getServiceManager,
-  UnsupportedPlatformError,
-} from "../../src/service/managers/mod.ts";
+import { getServiceManager, UnsupportedPlatformError } from "@modmux/gateway";
 
 // ---------------------------------------------------------------------------
 // Helpers

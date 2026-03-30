@@ -271,9 +271,19 @@ export function countTokens(
 // Non-streaming chat
 // ---------------------------------------------------------------------------
 
-export async function chat(request: ProxyRequest): Promise<ProxyResponse> {
-  const copilotToken = await getToken();
-  const copilotModel = await resolveModel(request.model);
+export interface ChatOptions {
+  getGitHubToken?: () => Promise<string>;
+  token?: string;
+}
+
+export async function chat(
+  request: ProxyRequest,
+  opts?: ChatOptions,
+): Promise<ProxyResponse> {
+  const copilotToken = await getToken({ getGitHubToken: opts?.getGitHubToken });
+  const copilotModel = await resolveModel(request.model, {
+    token: opts?.token,
+  });
 
   const body: OpenAIChatRequest = {
     model: copilotModel,
@@ -531,9 +541,12 @@ export async function chatStream(
   request: ProxyRequest,
   onChunk: (event: StreamEvent) => void,
   streamingConfig?: Partial<StreamingConfig>,
+  opts?: ChatOptions,
 ): Promise<void> {
-  const copilotToken = await getToken();
-  const copilotModel = await resolveModel(request.model);
+  const copilotToken = await getToken({ getGitHubToken: opts?.getGitHubToken });
+  const copilotModel = await resolveModel(request.model, {
+    token: opts?.token,
+  });
   const config = { ...DEFAULT_STREAMING_CONFIG, ...streamingConfig };
 
   const body: OpenAIChatRequest = {

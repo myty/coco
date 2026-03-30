@@ -282,9 +282,3 @@ export function getUsageMetricsSnapshot(): UsageMetricsSnapshot {
     agents: { ...state.agents },
   };
 }
-
-export async function resetUsageMetricsForTests(): Promise<void> {
-  await shutdownUsageMetrics();
-  options = defaultOptions();
-  state = createInitialState();
-}

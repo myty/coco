@@ -1,6 +1,5 @@
 import { assert, assertEquals } from "@std/assert";
-import { handleRequest } from "../../src/server/router.ts";
-import { stopClient } from "../../src/server/copilot.ts";
+import { handleRequest, stopClient } from "@modmux/gateway";
 
 const BASE = "http://localhost";
 

@@ -30,8 +30,10 @@ let cachedModelIds: Set<string> | null = null;
 // Fetch
 // ---------------------------------------------------------------------------
 
-async function fetchModelIds(): Promise<Set<string>> {
-  const { token } = await getToken();
+async function fetchModelIds(opts?: {
+  token?: string;
+}): Promise<Set<string>> {
+  const { token } = opts?.token ? { token: opts.token } : await getToken();
   const response = await fetch("https://api.githubcopilot.com/models", {
     headers: {
       "Authorization": `Bearer ${token}`,
@@ -55,9 +57,14 @@ async function fetchModelIds(): Promise<Set<string>> {
 /**
  * Fetch the full ordered list of Copilot model IDs.
  * Reads from the Copilot /models API — does not use the ID-only cache.
+ *
+ * @param opts.token - Optional token string. When provided, uses this token directly
+ *                    instead of calling getToken(). Useful for tests that mock fetch.
  */
-export async function fetchModelList(): Promise<string[]> {
-  const { token } = await getToken();
+export async function fetchModelList(opts?: {
+  token?: string;
+}): Promise<string[]> {
+  const { token } = opts?.token ? { token: opts.token } : await getToken();
   const response = await fetch("https://api.githubcopilot.com/models", {
     headers: {
       "Authorization": `Bearer ${token}`,
@@ -78,21 +85,18 @@ export async function fetchModelList(): Promise<string[]> {
   return body.data.map((m) => m.id);
 }
 
-/** Returns the cached set of Copilot model IDs, fetching once if needed. */
-async function getAvailableModelIds(): Promise<Set<string>> {
+/** Returns the cached set of Copilot model IDs, fetching once if needed.
+ *  When a token is provided, bypasses the cache and fetches directly.
+ */
+async function getAvailableModelIds(opts?: {
+  token?: string;
+}): Promise<Set<string>> {
+  if (opts?.token) {
+    return await fetchModelIds({ token: opts.token });
+  }
   if (cachedModelIds !== null) return cachedModelIds;
   cachedModelIds = await fetchModelIds();
   return cachedModelIds;
-}
-
-/** Clears the model ID cache (used in tests). */
-export function _clearModelCacheForTest(): void {
-  cachedModelIds = null;
-}
-
-/** Pre-seeds the model ID cache (used in tests to avoid HTTP calls). */
-export function _setModelCacheForTest(ids: string[]): void {
-  cachedModelIds = new Set(ids);
 }
 
 // ---------------------------------------------------------------------------
@@ -120,9 +124,16 @@ const FALLBACK_PREFERENCE: string[] = [
  * 2. Prefix match (e.g., "claude-sonnet-4-5-20250929" → "claude-sonnet-4-5")
  * 3. Family match (e.g., "claude-3-5-sonnet-*" → "claude-sonnet-*")
  * 4. DEFAULT_COPILOT_MODEL
+ *
+ * @param anthropicModel - The Anthropic model ID to resolve
+ * @param opts.token - Optional token. When provided, fetches model list directly
+ *                    instead of using cache. Useful for tests.
  */
-export async function resolveModel(anthropicModel: string): Promise<string> {
-  const available = await getAvailableModelIds();
+export async function resolveModel(
+  anthropicModel: string,
+  opts?: { token?: string },
+): Promise<string> {
+  const available = await getAvailableModelIds({ token: opts?.token });
 
   // 1. Exact match
   if (available.has(anthropicModel)) return anthropicModel;

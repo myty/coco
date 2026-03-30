@@ -1,5 +1,5 @@
 import { assertEquals } from "@std/assert";
-import { resolveModel } from "../../src/agents/models.ts";
+import { resolveModel } from "@modmux/gateway";
 
 // T020: Model translation (alias resolution) contract tests
 

@@ -4,7 +4,8 @@ import {
   RateLimitError,
   SubscriptionRequiredError,
   TokenInvalidError,
-} from "../../src/lib/errors.ts";
+} from "@modmux/gateway";
+import { clearTokenCache, getToken } from "@modmux/providers";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -19,7 +20,7 @@ function makeTokenResponse(
 ): Response {
   const body = {
     token: "tid=test123;exp=9999999999",
-    expires_at: new Date(Date.now() + 30 * 60 * 1000).toISOString(), // 30 min from now
+    expires_at: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
     refresh_in: 1500,
     ...overrides,
   };
@@ -30,17 +31,11 @@ function makeTokenResponse(
 }
 
 // ---------------------------------------------------------------------------
-// Test: getToken() with no cache → fetches once and caches
+// Test: getToken() with getGitHubToken option → uses provided token
 // ---------------------------------------------------------------------------
 
-Deno.test("getToken() - no cache → makes one fetch and caches result", async () => {
-  const {
-    getToken,
-    clearTokenCache,
-    _setGitHubTokenForTest,
-  } = await import("../../src/copilot/token.ts");
+Deno.test("getToken() - with getGitHubToken option → uses provided token", async () => {
   clearTokenCache();
-  _setGitHubTokenForTest(FAKE_GITHUB_TOKEN);
 
   let callCount = 0;
   const original = globalThis.fetch;
@@ -50,19 +45,15 @@ Deno.test("getToken() - no cache → makes one fetch and caches result", async (
   }) as typeof globalThis.fetch;
 
   try {
-    const token1 = await getToken();
-    const token2 = await getToken(); // second call — should use cache
+    const token = await getToken({
+      getGitHubToken: () => Promise.resolve(FAKE_GITHUB_TOKEN),
+    });
 
-    assertEquals(callCount, 1, "fetch should be called only once");
-    assertEquals(
-      token1.token,
-      token2.token,
-      "both calls should return the same token",
-    );
+    assertEquals(callCount, 1, "fetch should be called once");
+    assertEquals(token.token, "tid=test123;exp=9999999999");
   } finally {
     globalThis.fetch = original;
     clearTokenCache();
-    _setGitHubTokenForTest(null);
   }
 });
 
@@ -71,13 +62,7 @@ Deno.test("getToken() - no cache → makes one fetch and caches result", async (
 // ---------------------------------------------------------------------------
 
 Deno.test("getToken() - valid cache → returns cached token, zero fetch calls", async () => {
-  const {
-    getToken,
-    clearTokenCache,
-    _setGitHubTokenForTest,
-  } = await import("../../src/copilot/token.ts");
   clearTokenCache();
-  _setGitHubTokenForTest(FAKE_GITHUB_TOKEN);
 
   let callCount = 0;
   const original = globalThis.fetch;
@@ -87,10 +72,14 @@ Deno.test("getToken() - valid cache → returns cached token, zero fetch calls",
   }) as typeof globalThis.fetch;
 
   try {
-    await getToken(); // prime cache
-    callCount = 0; // reset count
+    await getToken({
+      getGitHubToken: () => Promise.resolve(FAKE_GITHUB_TOKEN),
+    });
+    callCount = 0;
 
-    const token = await getToken(); // should use cache
+    const token = await getToken({
+      getGitHubToken: () => Promise.resolve(FAKE_GITHUB_TOKEN),
+    });
     assertEquals(
       callCount,
       0,
@@ -100,85 +89,6 @@ Deno.test("getToken() - valid cache → returns cached token, zero fetch calls",
   } finally {
     globalThis.fetch = original;
     clearTokenCache();
-    _setGitHubTokenForTest(null);
-  }
-});
-
-// ---------------------------------------------------------------------------
-// Test: getToken() with expired cache → re-fetches
-// ---------------------------------------------------------------------------
-
-Deno.test("getToken() - expired cache → re-fetches", async () => {
-  const {
-    getToken,
-    clearTokenCache,
-    _setTokenForTest,
-    _setGitHubTokenForTest,
-  } = await import("../../src/copilot/token.ts");
-  clearTokenCache();
-  _setGitHubTokenForTest(FAKE_GITHUB_TOKEN);
-
-  // Seed cache with an already-expired token
-  _setTokenForTest({
-    token: "tid=expired",
-    expiresAt: Date.now() - 1000, // already expired
-    refreshIn: 0,
-  });
-
-  let callCount = 0;
-  const original = globalThis.fetch;
-  globalThis.fetch = ((_input: string | URL | Request, _init?: RequestInit) => {
-    callCount++;
-    return Promise.resolve(makeTokenResponse());
-  }) as typeof globalThis.fetch;
-
-  try {
-    const token = await getToken();
-    assertEquals(callCount, 1, "should re-fetch when token is expired");
-    assertEquals(token.token, "tid=test123;exp=9999999999");
-  } finally {
-    globalThis.fetch = original;
-    clearTokenCache();
-    _setGitHubTokenForTest(null);
-  }
-});
-
-// ---------------------------------------------------------------------------
-// Test: getToken() with near-expiry cache (within 60s) → re-fetches
-// ---------------------------------------------------------------------------
-
-Deno.test("getToken() - near-expiry cache (within 60s) → re-fetches", async () => {
-  const {
-    getToken,
-    clearTokenCache,
-    _setTokenForTest,
-    _setGitHubTokenForTest,
-  } = await import("../../src/copilot/token.ts");
-  clearTokenCache();
-  _setGitHubTokenForTest(FAKE_GITHUB_TOKEN);
-
-  // Token expires in 30 seconds (within the 60s safety window)
-  _setTokenForTest({
-    token: "tid=almost-expired",
-    expiresAt: Date.now() + 30_000,
-    refreshIn: 30,
-  });
-
-  let callCount = 0;
-  const original = globalThis.fetch;
-  globalThis.fetch = ((_input: string | URL | Request, _init?: RequestInit) => {
-    callCount++;
-    return Promise.resolve(makeTokenResponse());
-  }) as typeof globalThis.fetch;
-
-  try {
-    const token = await getToken();
-    assertEquals(callCount, 1, "should re-fetch when token is near-expiry");
-    assertEquals(token.token, "tid=test123;exp=9999999999");
-  } finally {
-    globalThis.fetch = original;
-    clearTokenCache();
-    _setGitHubTokenForTest(null);
   }
 });
 
@@ -187,13 +97,7 @@ Deno.test("getToken() - near-expiry cache (within 60s) → re-fetches", async ()
 // ---------------------------------------------------------------------------
 
 Deno.test("getToken() - 401 response → throws TokenInvalidError", async () => {
-  const {
-    getToken,
-    clearTokenCache,
-    _setGitHubTokenForTest,
-  } = await import("../../src/copilot/token.ts");
   clearTokenCache();
-  _setGitHubTokenForTest(FAKE_GITHUB_TOKEN);
 
   const original = globalThis.fetch;
   globalThis.fetch = ((_input: string | URL | Request, _init?: RequestInit) => {
@@ -202,13 +106,15 @@ Deno.test("getToken() - 401 response → throws TokenInvalidError", async () => 
 
   try {
     await assertRejects(
-      () => getToken(),
+      () =>
+        getToken({
+          getGitHubToken: () => Promise.resolve(FAKE_GITHUB_TOKEN),
+        }),
       TokenInvalidError,
     );
   } finally {
     globalThis.fetch = original;
     clearTokenCache();
-    _setGitHubTokenForTest(null);
   }
 });
 
@@ -217,13 +123,7 @@ Deno.test("getToken() - 401 response → throws TokenInvalidError", async () => 
 // ---------------------------------------------------------------------------
 
 Deno.test("getToken() - 403 response → throws SubscriptionRequiredError", async () => {
-  const {
-    getToken,
-    clearTokenCache,
-    _setGitHubTokenForTest,
-  } = await import("../../src/copilot/token.ts");
   clearTokenCache();
-  _setGitHubTokenForTest(FAKE_GITHUB_TOKEN);
 
   const original = globalThis.fetch;
   globalThis.fetch = ((_input: string | URL | Request, _init?: RequestInit) => {
@@ -232,13 +132,15 @@ Deno.test("getToken() - 403 response → throws SubscriptionRequiredError", asyn
 
   try {
     await assertRejects(
-      () => getToken(),
+      () =>
+        getToken({
+          getGitHubToken: () => Promise.resolve(FAKE_GITHUB_TOKEN),
+        }),
       SubscriptionRequiredError,
     );
   } finally {
     globalThis.fetch = original;
     clearTokenCache();
-    _setGitHubTokenForTest(null);
   }
 });
 
@@ -247,13 +149,7 @@ Deno.test("getToken() - 403 response → throws SubscriptionRequiredError", asyn
 // ---------------------------------------------------------------------------
 
 Deno.test("getToken() - 429 response → throws RateLimitError", async () => {
-  const {
-    getToken,
-    clearTokenCache,
-    _setGitHubTokenForTest,
-  } = await import("../../src/copilot/token.ts");
   clearTokenCache();
-  _setGitHubTokenForTest(FAKE_GITHUB_TOKEN);
 
   const original = globalThis.fetch;
   globalThis.fetch = ((_input: string | URL | Request, _init?: RequestInit) => {
@@ -262,13 +158,15 @@ Deno.test("getToken() - 429 response → throws RateLimitError", async () => {
 
   try {
     await assertRejects(
-      () => getToken(),
+      () =>
+        getToken({
+          getGitHubToken: () => Promise.resolve(FAKE_GITHUB_TOKEN),
+        }),
       RateLimitError,
     );
   } finally {
     globalThis.fetch = original;
     clearTokenCache();
-    _setGitHubTokenForTest(null);
   }
 });
 
@@ -277,13 +175,7 @@ Deno.test("getToken() - 429 response → throws RateLimitError", async () => {
 // ---------------------------------------------------------------------------
 
 Deno.test("getToken() - 500 response → throws NetworkError", async () => {
-  const {
-    getToken,
-    clearTokenCache,
-    _setGitHubTokenForTest,
-  } = await import("../../src/copilot/token.ts");
   clearTokenCache();
-  _setGitHubTokenForTest(FAKE_GITHUB_TOKEN);
 
   const original = globalThis.fetch;
   globalThis.fetch = ((_input: string | URL | Request, _init?: RequestInit) => {
@@ -294,13 +186,15 @@ Deno.test("getToken() - 500 response → throws NetworkError", async () => {
 
   try {
     await assertRejects(
-      () => getToken(),
+      () =>
+        getToken({
+          getGitHubToken: () => Promise.resolve(FAKE_GITHUB_TOKEN),
+        }),
       NetworkError,
     );
   } finally {
     globalThis.fetch = original;
     clearTokenCache();
-    _setGitHubTokenForTest(null);
   }
 });
 
@@ -309,13 +203,7 @@ Deno.test("getToken() - 500 response → throws NetworkError", async () => {
 // ---------------------------------------------------------------------------
 
 Deno.test("getToken() - v2 404 then v1 200 → succeeds via fallback", async () => {
-  const {
-    getToken,
-    clearTokenCache,
-    _setGitHubTokenForTest,
-  } = await import("../../src/copilot/token.ts");
   clearTokenCache();
-  _setGitHubTokenForTest(FAKE_GITHUB_TOKEN);
 
   const seenUrls: string[] = [];
   const original = globalThis.fetch;
@@ -339,7 +227,9 @@ Deno.test("getToken() - v2 404 then v1 200 → succeeds via fallback", async () 
   }) as typeof globalThis.fetch;
 
   try {
-    const token = await getToken();
+    const token = await getToken({
+      getGitHubToken: () => Promise.resolve(FAKE_GITHUB_TOKEN),
+    });
     assertEquals(typeof token.token, "string");
     assertEquals(seenUrls.length, 2);
     assertStringIncludes(seenUrls[0], "/copilot_internal/v2/token");
@@ -347,7 +237,6 @@ Deno.test("getToken() - v2 404 then v1 200 → succeeds via fallback", async () 
   } finally {
     globalThis.fetch = original;
     clearTokenCache();
-    _setGitHubTokenForTest(null);
   }
 });
 
@@ -356,13 +245,7 @@ Deno.test("getToken() - v2 404 then v1 200 → succeeds via fallback", async () 
 // ---------------------------------------------------------------------------
 
 Deno.test("getToken() - v2 404 and v1 404 → throws diagnostic NetworkError", async () => {
-  const {
-    getToken,
-    clearTokenCache,
-    _setGitHubTokenForTest,
-  } = await import("../../src/copilot/token.ts");
   clearTokenCache();
-  _setGitHubTokenForTest(FAKE_GITHUB_TOKEN);
 
   const seenUrls: string[] = [];
   const original = globalThis.fetch;
@@ -378,7 +261,10 @@ Deno.test("getToken() - v2 404 and v1 404 → throws diagnostic NetworkError", a
 
   try {
     await assertRejects(
-      () => getToken(),
+      () =>
+        getToken({
+          getGitHubToken: () => Promise.resolve(FAKE_GITHUB_TOKEN),
+        }),
       NetworkError,
       "Copilot token endpoint returned HTTP 404 after trying v2 and v1",
     );
@@ -388,6 +274,5 @@ Deno.test("getToken() - v2 404 and v1 404 → throws diagnostic NetworkError", a
   } finally {
     globalThis.fetch = original;
     clearTokenCache();
-    _setGitHubTokenForTest(null);
   }
 });

@@ -22,6 +22,11 @@ import {
 import { keypress, mapKey } from "../../gateway/src/input.ts";
 import { fetchModelList } from "../../providers/src/models.ts";
 import { getLogPath } from "../../gateway/src/log.ts";
+import { startServer } from "@modmux/gateway";
+
+export { authenticate, getStoredToken, isTokenValid } from "./auth.ts";
+export type { AuthToken } from "../../gateway/src/token.ts";
+export { VERSION };
 
 const APP_NAME = "Modmux";
 const CANONICAL_CLI_NAME = "modmux";
@@ -478,7 +483,6 @@ async function main() {
 
   // --daemon flag: run as background service
   if (args.includes("--daemon")) {
-    const { startServer } = await import("../../gateway/src/router.ts");
     const authenticated = await ensureAuthenticated();
     if (!authenticated) Deno.exit(1);
     await startServer();

@@ -1,13 +1,13 @@
 import { assertEquals } from "@std/assert";
-import type { ProxyRequest, TextContentBlock } from "../../src/server/types.ts";
-import type {
-  OpenAIChatResponse,
-  OpenAIStreamChunk,
-} from "../../src/copilot/types.ts";
+import type { ProxyRequest, TextContentBlock } from "@modmux/gateway";
+import type { OpenAIChatResponse, OpenAIStreamChunk } from "@modmux/providers";
 import {
-  _clearModelCacheForTest,
-  _setModelCacheForTest,
-} from "../../src/copilot/models.ts";
+  chat,
+  type ChatOptions,
+  chatStream,
+  clearTokenCache,
+} from "@modmux/providers";
+import type { StreamEvent } from "@modmux/gateway";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -67,12 +67,22 @@ function makeTokenResponse(): Response {
   );
 }
 
+function makeModelsResponse(modelIds: string[]): Response {
+  return new Response(
+    JSON.stringify({
+      data: modelIds.map((id) => ({ id, name: id, vendor: "GitHub" })),
+    }),
+    { status: 200, headers: { "Content-Type": "application/json" } },
+  );
+}
+
 /**
- * Stubs globalThis.fetch to return a chat response.
- * NOTE: Because we use _setGitHubTokenForTest, the token exchange endpoint
- * is reached via fetch — this stub returns the mock token for it too.
+ * Stubs globalThis.fetch to return token, models, and chat responses.
  */
-function stubFetch(chatResponse: Response): () => void {
+function stubFetch(
+  chatResponse: Response,
+  modelIds: string[] = TEST_MODEL_IDS,
+): () => void {
   const original = globalThis.fetch;
   globalThis.fetch = ((
     input: string | URL | Request,
@@ -83,9 +93,15 @@ function stubFetch(chatResponse: Response): () => void {
       : input instanceof URL
       ? input.href
       : input.url;
+
     if (url.includes("copilot_internal")) {
       return Promise.resolve(makeTokenResponse());
     }
+
+    if (url.includes("/models")) {
+      return Promise.resolve(makeModelsResponse(modelIds));
+    }
+
     return Promise.resolve(chatResponse);
   }) as typeof globalThis.fetch;
 
@@ -94,17 +110,10 @@ function stubFetch(chatResponse: Response): () => void {
   };
 }
 
-async function setupToken(): Promise<{
-  clearTokenCache: () => void;
-  _setGitHubTokenForTest: (t: string | null) => void;
-}> {
-  const { clearTokenCache, _setGitHubTokenForTest } = await import(
-    "../../src/copilot/token.ts"
-  );
-  clearTokenCache();
-  _setGitHubTokenForTest(FAKE_GITHUB_TOKEN);
-  _setModelCacheForTest(TEST_MODEL_IDS);
-  return { clearTokenCache, _setGitHubTokenForTest };
+function getTestOptions(): ChatOptions {
+  return {
+    getGitHubToken: () => Promise.resolve(FAKE_GITHUB_TOKEN),
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -114,8 +123,7 @@ async function setupToken(): Promise<{
 Deno.test(
   "chat() - non-streaming maps content, stop_reason, usage correctly",
   async () => {
-    const { clearTokenCache, _setGitHubTokenForTest } = await setupToken();
-    const { chat } = await import("../../src/copilot/client.ts");
+    clearTokenCache();
 
     const openAIResp = makeChatResponse("Hello! How can I help?", "stop");
     const restore = stubFetch(
@@ -126,7 +134,7 @@ Deno.test(
     );
 
     try {
-      const result = await chat(makeProxyRequest());
+      const result = await chat(makeProxyRequest(), getTestOptions());
 
       assertEquals(result.content[0].type, "text");
       assertEquals(
@@ -141,7 +149,6 @@ Deno.test(
     } finally {
       restore();
       clearTokenCache();
-      _setGitHubTokenForTest(null);
     }
   },
 );
@@ -153,8 +160,7 @@ Deno.test(
 Deno.test(
   'chat() - finish_reason "length" → stop_reason "max_tokens"',
   async () => {
-    const { clearTokenCache, _setGitHubTokenForTest } = await setupToken();
-    const { chat } = await import("../../src/copilot/client.ts");
+    clearTokenCache();
 
     const openAIResp = makeChatResponse("truncated", "length");
     const restore = stubFetch(
@@ -165,12 +171,11 @@ Deno.test(
     );
 
     try {
-      const result = await chat(makeProxyRequest());
+      const result = await chat(makeProxyRequest(), getTestOptions());
       assertEquals(result.stop_reason, "max_tokens");
     } finally {
       restore();
       clearTokenCache();
-      _setGitHubTokenForTest(null);
     }
   },
 );
@@ -182,7 +187,7 @@ Deno.test(
 Deno.test(
   "chat() - system field is prepended as { role: 'system' } message",
   async () => {
-    const { clearTokenCache, _setGitHubTokenForTest } = await setupToken();
+    clearTokenCache();
 
     let capturedBody: {
       messages?: Array<{ role: string; content: string }>;
@@ -197,9 +202,15 @@ Deno.test(
         : input instanceof URL
         ? input.href
         : input.url;
+
       if (url.includes("copilot_internal")) {
         return Promise.resolve(makeTokenResponse());
       }
+
+      if (url.includes("/models")) {
+        return Promise.resolve(makeModelsResponse(TEST_MODEL_IDS));
+      }
+
       capturedBody = JSON.parse(init?.body as string ?? "{}");
       const resp = makeChatResponse("ok", "stop");
       return Promise.resolve(
@@ -211,12 +222,12 @@ Deno.test(
     }) as typeof globalThis.fetch;
 
     try {
-      const { chat } = await import("../../src/copilot/client.ts");
       await chat(
         makeProxyRequest({
           system: "You are a helpful assistant.",
           messages: [{ role: "user", content: "Hi" }],
         }),
+        getTestOptions(),
       );
 
       assertEquals(capturedBody !== null, true);
@@ -228,8 +239,6 @@ Deno.test(
     } finally {
       globalThis.fetch = original;
       clearTokenCache();
-      _setGitHubTokenForTest(null);
-      _clearModelCacheForTest();
     }
   },
 );
@@ -239,8 +248,7 @@ Deno.test(
 // ---------------------------------------------------------------------------
 
 Deno.test("chat() - 401 response → authentication_error content", async () => {
-  const { clearTokenCache, _setGitHubTokenForTest } = await setupToken();
-  const { chat } = await import("../../src/copilot/client.ts");
+  clearTokenCache();
 
   const original = globalThis.fetch;
   globalThis.fetch = ((
@@ -252,14 +260,20 @@ Deno.test("chat() - 401 response → authentication_error content", async () => 
       : input instanceof URL
       ? input.href
       : input.url;
+
     if (url.includes("copilot_internal")) {
       return Promise.resolve(makeTokenResponse());
     }
+
+    if (url.includes("/models")) {
+      return Promise.resolve(makeModelsResponse(TEST_MODEL_IDS));
+    }
+
     return Promise.resolve(new Response("Unauthorized", { status: 401 }));
   }) as typeof globalThis.fetch;
 
   try {
-    const result = await chat(makeProxyRequest());
+    const result = await chat(makeProxyRequest(), getTestOptions());
     assertEquals(result.content[0].type, "text");
     assertEquals(
       (result.content[0] as TextContentBlock).text.toLowerCase().includes(
@@ -271,7 +285,6 @@ Deno.test("chat() - 401 response → authentication_error content", async () => 
   } finally {
     globalThis.fetch = original;
     clearTokenCache();
-    _setGitHubTokenForTest(null);
   }
 });
 
@@ -280,15 +293,13 @@ Deno.test("chat() - 401 response → authentication_error content", async () => 
 // ---------------------------------------------------------------------------
 
 Deno.test("chat() - 503 response → overloaded_error content", async () => {
-  const { clearTokenCache, _setGitHubTokenForTest } = await setupToken();
-  const { chat } = await import("../../src/copilot/client.ts");
+  clearTokenCache();
 
-  const restore = stubFetch(
-    new Response("Service Unavailable", { status: 503 }),
-  );
+  const openAIResp = new Response("Service Unavailable", { status: 503 });
+  const restore = stubFetch(openAIResp);
 
   try {
-    const result = await chat(makeProxyRequest());
+    const result = await chat(makeProxyRequest(), getTestOptions());
     assertEquals(result.content[0].type, "text");
     assertEquals(
       (result.content[0] as TextContentBlock).text.toLowerCase().includes(
@@ -300,7 +311,6 @@ Deno.test("chat() - 503 response → overloaded_error content", async () => {
   } finally {
     restore();
     clearTokenCache();
-    _setGitHubTokenForTest(null);
   }
 });
 
@@ -311,10 +321,8 @@ Deno.test("chat() - 503 response → overloaded_error content", async () => {
 Deno.test(
   "chatStream() - emits message_start, content_block_start, deltas, and stop events",
   async () => {
-    const { clearTokenCache, _setGitHubTokenForTest } = await setupToken();
-    const { chatStream } = await import("../../src/copilot/client.ts");
+    clearTokenCache();
 
-    // Build a streaming SSE response
     const chunks: OpenAIStreamChunk[] = [
       {
         id: "chatcmpl-stream1",
@@ -364,9 +372,15 @@ Deno.test(
         : input instanceof URL
         ? input.href
         : input.url;
+
       if (url.includes("copilot_internal")) {
         return Promise.resolve(makeTokenResponse());
       }
+
+      if (url.includes("/models")) {
+        return Promise.resolve(makeModelsResponse(TEST_MODEL_IDS));
+      }
+
       return Promise.resolve(
         new Response(sseBody, {
           status: 200,
@@ -379,37 +393,37 @@ Deno.test(
     const collectedTexts: string[] = [];
 
     try {
-      await chatStream(makeProxyRequest({ stream: true }), (event) => {
-        collectedTypes.push(event.type);
-        if (
-          event.type === "content_block_delta" &&
-          event.delta &&
-          "text" in event.delta
-        ) {
-          collectedTexts.push(event.delta.text);
-        }
-      });
+      await chatStream(
+        makeProxyRequest({ stream: true }),
+        (event: StreamEvent) => {
+          collectedTypes.push(event.type);
+          if (
+            event.type === "content_block_delta" &&
+            event.delta &&
+            "text" in event.delta
+          ) {
+            collectedTexts.push(event.delta.text);
+          }
+        },
+        undefined,
+        getTestOptions(),
+      );
 
-      // Verify event sequence
       assertEquals(collectedTypes[0], "message_start");
       assertEquals(collectedTypes[1], "content_block_start");
-      // Some content_block_delta events
       const deltaIdx = collectedTypes.findIndex((t) =>
         t === "content_block_delta"
       );
       assertEquals(deltaIdx >= 0, true);
-      // content_block_stop, message_delta, message_stop at the end
       const lastThree = collectedTypes.slice(-3);
       assertEquals(lastThree[0], "content_block_stop");
       assertEquals(lastThree[1], "message_delta");
       assertEquals(lastThree[2], "message_stop");
-      // Text content
       assertEquals(collectedTexts.includes("Hello"), true);
       assertEquals(collectedTexts.includes(" world"), true);
     } finally {
       globalThis.fetch = original;
       clearTokenCache();
-      _setGitHubTokenForTest(null);
     }
   },
 );

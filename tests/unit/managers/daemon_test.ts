@@ -6,7 +6,7 @@
  */
 
 import { assertEquals } from "@std/assert";
-import { getDaemonManager } from "../../../src/service/managers/mod.ts";
+import { getDaemonManager } from "@modmux/gateway";
 
 Deno.test(
   "DaemonManager.isRunning — returns false when no PID file exists",

@@ -1,11 +1,7 @@
 import { assertEquals, assertRejects } from "@std/assert";
 import { join } from "@std/path";
-import {
-  DEFAULT_CONFIG,
-  loadConfig,
-  saveConfig,
-} from "../../src/config/store.ts";
-import type { CocoConfig as LomuxConfig } from "../../src/config/store.ts";
+import { DEFAULT_CONFIG, loadConfig, saveConfig } from "@modmux/gateway";
+import type { ModmuxConfig } from "@modmux/gateway";
 
 // Use a temp directory for all tests to avoid touching ~/.coco
 async function withTempHome<T>(fn: (dir: string) => Promise<T>): Promise<T> {
@@ -53,7 +49,7 @@ Deno.test("loadConfig — migrates legacy ~/.coco/config.json to ~/.coco", async
     const canonicalDir = join(home, ".coco");
     await Deno.mkdir(legacyDir, { recursive: true });
 
-    const legacyConfig: LomuxConfig = {
+    const legacyConfig: ModmuxConfig = {
       ...DEFAULT_CONFIG,
       port: 12000,
       logLevel: "debug",
@@ -71,7 +67,7 @@ Deno.test("loadConfig — migrates legacy ~/.coco/config.json to ~/.coco", async
     const migratedRaw = await Deno.readTextFile(
       join(canonicalDir, "config.json"),
     );
-    const migrated = JSON.parse(migratedRaw) as LomuxConfig;
+    const migrated = JSON.parse(migratedRaw) as ModmuxConfig;
     assertEquals(migrated.port, 12000);
     assertEquals(migrated.logLevel, "debug");
   });
@@ -97,14 +93,14 @@ Deno.test("loadConfig — migration remains idempotent across repeated loads", a
     const canonicalRaw = await Deno.readTextFile(
       join(canonicalDir, "config.json"),
     );
-    const canonical = JSON.parse(canonicalRaw) as LomuxConfig;
+    const canonical = JSON.parse(canonicalRaw) as ModmuxConfig;
     assertEquals(canonical.port, 14000);
   });
 });
 
 Deno.test("saveConfig + loadConfig — round-trip", async () => {
   await withTempHome(async () => {
-    const config: LomuxConfig = {
+    const config: ModmuxConfig = {
       port: 12345,
       logLevel: "debug",
       modelMap: { "claude-3": "claude-3-sonnet" },
@@ -146,7 +142,7 @@ Deno.test("saveConfig — rejects invalid modelMappingPolicy", async () => {
         saveConfig({
           ...DEFAULT_CONFIG,
           modelMappingPolicy:
-            "auto" as unknown as LomuxConfig["modelMappingPolicy"],
+            "auto" as unknown as ModmuxConfig["modelMappingPolicy"],
         }),
       Error,
       "Invalid modelMappingPolicy",
@@ -180,7 +176,7 @@ Deno.test("saveConfig — rejects invalid logLevel", async () => {
       () =>
         saveConfig({
           ...DEFAULT_CONFIG,
-          logLevel: "verbose" as unknown as LomuxConfig["logLevel"],
+          logLevel: "verbose" as unknown as ModmuxConfig["logLevel"],
         }),
       Error,
       "Invalid logLevel",

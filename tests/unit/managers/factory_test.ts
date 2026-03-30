@@ -6,10 +6,7 @@
  */
 
 import { assertEquals } from "@std/assert";
-import {
-  getDaemonManager,
-  getServiceManager,
-} from "../../../src/service/managers/mod.ts";
+import { getDaemonManager, getServiceManager } from "@modmux/gateway";
 
 Deno.test("getServiceManager — returns an object with required methods", () => {
   const svc = getServiceManager();

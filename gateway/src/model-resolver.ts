@@ -171,13 +171,3 @@ export async function resolveModelForEndpoint(
     strategy: "passthrough",
   };
 }
-
-export function _setAvailableModelsForTest(models: string[]): void {
-  cachedAvailableModels = uniq(models);
-  cacheExpiresAt = Date.now() + CACHE_TTL_MS;
-}
-
-export function _clearAvailableModelsForTest(): void {
-  cachedAvailableModels = [];
-  cacheExpiresAt = 0;
-}
