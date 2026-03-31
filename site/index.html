@@ -8,23 +8,22 @@
       name="description"
       content="Modmux provides a unified, local interface for routing requests across multiple model providers and protocols. Built for reliability, clarity, and modern multi-agent workflows."
     />
-    <link rel="icon" href="./logo.png" type="image/png" />
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="./styles.css" />
     <script defer src="./app.js"></script>
   </head>
   <body>
-    <div id="header-sentinel" aria-hidden="true"></div>
     <header class="site-header">
       <div class="site-header-inner">
         <a class="brand" href="#top" aria-label="Modmux home">
-          <img src="./logo.png" class="brand-logo" alt="" />
-          <span class="brand-text">Modmux</span>
+          <img src="./favicon.svg" class="brand-logo" alt="" />
+          <span class="brand-text">MODMUX</span>
         </a>
         <nav class="site-nav" aria-label="Primary">
           <a href="#why">Why</a>
@@ -41,12 +40,12 @@
           <div class="hero-copy reveal">
             <p class="eyebrow">Model Routing Layer</p>
             <h1>
-              One interface. Every model.
+              One interface.<br />Every model.
             </h1>
             <p class="hero-body">
-              Modmux provides a unified, local interface for routing requests
-              across multiple model providers and protocols. Built for
-              reliability, clarity, and modern multi-agent workflows.
+              Local gateway that routes requests between coding agents and
+              GitHub Copilot. OpenAI-compatible endpoints, reversible
+              configuration, zero external dependencies.
             </p>
             <div class="hero-actions">
               <a class="button button-primary" href="#install"
@@ -55,9 +54,9 @@
               >See the flow</a>
             </div>
             <ul class="hero-points" aria-label="Key facts">
-              <li>Binds to 127.0.0.1 only</li>
+              <li>Localhost only (127.0.0.1:11434)</li>
               <li>Reversible agent configuration</li>
-              <li>Status, health, and usage visibility built in</li>
+              <li>Built-in status, health, and usage</li>
             </ul>
           </div>
 
@@ -344,31 +343,42 @@
 
         <section id="demo" class="section reveal reveal-delay-1">
           <div class="section-heading">
-            <p class="eyebrow">Screenshots And Demo</p>
-            <h2>A quick look at the local control surface.</h2>
+            <p class="eyebrow">Terminal Interface</p>
+            <h2>Full visibility into your model routing.</h2>
           </div>
           <div class="demo-grid">
             <div class="demo-frame">
-              <div class="demo-title">CLI preview</div>
-              <pre
-                class="demo-code"
-              >
-$ modmux
+              <div class="terminal-card">
+                <div class="terminal-topline">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+                <pre
+                  class="demo-code"
+                >
+<span style="color:#ff00aa">$</span> modmux
 
-Modmux - Model Multiplexing Layer
-Status: Running on http://localhost:11434
-Copilot: Authenticated ✓
-
-[ ] Claude Code
-[x] Cline
-[ ] Codex</pre>
+<span style="color:#00f0ff">┌─────────────────────────────────────┐</span>
+<span style="color:#00f0ff">│</span>  MODMUX v0.3.0                 <span style="color:#00f0ff">│</span>
+<span style="color:#00f0ff">├─────────────────────────────────────┤</span>
+<span style="color:#00f0ff">│</span>  Status:    Running           <span style="color:#00f0ff">│</span>
+<span style="color:#00f0ff">│</span>  Endpoint:  127.0.0.1:11434   <span style="color:#00f0ff">│</span>
+<span style="color:#00f0ff">│</span>  Auth:      Authenticated ✓    <span style="color:#00f0ff">│</span>
+<span style="color:#00f0ff">├─────────────────────────────────────┤</span>
+<span style="color:#00f0ff">│</span>  Agents:                        <span style="color:#00f0ff">│</span>
+<span style="color:#00f0ff">│</span>  [ ] claude-code                <span style="color:#00f0ff">│</span>
+<span style="color:#00f0ff">│</span>  [x] cline                      <span style="color:#00f0ff">│</span>
+<span style="color:#00f0ff">│</span>  [ ] codex                     <span style="color:#00f0ff">│</span>
+<span style="color:#00f0ff">└─────────────────────────────────────┘</span></pre>
+              </div>
             </div>
             <div class="demo-copy">
               <p>
-                The current interface keeps the operational loop visible:
-                service state, authentication state, and supported agent
-                selection in one place. The product stays intentionally simple
-                at the point where you need confidence most.
+                The TUI keeps your entire operational state visible: daemon
+                status, authentication, and agent configuration in one terminal
+                view. No hidden state, no guesswork—just run `modmux` and see
+                everything.
               </p>
             </div>
           </div>

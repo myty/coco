@@ -4,16 +4,23 @@
   role="img"
   aria-labelledby="title"
 >
-  <title>Coco</title>
+  <title>Modmux</title>
   <defs>
-    <linearGradient id="coco-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#1f6f78" />
-      <stop offset="100%" stop-color="#c65b3b" />
+    <linearGradient id="modmux-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00f0ff" />
+      <stop offset="100%" stop-color="#ff00aa" />
     </linearGradient>
   </defs>
-  <rect width="64" height="64" rx="18" fill="url(#coco-gradient)" />
+  <rect width="64" height="64" rx="14" fill="url(#modmux-gradient)" />
   <path
-    d="M18 31.5c0-7.2 5.3-12.5 12.8-12.5 3.5 0 6.9 1.1 9.1 3.4l-3.4 3.8c-1.4-1.4-3.3-2.2-5.7-2.2-4.2 0-7.2 3-7.2 7.5s3 7.5 7.2 7.5c2.4 0 4.3-.8 5.7-2.2l3.4 3.8c-2.2 2.3-5.6 3.4-9.1 3.4-7.5 0-12.8-5.3-12.8-12.5z"
-    fill="#fff8ef"
+    d="M16 18h6v28h-6V18zm8 0h2v28h-2V18zm4-6h2v34h-2V12zm6 0h2v34h-2V12zm4 6h6v28h-6V18z"
+    fill="#080c10"
+  />
+  <path
+    d="M16 18h6v28h-6V18zm8 0h2v28h-2V18zm4-6h2v34h-2V12zm6 0h2v34h-2V12zm4 6h6v28h-6V18z"
+    fill="none"
+    stroke="#00f0ff"
+    stroke-width="1.5"
+    opacity="0.4"
   />
 </svg>
