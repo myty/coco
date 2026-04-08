@@ -5,5 +5,5 @@
 # See: https://github.com/myty/modmux/releases
 
 [tasks.install]
-description = "Install modmux globally via deno"
-run = "deno install --global --allow-all -n modmux --config deno.json --force cli/src/main.ts"
+description = "Install modmux globally from source (cross-platform)"
+run = "deno task install"

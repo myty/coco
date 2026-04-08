@@ -19,6 +19,7 @@
     "exclude": ["scripts/", "site/"]
   },
   "tasks": {
+    "install": "deno run -A scripts/install-from-source.ts",
     "dev": "deno run -A cli/src/main.ts",
     "test": "deno test --allow-all",
     "lint": "deno lint",

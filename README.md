@@ -96,6 +96,22 @@ deno task install
 mise run install
 ```
 
+`mise run install` runs the same cross-platform install flow shown above.
+
+Default install locations:
+
+| Platform | Location |
+| -------- | -------- |
+| macOS    | `~/.local/bin/modmux` |
+| Linux    | `~/.local/bin/modmux` |
+| Windows  | `%LOCALAPPDATA%\\modmux\\bin\\modmux.exe` |
+
+Override install directory on any platform with:
+
+```bash
+MODMUX_INSTALL_DIR=/your/path/bin deno task install
+```
+
 After installation, `modmux` is available in any terminal:
 
 ```bash
@@ -105,8 +121,7 @@ modmux --version
 
 </details>
 
-> **Note**: Ensure `~/.deno/bin` is in your `PATH`. The Deno installer adds this
-> automatically.
+> **Note**: Ensure the install directory is in your `PATH`.
 
 <details>
 <summary>📖 JSR (Deno Runtime)</summary>
