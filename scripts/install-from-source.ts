@@ -130,7 +130,9 @@ function restartDaemon(binaryPath: string): void {
         args: [
           "-NonInteractive",
           "-Command",
-          `Start-Process -FilePath '${esc(binaryPath)}' -ArgumentList 'start' -WindowStyle Hidden`,
+          `Start-Process -FilePath '${
+            esc(binaryPath)
+          }' -ArgumentList 'start' -WindowStyle Hidden`,
         ],
         stdin: "null",
         stdout: "null",
