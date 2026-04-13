@@ -31,7 +31,8 @@
       "Bash(pkill -f \"deno.*main\\\\.ts.*daemon\")",
       "Bash(curl -s http://localhost:11435/health)",
       "mcp__lean-spec__update",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(curl -s http://localhost:11435/v1/nonexistent)"
     ]
   },
   "enabledMcpjsonServers": [
