@@ -7,3 +7,23 @@
 [tasks.install]
 description = "Install modmux globally from source (cross-platform)"
 run = "deno task install"
+
+[tasks.start]
+description = "Start the modmux service"
+run = "modmux start"
+
+[tasks.stop]
+description = "Stop the modmux service"
+run = "modmux stop"
+
+[tasks.restart]
+description = "Restart the modmux service"
+run = "modmux restart"
+
+[tasks.status]
+description = "Show modmux service status"
+run = "modmux status"
+
+[tasks.dev]
+description = "Run modmux from source (development)"
+run = "deno task dev"

@@ -1,5 +1,6 @@
 import { authenticate, getStoredToken, isTokenValid } from "./auth.ts";
 import { VERSION } from "./version.ts";
+import { upgrade } from "./upgrade.ts";
 import { formatStatus, getServiceState } from "../../gateway/src/status.ts";
 import {
   getDaemonManager,
@@ -50,6 +51,7 @@ Commands:
   model-policy [mode] Show or set model mapping policy (compatible|strict)
   install-service     Register daemon with OS login service manager
   uninstall-service   Remove daemon from OS login service manager
+  upgrade             Upgrade modmux to the latest release
 
 Options:
   --help, -h          Show this help message
@@ -524,6 +526,9 @@ async function main() {
       break;
     case "uninstall-service":
       await cmdUninstallService();
+      break;
+    case "upgrade":
+      await upgrade();
       break;
     default:
       // T038: non-TTY bare invocation → print status and exit 0

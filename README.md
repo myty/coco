@@ -36,6 +36,15 @@ Download a platform build from
 
 </details>
 
+<details>
+<summary>📖 Via Mise</summary>
+
+```bash
+mise use -g github:modmux/modmux@latest
+```
+
+</details>
+
 ## Quick start
 
 ```bash

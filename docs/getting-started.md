@@ -23,6 +23,12 @@ deno task install
 Download a platform build from
 [GitHub Releases](https://github.com/modmux/modmux/releases).
 
+### Via Mise
+
+```bash
+mise use -g github:modmux/modmux@latest
+```
+
 ### Check the install
 
 ```bash
