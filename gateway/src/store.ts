@@ -47,13 +47,9 @@ export interface GitHubUsageConfig {
   preferredPort: number;
 }
 
-export type UpgradeMethod = "binary" | "mise";
-
 export interface UpdatesConfig {
   /** Whether to check for newer versions once per day. Default: true. */
   checkEnabled: boolean;
-  /** How to perform upgrades. "binary" replaces the binary in-place; "mise" delegates to `mise upgrade modmux`. Default: "binary". */
-  upgradeMethod: UpgradeMethod;
 }
 
 export interface ModmuxConfig {
@@ -109,7 +105,6 @@ export const DEFAULT_CONFIG: ModmuxConfig = {
   },
   updates: {
     checkEnabled: true,
-    upgradeMethod: "binary",
   },
 };
 
@@ -163,7 +158,6 @@ function applyEnvOverrides(config: ModmuxConfig): ModmuxConfig {
     "MODMUX_GITHUB_USAGE_PREFERRED_PORT",
   );
   const updateCheckEnabledRaw = envValue("MODMUX_UPDATE_CHECK_ENABLED");
-  const upgradeMethodRaw = envValue("MODMUX_UPGRADE_METHOD");
 
   const next: ModmuxConfig = { ...config };
 
@@ -219,7 +213,7 @@ function applyEnvOverrides(config: ModmuxConfig): ModmuxConfig {
     next.githubUsage.preferredPort = parsed;
   }
 
-  if (updateCheckEnabledRaw !== undefined || upgradeMethodRaw !== undefined) {
+  if (updateCheckEnabledRaw !== undefined) {
     next.updates = { ...config.updates };
   }
   if (updateCheckEnabledRaw !== undefined) {
@@ -232,10 +226,6 @@ function applyEnvOverrides(config: ModmuxConfig): ModmuxConfig {
     }
     next.updates.checkEnabled = updateCheckEnabledRaw === "true";
   }
-  if (upgradeMethodRaw !== undefined) {
-    next.updates.upgradeMethod = upgradeMethodRaw as UpgradeMethod;
-  }
-
   return next;
 }
 
@@ -351,15 +341,6 @@ function validate(config: ModmuxConfig): void {
       );
     }
   }
-
-  if (config.updates) {
-    const validMethods: UpgradeMethod[] = ["binary", "mise"];
-    if (!validMethods.includes(config.updates.upgradeMethod)) {
-      throw new Error(
-        `Invalid updates.upgradeMethod: ${config.updates.upgradeMethod}. Must be "binary" or "mise".`,
-      );
-    }
-  }
 }
 
 export async function loadConfig(): Promise<ModmuxConfig> {
@@ -385,8 +366,8 @@ export async function loadConfig(): Promise<ModmuxConfig> {
         ...(parsed.githubUsage || {}),
       },
       updates: {
-        ...DEFAULT_CONFIG.updates,
-        ...(parsed.updates || {}),
+        checkEnabled: parsed.updates?.checkEnabled ??
+          DEFAULT_CONFIG.updates.checkEnabled,
       },
     });
     validate(config);

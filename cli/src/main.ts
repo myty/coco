@@ -1,8 +1,9 @@
 import { authenticate, getStoredToken, isTokenValid } from "./auth.ts";
 import { VERSION } from "./version.ts";
-import { upgrade } from "./upgrade.ts";
+import { runUpgradeHelper, upgrade } from "./upgrade.ts";
 import { checkForNewerVersion, maybeNotifyUpdate } from "./update-check.ts";
 import { ensureMiseRestartHook, removeMiseRestartHook } from "./mise-hook.ts";
+import { isRunningFromMiseInstall } from "./mise-install.ts";
 import { formatStatus, getServiceState } from "../../gateway/src/status.ts";
 import {
   getDaemonManager,
@@ -447,14 +448,6 @@ async function runTUI(updateVersion: string | null): Promise<void> {
         currentConfig = applySettingChange(row.id, newValue, currentConfig);
         await saveConfig(currentConfig).catch(() => {});
 
-        if (row.id === "upgradeMethod") {
-          if (newValue === "mise") {
-            await ensureMiseRestartHook();
-          } else {
-            await removeMiseRestartHook();
-          }
-        }
-
         state = { ...state, settings: updatedSettings };
         renderFull(state);
         continue;
@@ -571,14 +564,6 @@ function applySettingChange(
         ...config,
         updates: { ...config.updates, checkEnabled: value === "enabled" },
       };
-    case "upgradeMethod":
-      return {
-        ...config,
-        updates: {
-          ...config.updates,
-          upgradeMethod: value as "binary" | "mise",
-        },
-      };
     case "modelMappingPolicy":
       return {
         ...config,
@@ -607,6 +592,18 @@ async function main() {
     Deno.exit(0);
   }
 
+  if (args[0] === "--upgrade-helper") {
+    const targetPath = args[1];
+    const downloadUrl = args[2];
+    const latestTag = args[3];
+    if (!targetPath || !downloadUrl || !latestTag) {
+      console.error("Error: Missing upgrade helper arguments.");
+      Deno.exit(1);
+    }
+    await runUpgradeHelper(targetPath, downloadUrl, latestTag);
+    return;
+  }
+
   // --daemon flag: run as background service
   if (args.includes("--daemon")) {
     const authenticated = await ensureAuthenticated();
@@ -617,16 +614,17 @@ async function main() {
 
   const subcommand = args[0];
 
-  // Reconcile the mise restart hook based on current config. This ensures the
-  // hook stays in sync even if the user edits config.json directly rather than
-  // using the TUI. Runs in the background — never blocks the command.
-  loadConfig().then((cfg) => {
-    if (cfg.updates.upgradeMethod === "mise") {
+  // Keep the mise restart hook only for mise-managed installs and remove the
+  // old hook when the running binary is not inside mise's installs tree.
+  try {
+    if (isRunningFromMiseInstall()) {
       ensureMiseRestartHook();
     } else {
       removeMiseRestartHook();
     }
-  }).catch(() => {});
+  } catch {
+    // Non-fatal.
+  }
 
   // For the TUI, get the update version to display inline.
   // For all other commands (except upgrade), print the notice to stderr.

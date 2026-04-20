@@ -1,21 +1,12 @@
-import { VERSION } from "./version.ts";
-import { loadConfig } from "../../gateway/src/store.ts";
+import { basename, dirname, join } from "@std/path";
+import { spawnDetached } from "../../gateway/src/background-process.ts";
+import { startDaemon, stopDaemon } from "../../gateway/src/daemon.ts";
 import { ensureMiseRestartHook } from "./mise-hook.ts";
+import { isRunningFromMiseInstall } from "./mise-install.ts";
+import { VERSION } from "./version.ts";
 
 const REPO = "modmux/modmux";
 const GITHUB_API = `https://api.github.com/repos/${REPO}/releases/latest`;
-
-function detectAssetName(): string | null {
-  const os = Deno.build.os;
-  const arch = Deno.build.arch;
-
-  if (os === "darwin" && arch === "aarch64") return "modmux-darwin-arm64";
-  if (os === "darwin" && arch === "x86_64") return "modmux-darwin-x64";
-  if (os === "linux" && arch === "x86_64") return "modmux-linux-x64";
-  if (os === "linux" && arch === "aarch64") return "modmux-linux-arm64";
-  if (os === "windows" && arch === "x86_64") return "modmux-windows-x64.exe";
-  return null;
-}
 
 interface ReleaseAsset {
   name: string;
@@ -25,6 +16,32 @@ interface ReleaseAsset {
 interface GithubRelease {
   tag_name: string;
   assets: ReleaseAsset[];
+}
+
+interface BinaryUpgradePlan {
+  currentPath: string;
+  helperPath: string;
+  latestTag: string;
+  downloadUrl: string;
+}
+
+function detectAssetName(): string | null {
+  const os = Deno.build.os;
+  const arch = Deno.build.arch;
+
+  if (os === "darwin" && arch === "aarch64") return "modmux-darwin-arm64";
+  if (os === "darwin" && arch === "x86_64") return "modmux-darwin-x64";
+  if (os === "linux" && arch === "x86_64") return "modmux-linux-x64";
+  if (os === "linux" && arch === "aarch64") return "modmux-linux-arm64";
+  if (os === "windows" && arch === "x86_64") {
+    return "modmux-windows-x64.exe";
+  }
+  return null;
+}
+
+function isDenoExecutable(path: string): boolean {
+  const name = basename(path).toLowerCase();
+  return name === "deno" || name === "deno.exe";
 }
 
 async function upgradeMise(): Promise<void> {
@@ -43,7 +60,9 @@ async function upgradeMise(): Promise<void> {
   }
 }
 
-async function upgradeBinary(): Promise<void> {
+async function fetchLatestBinaryUpgradePlan(): Promise<
+  BinaryUpgradePlan | null
+> {
   const assetName = detectAssetName();
   if (!assetName) {
     console.error(
@@ -74,7 +93,7 @@ async function upgradeBinary(): Promise<void> {
 
   if (latestVersion === VERSION) {
     console.log(`Already at latest version (${VERSION}).`);
-    return;
+    return null;
   }
 
   const asset = release.assets.find((a) => a.name === assetName);
@@ -85,25 +104,59 @@ async function upgradeBinary(): Promise<void> {
     Deno.exit(1);
   }
 
-  console.log(`Upgrading from v${VERSION} to ${latestTag}...`);
+  const currentPath = Deno.execPath();
+  const helperPath = join(
+    dirname(currentPath),
+    `${basename(currentPath)}.upgrade-helper${Deno.pid}`,
+  );
 
-  const downloadUrl = asset.browser_download_url;
-  let downloadedBytes: Uint8Array;
-  try {
-    const res = await fetch(downloadUrl);
-    if (!res.ok) {
-      console.error(`Error: Failed to download asset: HTTP ${res.status}`);
-      Deno.exit(1);
-    }
-    downloadedBytes = new Uint8Array(await res.arrayBuffer());
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    console.error(`Error: Download failed: ${msg}`);
+  return {
+    currentPath,
+    helperPath,
+    latestTag,
+    downloadUrl: asset.browser_download_url,
+  };
+}
+
+async function launchUpgradeHelper(plan: BinaryUpgradePlan): Promise<void> {
+  if (isDenoExecutable(plan.currentPath)) {
+    console.error(
+      "Error: Self-upgrade is only supported from a compiled modmux binary.",
+    );
     Deno.exit(1);
   }
 
-  const currentPath = Deno.execPath();
-  const tmpPath = currentPath + ".upgrade-tmp";
+  try {
+    await Deno.copyFile(plan.currentPath, plan.helperPath);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error(`Error: Could not prepare upgrade helper: ${msg}`);
+    Deno.exit(1);
+  }
+
+  try {
+    await spawnDetached(plan.helperPath, [
+      "--upgrade-helper",
+      plan.currentPath,
+      plan.downloadUrl,
+      plan.latestTag,
+    ]);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    await Deno.remove(plan.helperPath).catch(() => {});
+    console.error(`Error: Could not launch upgrade helper: ${msg}`);
+    Deno.exit(1);
+  }
+
+  console.log(`Upgrading from v${VERSION} to ${plan.latestTag}...`);
+  console.log("modmux will finish upgrading in the background.");
+}
+
+async function replaceBinary(
+  targetPath: string,
+  downloadedBytes: Uint8Array,
+): Promise<void> {
+  const tmpPath = `${targetPath}.upgrade-tmp`;
 
   try {
     await Deno.writeFile(tmpPath, downloadedBytes, { mode: 0o755 });
@@ -114,11 +167,10 @@ async function upgradeBinary(): Promise<void> {
   }
 
   try {
-    await Deno.rename(tmpPath, currentPath);
+    await Deno.rename(tmpPath, targetPath);
   } catch {
-    // On Windows the binary may be locked; fall back to copy + delete
     try {
-      await Deno.copyFile(tmpPath, currentPath);
+      await Deno.copyFile(tmpPath, targetPath);
       await Deno.remove(tmpPath);
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
@@ -127,15 +179,51 @@ async function upgradeBinary(): Promise<void> {
       Deno.exit(1);
     }
   }
+}
+
+async function downloadReleaseAsset(downloadUrl: string): Promise<Uint8Array> {
+  try {
+    const res = await fetch(downloadUrl);
+    if (!res.ok) {
+      console.error(`Error: Failed to download asset: HTTP ${res.status}`);
+      Deno.exit(1);
+    }
+    return new Uint8Array(await res.arrayBuffer());
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error(`Error: Download failed: ${msg}`);
+    Deno.exit(1);
+  }
+}
+
+async function upgradeBinary(): Promise<void> {
+  const plan = await fetchLatestBinaryUpgradePlan();
+  if (plan === null) return;
+  await launchUpgradeHelper(plan);
+}
+
+export async function runUpgradeHelper(
+  targetPath: string,
+  downloadUrl: string,
+  latestTag: string,
+): Promise<void> {
+  await new Promise((resolve) => setTimeout(resolve, 300));
+
+  const downloadedBytes = await downloadReleaseAsset(downloadUrl);
+  const wasRunning = await stopDaemon().catch(() => false);
+  await replaceBinary(targetPath, downloadedBytes);
+
+  if (wasRunning) {
+    await startDaemon().catch(() => {});
+  }
 
   console.log(`Modmux upgraded to ${latestTag}.`);
+
+  await Deno.remove(Deno.execPath()).catch(() => {});
 }
 
 export async function upgrade(): Promise<void> {
-  const config = await loadConfig().catch(() => null);
-  const method = config?.updates?.upgradeMethod ?? "binary";
-
-  if (method === "mise") {
+  if (isRunningFromMiseInstall()) {
     await upgradeMise();
   } else {
     await upgradeBinary();

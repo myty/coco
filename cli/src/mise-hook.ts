@@ -15,15 +15,26 @@ import { join } from "@std/path";
 const CONF_D_FILE = "modmux-restart.toml";
 
 // The restart hook checks MISE_INSTALLED_TOOLS so it only restarts when
-// modmux itself was upgraded (not on every `mise install`).
-// modmux restart uses the stored auth token, which is already valid when the
-// daemon is running, so this is non-interactive in practice.
-const HOOK_TOML = `\
-# Managed by modmux. To disable, set upgradeMethod = "binary" in modmux config.
+// modmux itself was upgraded (not on every `mise install`). modmux restart
+// uses the stored auth token, which is already valid when the daemon is
+// running, so this is non-interactive in practice.
+const POSIX_HOOK_TOML = `\
+# Managed by modmux.
 
 [hooks]
-postinstall = "echo \\"$MISE_INSTALLED_TOOLS\\" | grep -q '\\"modmux\\"' && modmux restart || true"
+postinstall = "echo \\\"$MISE_INSTALLED_TOOLS\\\" | grep -q '\\\"modmux\\\"' && modmux restart || true"
 `;
+
+const WINDOWS_HOOK_TOML = `\
+# Managed by modmux.
+
+[hooks]
+postinstall = "powershell -NonInteractive -Command \"if ($env:MISE_INSTALLED_TOOLS -match '\\\"modmux\\\"') { modmux restart }\""
+`;
+
+function hookToml(): string {
+  return Deno.build.os === "windows" ? WINDOWS_HOOK_TOML : POSIX_HOOK_TOML;
+}
 
 function miseConfDDir(): string {
   const xdgConfigHome = Deno.env.get("XDG_CONFIG_HOME");
@@ -45,7 +56,7 @@ function hookFilePath(): string {
 export async function ensureMiseRestartHook(): Promise<void> {
   try {
     await Deno.mkdir(miseConfDDir(), { recursive: true });
-    await Deno.writeTextFile(hookFilePath(), HOOK_TOML);
+    await Deno.writeTextFile(hookFilePath(), hookToml());
   } catch {
     // Non-fatal.
   }

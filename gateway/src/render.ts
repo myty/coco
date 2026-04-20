@@ -129,7 +129,7 @@ export function buildSettingsRows(
   config: ModmuxConfig | null,
 ): SettingsRow[] {
   const c = config ?? {
-    updates: { checkEnabled: true, upgradeMethod: "binary" },
+    updates: { checkEnabled: true },
     modelMappingPolicy: "compatible",
     logLevel: "info",
   };
@@ -139,12 +139,6 @@ export function buildSettingsRows(
       label: "Version check",
       value: c.updates.checkEnabled ? "enabled" : "disabled",
       options: ["enabled", "disabled"],
-    },
-    {
-      id: "upgradeMethod",
-      label: "Upgrade method",
-      value: c.updates.upgradeMethod,
-      options: ["binary", "mise"],
     },
     {
       id: "modelMappingPolicy",
