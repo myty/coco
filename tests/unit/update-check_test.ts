@@ -34,7 +34,7 @@ Deno.test("maybeNotifyUpdate — writes state file on first run", async () => {
     const moduleUrl = new URL(CLI_PATH, import.meta.url).href;
     const script = makeScript(
       moduleUrl,
-      `globalThis.fetch = () => Promise.resolve({ ok: true, json: () => Promise.resolve({ tag_name: "v0.4.1" }) });`,
+      `globalThis.fetch = () => Promise.resolve({ ok: true, json: () => Promise.resolve({ tag_name: "v0.4.2" }) });`,
     );
     const scriptPath = join(tmp, "run.ts");
     await Deno.writeTextFile(scriptPath, script);
@@ -96,7 +96,7 @@ Deno.test("maybeNotifyUpdate — silent on malformed state file", async () => {
     const moduleUrl = new URL(CLI_PATH, import.meta.url).href;
     const script = makeScript(
       moduleUrl,
-      `globalThis.fetch = () => Promise.resolve({ ok: true, json: () => Promise.resolve({ tag_name: "v0.4.1" }) });`,
+      `globalThis.fetch = () => Promise.resolve({ ok: true, json: () => Promise.resolve({ tag_name: "v0.4.2" }) });`,
     );
     const scriptPath = join(tmp, "run.ts");
     await Deno.writeTextFile(scriptPath, script);
@@ -179,7 +179,7 @@ Deno.test("maybeNotifyUpdate — re-checks after 24h and updates state", async (
     const moduleUrl = new URL(CLI_PATH, import.meta.url).href;
     const script = makeScript(
       moduleUrl,
-      `globalThis.fetch = () => Promise.resolve({ ok: true, json: () => Promise.resolve({ tag_name: "v0.4.1" }) });`,
+      `globalThis.fetch = () => Promise.resolve({ ok: true, json: () => Promise.resolve({ tag_name: "v0.4.2" }) });`,
     );
     const scriptPath = join(tmp, "run.ts");
     await Deno.writeTextFile(scriptPath, script);
@@ -192,7 +192,7 @@ Deno.test("maybeNotifyUpdate — re-checks after 24h and updates state", async (
 
     const raw = await Deno.readTextFile(join(modmuxDir, "update-check.json"));
     const state = JSON.parse(raw);
-    assertEquals(state.latestVersion, "0.4.1");
+    assertEquals(state.latestVersion, "0.4.2");
     const lastChecked = new Date(state.lastChecked).getTime();
     assertEquals(Date.now() - lastChecked < 60_000, true);
   } finally {
